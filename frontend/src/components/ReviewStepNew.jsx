@@ -42,11 +42,11 @@ const ReviewStepNew = ({
   };
 
   const getGarmentDisplay = (item) => {
-    return item.garmentType === \"Other\" ? item.otherGarment : item.garmentType;
+    return item.garmentType === "Other" ? item.otherGarment : item.garmentType;
   };
 
   const getColorDisplay = (item) => {
-    return item.color === \"Custom\" ? item.customColor : item.color;
+    return item.color === "Custom" ? item.customColor : item.color;
   };
 
   const getItemPrice = (item) => {
