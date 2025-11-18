@@ -230,8 +230,30 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                     <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                         <h3 style="margin-top: 0; color: #111827;">Order Items</h3>
                         <table style="width: 100%; border-collapse: collapse;">
-                            {items_html}
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #e5e7eb;">Item</th>
+                                    <th style="padding: 12px; text-align: center; border-bottom: 2px solid #e5e7eb;">Quantity</th>
+                                    <th style="padding: 12px; text-align: right; border-bottom: 2px solid #e5e7eb;">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {items_html}
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f9fafb;">
+                                    <td colspan="2" style="padding: 12px; text-align: right; border-top: 2px solid #e5e7eb;"><strong>Subtotal:</strong></td>
+                                    <td style="padding: 12px; text-align: right; border-top: 2px solid #e5e7eb;"><strong>AWG {order_subtotal:.2f}</strong></td>
+                                </tr>
+                                <tr style="background: #f9fafb;">
+                                    <td colspan="2" style="padding: 12px; text-align: right;"><em style="color: #6b7280;">Approx USD:</em></td>
+                                    <td style="padding: 12px; text-align: right;"><em style="color: #6b7280;">${(order_subtotal / 1.75):.2f}</em></td>
+                                </tr>
+                            </tfoot>
                         </table>
+                        <p style="margin-top: 15px; padding: 10px; background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; font-size: 14px;">
+                            <strong>Note:</strong> Prices shown are estimates based on current pricing tiers. Final pricing may vary and will be confirmed before production.
+                        </p>
                     </div>
                     
                     <div style="background: #111827; color: white; padding: 20px; border-radius: 8px; text-align: center;">
