@@ -129,6 +129,37 @@ const Success = () => {
 
       {/* Content */}
       <div className="max-w-[460px] mx-auto px-6 py-6 space-y-6">
+        {/* Currency Toggle */}
+        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">View Prices In</span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrency("AWG")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currency === "AWG"
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                AWG
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrency("USD")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currency === "USD"
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                USD ($)
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Order Number */}
         <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
           <p className="text-sm text-gray-500 mb-1">Order Number</p>
