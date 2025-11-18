@@ -65,6 +65,10 @@ const OrderForm = () => {
       toast.error("Artwork status is required when customization is enabled");
       return false;
     }
+    if (orderDetails.customizationNeeded && orderDetails.artworkStatus === "Other" && !orderDetails.artworkStatusOther.trim()) {
+      toast.error("Please specify the artwork status");
+      return false;
+    }
     return true;
   };
 
