@@ -206,6 +206,10 @@ const OrderForm = () => {
             items={items}
             confirmed={confirmed}
             setConfirmed={setConfirmed}
+            signatureEnabled={signatureEnabled}
+            setSignatureEnabled={setSignatureEnabled}
+            signature={signature}
+            setSignature={setSignature}
           />
         )}
       </div>
