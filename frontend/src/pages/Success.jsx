@@ -16,6 +16,7 @@ const Success = () => {
   
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState("AWG");
 
   useEffect(() => {
     if (!orderNumber) {
