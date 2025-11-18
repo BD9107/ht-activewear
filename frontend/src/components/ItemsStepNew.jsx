@@ -361,12 +361,14 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
               <span className="text-base font-medium">Item Quantity</span>
               <span className="text-xl font-bold" data-testid={`item-total-${index}`}>{getItemTotal(item)} pcs</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-blue-50 text-blue-900 rounded-xl border border-blue-200">
-              <span className="text-base font-medium">Item Price</span>
-              <span className="text-xl font-bold" data-testid={`item-price-${index}`}>
-                {formatPrice(getItemPrice(item), currencyToggle)}
-              </span>
-            </div>
+            {showPricing && pricingData && (
+              <div className="flex items-center justify-between p-4 bg-blue-50 text-blue-900 rounded-xl border border-blue-200">
+                <span className="text-base font-medium">Item Price</span>
+                <span className="text-xl font-bold" data-testid={`item-price-${index}`}>
+                  {formatPrice(getItemPrice(item), currencyToggle)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Item Notes */}
