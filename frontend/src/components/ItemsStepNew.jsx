@@ -248,7 +248,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency }) => {
                   {item.color === colorOption.value && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                        ["White", "Yellow", "Seafoam", "Green-Yellow"].includes(colorOption.value)
+                        colorOption.value === "White"
                           ? "bg-gray-900 text-white"
                           : "bg-white text-gray-900"
                       }`}>
