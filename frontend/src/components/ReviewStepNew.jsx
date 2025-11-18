@@ -287,4 +287,4 @@ const ReviewStepNew = ({
   );
 };
 
-export default ReviewStep;
+export default ReviewStepNew;
