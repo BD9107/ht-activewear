@@ -90,6 +90,126 @@ const Success = () => {
     return orderData.items.reduce((total, item) => total + calculateItemPrice(item), 0);
   };
 
+  const generatePDF = () => {
+    if (!orderData) return;
+
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont(undefined, 'bold');
+    doc.text('HT ACTIVEWEAR', pageWidth / 2, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'normal');
+    doc.text('Order Receipt', pageWidth / 2, 28, { align: 'center' });
+
+    // Order Number
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Order #${orderNumber}`, 20, 45);
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(new Date(orderData.order.Timestamp).toLocaleString(), 20, 52);
+
+    // Customer Info
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('Customer Information', 20, 65);
+    
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    let yPos = 72;
+    doc.text(`Name: ${orderData.order['Customer Name']}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Email: ${orderData.order['Email']}`, 20, yPos);
+    if (orderData.order['Phone']) {
+      yPos += 6;
+      doc.text(`Phone: ${orderData.order['Phone']}`, 20, yPos);
+    }
+    if (orderData.order['Notes']) {
+      yPos += 6;
+      doc.text(`Notes: ${orderData.order['Notes']}`, 20, yPos);
+    }
+
+    // Customization
+    if (orderData.order['Customization Needed']) {
+      yPos += 12;
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text('Customization', 20, yPos);
+      
+      yPos += 7;
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Type: ${orderData.order['Customization Type']}`, 20, yPos);
+      yPos += 6;
+      doc.text(`Artwork Status: ${orderData.order['Artwork Status']}${orderData.order['Artwork Status'] === 'Other' && orderData.order['Artwork Status Other'] ? ' - ' + orderData.order['Artwork Status Other'] : ''}`, 20, yPos);
+      yPos += 6;
+      doc.text(`Details: ${orderData.order['Customization Details']}`, 20, yPos, { maxWidth: 170 });
+    }
+
+    // Items Table
+    yPos += 15;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('Order Items', 20, yPos);
+
+    yPos += 5;
+    const tableData = orderData.items.map(item => {
+      const garmentType = item['Garment Type'] === 'Other' ? item['Other Garment'] : item['Garment Type'];
+      const color = item['Color'] === 'Custom' ? item['Custom Color'] : item['Color'];
+      const sizeBreakdown = getSizeBreakdown(item['Size Breakdown']);
+      const qty = item['Total Qty'];
+      const price = calculateItemPrice(item);
+      return [
+        `${garmentType} - ${color}`,
+        sizeBreakdown,
+        `${qty} pcs`,
+        formatPrice(currency === 'USD' ? convertCurrency(price, 'AWG', 'USD') : price, currency)
+      ];
+    });
+
+    doc.autoTable({
+      startY: yPos,
+      head: [['Item', 'Sizes', 'Quantity', 'Price']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: { fillColor: [17, 24, 39], textColor: 255 },
+      styles: { fontSize: 9 },
+    });
+
+    // Total
+    yPos = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    const total = calculateOrderTotal();
+    const displayTotal = formatPrice(
+      currency === 'USD' ? convertCurrency(total, 'AWG', 'USD') : total,
+      currency
+    );
+    doc.text(`Order Total: ${displayTotal}`, 20, yPos);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Total Quantity: ${orderData.order['Order Total Qty']} pieces`, 20, yPos + 7);
+
+    // Footer
+    yPos = doc.internal.pageSize.height - 30;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.text('Contact Information', 20, yPos);
+    doc.setFont(undefined, 'normal');
+    doc.text('Indy Chan - HT Activewear', 20, yPos + 6);
+    doc.text('WhatsApp/Call: (297) 594-2982', 20, yPos + 12);
+    doc.text('Email: customorders@blindingmedia.com', 20, yPos + 18);
+
+    // Save PDF
+    doc.save(`HT-Activewear-Order-${orderNumber}.pdf`);
+    toast.success('PDF receipt downloaded!');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
