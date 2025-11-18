@@ -179,29 +179,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
               </div>
             </div>
 
-            {/* Artwork Status */}
-            <div className="space-y-2">
-              <Label className="text-base font-medium text-gray-900">
-                Artwork Status <span className="text-red-500">*</span>
-              </Label>
-              <Select
-                value={orderDetails.artworkStatus}
-                onValueChange={(value) => handleChange('artworkStatus', value)}
-              >
-                <SelectTrigger className="h-12 text-base rounded-xl" data-testid="artwork-status-select">
-                  <SelectValue placeholder="Select artwork status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Will Upload Later">Will Upload Later</SelectItem>
-                  <SelectItem value="Will Email Separately">Will Email Separately</SelectItem>
-                  <SelectItem value="Already Emailed">Already Emailed</SelectItem>
-                  <SelectItem value="Already Uploaded">Already Uploaded</SelectItem>
-                  <SelectItem value="Not Needed">Not Needed</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Customization Details */}
             <div className="space-y-2">
               <Label htmlFor="customizationDetails" className="text-base font-medium text-gray-900">
@@ -233,6 +210,46 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
                 data-testid="artwork-url-input"
               />
             </div>
+
+            {/* Artwork Status */}
+            <div className="space-y-2">
+              <Label className="text-base font-medium text-gray-900">
+                Artwork Status <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={orderDetails.artworkStatus}
+                onValueChange={(value) => handleChange('artworkStatus', value)}
+              >
+                <SelectTrigger className="h-12 text-base rounded-xl" data-testid="artwork-status-select">
+                  <SelectValue placeholder="Select artwork status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Will Upload Later">Will Upload Later</SelectItem>
+                  <SelectItem value="Will Email Separately">Will Email Separately</SelectItem>
+                  <SelectItem value="Already Emailed">Already Emailed</SelectItem>
+                  <SelectItem value="Already Uploaded">Already Uploaded</SelectItem>
+                  <SelectItem value="Not Needed">Not Needed</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Other Artwork Status */}
+            {orderDetails.artworkStatus === "Other" && (
+              <div className="space-y-2">
+                <Label htmlFor="artworkStatusOther" className="text-base font-medium text-gray-900">
+                  Specify Artwork Status <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="artworkStatusOther"
+                  value={orderDetails.artworkStatusOther || ""}
+                  onChange={(e) => handleChange('artworkStatusOther', e.target.value)}
+                  placeholder="Please specify..."
+                  className="h-12 text-base rounded-xl border-gray-300"
+                  data-testid="artwork-status-other-input"
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
