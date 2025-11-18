@@ -173,7 +173,7 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
                   <div className="text-center">
                     <div className="text-2xl mb-1">🧵</div>
                     <div className="font-semibold">Embroidery</div>
-                    <div className="text-xs text-gray-500">+ƒ10/item</div>
+                    <div className="text-xs text-gray-500">+AWG 10/item</div>
                   </div>
                 </button>
               </div>
