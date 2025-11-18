@@ -137,6 +137,47 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
 
         {orderDetails.customizationNeeded && (
           <div className="space-y-4 pt-4 border-t border-gray-200">
+            {/* Customization Type */}
+            <div className="space-y-2">
+              <Label className="text-base font-medium text-gray-900">
+                Customization Type <span className="text-red-500">*</span>
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleChange('customizationType', 'Printing')}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    orderDetails.customizationType === 'Printing'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  data-testid="customization-type-printing"
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🖨️</div>
+                    <div className="font-semibold">Printing</div>
+                    <div className="text-xs text-gray-500">Included</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChange('customizationType', 'Embroidery')}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    orderDetails.customizationType === 'Embroidery'
+                      ? 'border-gray-900 bg-gray-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  data-testid="customization-type-embroidery"
+                >
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🧵</div>
+                    <div className="font-semibold">Embroidery</div>
+                    <div className="text-xs text-gray-500">+ƒ10/item</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
             {/* Customization Details */}
             <div className="space-y-2">
               <Label htmlFor="customizationDetails" className="text-base font-medium text-gray-900">
@@ -152,7 +193,7 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
               />
             </div>
 
-            {/* Artwork Upload - Temporarily Disabled */}
+            {/* Artwork URL */}
             <div className="space-y-2">
               <Label htmlFor="artworkUrl" className="text-base font-medium text-gray-900">
                 Artwork URL (optional)
@@ -167,7 +208,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
                 className="h-12 text-base rounded-xl border-gray-300"
                 data-testid="artwork-url-input"
               />
-              <p className="text-xs text-gray-400 italic">Note: File upload temporarily unavailable. Please share a link instead.</p>
             </div>
           </div>
         )}
