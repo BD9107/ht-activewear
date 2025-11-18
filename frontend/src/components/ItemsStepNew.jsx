@@ -168,7 +168,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency }) => {
                   key={garment.value}
                   type="button"
                   onClick={() => updateItem(index, 'garmentType', garment.value)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
                     item.garmentType === garment.value
                       ? "border-gray-900 bg-gray-50"
                       : "border-gray-300 hover:border-gray-400"
@@ -176,23 +176,23 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency }) => {
                   data-testid={`garment-${index}-${garment.value}`}
                 >
                   {/* Icon - Use emoji by default, uncomment below for image icons */}
-                  <div className="text-xl flex-shrink-0">{garment.icon}</div>
+                  <div className="text-2xl">{garment.icon}</div>
                   {/* For custom image icons (48x48px recommended):
                   <img 
                     src={garment.icon} 
                     alt={garment.label}
-                    className="w-10 h-10 flex-shrink-0 object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                   */}
                   
-                  <div className="flex-1 text-left">
-                    <div className="text-sm font-semibold text-gray-900">{garment.label}</div>
-                  </div>
-                  <div className="text-sm font-bold text-blue-600 flex-shrink-0">
-                    {formatPrice(garment.price, currencyToggle)}
+                  <div className="text-center">
+                    <div className="text-xs font-semibold text-gray-900 leading-tight">{garment.label}</div>
+                    <div className="text-xs font-bold text-blue-600 mt-1">
+                      {formatPrice(garment.price, currencyToggle)}
+                    </div>
                   </div>
                   {item.garmentType === garment.value && (
-                    <div className="w-5 h-5 bg-gray-900 text-white rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="absolute top-1 right-1 w-5 h-5 bg-gray-900 text-white rounded-full flex items-center justify-center">
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
                       </svg>
