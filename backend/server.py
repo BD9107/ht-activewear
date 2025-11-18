@@ -25,10 +25,16 @@ base_id = os.environ['AIRTABLE_BASE_ID']
 try:
     orders_table = airtable_api.table(base_id, 'Orders')
     items_table = airtable_api.table(base_id, 'Order Items')
+    pricing_table = airtable_api.table(base_id, 'Garment Pricing')
+    order_discounts_table = airtable_api.table(base_id, 'Order Discounts')
+    customer_discounts_table = airtable_api.table(base_id, 'Customer Discounts')
 except Exception as e:
     logging.warning(f"Airtable tables not yet created: {e}")
     orders_table = None
     items_table = None
+    pricing_table = None
+    order_discounts_table = None
+    customer_discounts_table = None
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
