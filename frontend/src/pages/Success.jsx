@@ -277,13 +277,32 @@ const Success = () => {
           </div>
         </div>
 
-        {/* Order Total */}
-        <div className="bg-gray-900 text-white rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold">Order Total Quantity</span>
-            <span className="text-2xl font-bold" data-testid="success-order-total">
-              {orderData.order['Order Total Qty']} pcs
-            </span>
+        {/* Order Summary */}
+        <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-base font-medium">Total Quantity</span>
+              <span className="text-xl font-bold" data-testid="success-order-total-qty">
+                {orderData.order['Order Total Qty']} pcs
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-3 border-t border-gray-600">
+              <span className="text-lg font-semibold">Order Total</span>
+              <span className="text-3xl font-bold" data-testid="success-order-total-price">
+                {formatPrice(
+                  currency === 'USD' 
+                    ? convertCurrency(calculateOrderTotal(), 'AWG', 'USD') 
+                    : calculateOrderTotal(), 
+                  currency
+                )}
+              </span>
+            </div>
+            <div className="text-sm text-gray-300">
+              {currency === "AWG" 
+                ? `≈ ${formatPrice(calculateOrderTotal() / 1.75, "USD")}`
+                : `≈ ${formatPrice(calculateOrderTotal() * 1.75, "AWG")}`
+              }
+            </div>
           </div>
         </div>
 
