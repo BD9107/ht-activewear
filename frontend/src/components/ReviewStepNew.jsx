@@ -32,8 +32,17 @@ const ReviewStepNew = ({
     return parts.join(' • ');
   };
 
-  const getOrderTotal = () => {
+  const getOrderTotalQty = () => {
     return items.reduce((sum, item) => sum + getItemTotal(item), 0);
+  };
+
+  const getOrderTotalPrice = () => {
+    return calculateOrderTotal(items, orderDetails.customizationType);
+  };
+
+  const getItemPrice = (item) => {
+    const qty = getItemTotal(item);
+    return calculateItemPrice(item.garmentType, orderDetails.customizationType, qty);
   };
 
   const getGarmentDisplay = (item) => {
