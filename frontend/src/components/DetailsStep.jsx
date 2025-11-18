@@ -152,29 +152,22 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
               />
             </div>
 
-            {/* Artwork Upload */}
+            {/* Artwork Upload - Temporarily Disabled */}
             <div className="space-y-2">
-              <Label htmlFor="artwork" className="text-base font-medium text-gray-900">
-                Upload Artwork (optional)
+              <Label htmlFor="artworkUrl" className="text-base font-medium text-gray-900">
+                Artwork URL (optional)
               </Label>
-              <p className="text-sm text-gray-500 mb-2">PNG, JPEG, or PDF (max 10MB)</p>
-              <div className="relative">
-                <input
-                  id="artwork"
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg,application/pdf"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                  className="block w-full text-base text-gray-900 border border-gray-300 rounded-xl cursor-pointer bg-white file:mr-4 file:py-3 file:px-4 file:rounded-l-xl file:border-0 file:text-base file:font-medium file:bg-gray-900 file:text-white hover:file:bg-gray-800 file:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="artwork-upload-input"
-                />
-              </div>
-              {uploading && <p className="text-sm text-blue-600">Uploading...</p>}
-              {orderDetails.artworkUrl && (
-                <p className="text-sm text-green-600" data-testid="artwork-uploaded-message">
-                  ✓ Artwork uploaded successfully
-                </p>
-              )}
+              <p className="text-sm text-gray-500 mb-2">Provide a link to your artwork (Google Drive, Dropbox, etc.)</p>
+              <Input
+                id="artworkUrl"
+                type="url"
+                value={orderDetails.artworkUrl}
+                onChange={(e) => handleChange('artworkUrl', e.target.value)}
+                placeholder="https://drive.google.com/..."
+                className="h-12 text-base rounded-xl border-gray-300"
+                data-testid="artwork-url-input"
+              />
+              <p className="text-xs text-gray-400 italic">Note: File upload temporarily unavailable. Please share a link instead.</p>
             </div>
           </div>
         )}
