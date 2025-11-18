@@ -287,15 +287,28 @@ const Success = () => {
           <p className="text-sm text-gray-500 mb-1">Order Number</p>
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-gray-900" data-testid="order-number">{orderNumber}</p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => copyToClipboard(orderNumber)}
-              className="rounded-full"
-              data-testid="copy-order-number"
-            >
-              <FileText className="w-4 h-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyToClipboard(orderNumber)}
+                className="rounded-full"
+                data-testid="copy-order-number"
+                title="Copy order number"
+              >
+                <FileText className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generatePDF}
+                className="rounded-full"
+                data-testid="download-pdf-button"
+                title="Download PDF receipt"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
