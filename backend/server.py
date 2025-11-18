@@ -157,11 +157,6 @@ async def submit_order(submission: OrderSubmission):
         order_total_qty = sum(calculate_item_total(item.sizes) for item in submission.items)
         
         # Prepare Orders table data
-        # If artwork status is "Other", append the custom text
-        artwork_status_display = submission.order.artworkStatus or ""
-        if submission.order.artworkStatus == "Other" and submission.order.artworkStatusOther:
-            artwork_status_display = f"Other: {submission.order.artworkStatusOther}"
-        
         order_data = {
             "Timestamp": datetime.now(timezone.utc).isoformat(),
             "Order Number": order_number,
@@ -172,7 +167,8 @@ async def submit_order(submission: OrderSubmission):
             "Customization Needed": submission.order.customizationNeeded,
             "Customization Type": submission.order.customizationType or "",
             "Customization Details": submission.order.customizationDetails or "",
-            "Artwork Status": artwork_status_display,
+            "Artwork Status": submission.order.artworkStatus or "",
+            "Artwork Status Other": submission.order.artworkStatusOther or "",
             "Artwork": submission.order.artworkUrl or "",
             "Currency": submission.order.currency,
             "Signature": submission.order.signature or "",
