@@ -168,7 +168,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency }) => {
                   key={garment.value}
                   type="button"
                   onClick={() => updateItem(index, 'garmentType', garment.value)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                  className={`relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
                     item.garmentType === garment.value
                       ? "border-gray-900 bg-gray-50"
                       : "border-gray-300 hover:border-gray-400"
