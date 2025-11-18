@@ -169,11 +169,11 @@ const Success = () => {
                   {orderData.order['Customization Details']}
                 </p>
               </div>
-              {orderData.order['Artwork URL'] && (
+              {orderData.order['Artwork'] && (
                 <div>
                   <p className="text-sm text-gray-500">Artwork</p>
                   <a
-                    href={orderData.order['Artwork URL']}
+                    href={orderData.order['Artwork']}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-base text-blue-600 hover:underline"
