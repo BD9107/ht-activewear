@@ -210,6 +210,24 @@ const Success = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Customization</h3>
             <div className="space-y-2">
               <div>
+                <p className="text-sm text-gray-500">Type</p>
+                <p className="text-base font-medium text-gray-900">
+                  {orderData.order['Customization Type']}
+                  {orderData.order['Customization Type'] === 'Embroidery' && (
+                    <span className="ml-2 text-sm text-blue-600">(+AWG 10 per item)</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Artwork Status</p>
+                <p className="text-base font-medium text-gray-900">
+                  {orderData.order['Artwork Status']}
+                  {orderData.order['Artwork Status'] === 'Other' && orderData.order['Artwork Status Other'] && (
+                    <span className="text-gray-600"> - {orderData.order['Artwork Status Other']}</span>
+                  )}
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-gray-500">Details</p>
                 <p className="text-base text-gray-900" data-testid="success-customization-details">
                   {orderData.order['Customization Details']}
