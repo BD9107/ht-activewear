@@ -201,7 +201,7 @@ const OrderForm = () => {
           />
         )}
         {currentStep === 3 && (
-          <ReviewStep
+          <ReviewStepNew
             orderDetails={orderDetails}
             items={items}
             confirmed={confirmed}
