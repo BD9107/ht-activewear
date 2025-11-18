@@ -296,7 +296,7 @@ const Success = () => {
                 data-testid="copy-order-number"
                 title="Copy order number"
               >
-                <FileText className="w-4 h-4" />
+                <Copy className="w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
