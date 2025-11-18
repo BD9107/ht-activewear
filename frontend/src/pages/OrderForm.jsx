@@ -186,7 +186,12 @@ const OrderForm = () => {
           />
         )}
         {currentStep === 2 && (
-          <ItemsStep items={items} setItems={setItems} />
+          <ItemsStepNew 
+            items={items} 
+            setItems={setItems}
+            customizationType={orderDetails.customizationType}
+            currency={orderDetails.currency}
+          />
         )}
         {currentStep === 3 && (
           <ReviewStep
