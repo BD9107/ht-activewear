@@ -106,12 +106,14 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
   };
 
   const getItemPrice = (item) => {
+    if (!pricingData) return 0;
     const qty = getItemTotal(item);
-    return calculateItemPrice(item.garmentType, customizationType, qty);
+    return calculateItemPrice(pricingData, item.garmentType, customizationType, qty);
   };
 
-  const getOrderTotal = () => {
-    return items.reduce((total, item) => total + getItemPrice(item), 0);
+  const getOrderTotalData = () => {
+    if (!pricingData) return { subtotal: 0, total: 0, discounts: [] };
+    return calculateOrderTotal(pricingData, items, customizationType, customerEmail);
   };
 
   return (
