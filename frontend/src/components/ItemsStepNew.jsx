@@ -46,8 +46,21 @@ const COLORS = [
 
 const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
 
-const ItemsStepNew = ({ items, setItems, customizationType, currency }) => {
+const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEmail }) => {
   const [currencyToggle, setCurrencyToggle] = useState(currency || "AWG");
+  const [pricingData, setPricingData] = useState(null);
+  const [showPricing, setShowPricing] = useState(true);
+  const [loadingPricing, setLoadingPricing] = useState(true);
+
+  useEffect(() => {
+    const loadPricing = async () => {
+      const data = await fetchPricing();
+      setPricingData(data);
+      setShowPricing(data.show_pricing);
+      setLoadingPricing(false);
+    };
+    loadPricing();
+  }, []);
 
   const updateItem = (index, field, value) => {
     const newItems = [...items];
