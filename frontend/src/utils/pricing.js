@@ -46,5 +46,6 @@ export const convertCurrency = (amount, fromCurrency, toCurrency) => {
 };
 
 export const formatPrice = (amount, currency = 'AWG') => {
-  return `${currency === 'AWG' ? 'ƒ' : '$'}${amount.toFixed(2)}`;
+  const symbol = currency === 'AWG' ? 'AWG ' : '$';
+  return `${symbol}${amount.toFixed(2)}`;
 };
