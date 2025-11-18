@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
@@ -176,6 +177,29 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
                   </div>
                 </button>
               </div>
+            </div>
+
+            {/* Artwork Status */}
+            <div className="space-y-2">
+              <Label className="text-base font-medium text-gray-900">
+                Artwork Status <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={orderDetails.artworkStatus}
+                onValueChange={(value) => handleChange('artworkStatus', value)}
+              >
+                <SelectTrigger className="h-12 text-base rounded-xl" data-testid="artwork-status-select">
+                  <SelectValue placeholder="Select artwork status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Will Upload Later">Will Upload Later</SelectItem>
+                  <SelectItem value="Will Email Separately">Will Email Separately</SelectItem>
+                  <SelectItem value="Already Emailed">Already Emailed</SelectItem>
+                  <SelectItem value="Already Uploaded">Already Uploaded</SelectItem>
+                  <SelectItem value="Not Needed">Not Needed</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Customization Details */}
