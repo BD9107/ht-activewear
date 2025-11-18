@@ -131,7 +131,7 @@ const ReviewStepNew = ({
                 <p className=\"text-base font-medium text-gray-900\" data-testid=\"review-customization-type\">
                   {orderDetails.customizationType}
                   {orderDetails.customizationType === 'Embroidery' && (
-                    <span className=\"ml-2 text-sm text-blue-600\">(+ƒ10 per item)</span>
+                    <span className=\"ml-2 text-sm text-blue-600\">(+AWG 10 per item)</span>
                   )}
                 </p>
               </div>
