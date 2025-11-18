@@ -231,7 +231,7 @@ const ReviewStepNew = ({
       </div>
 
       {/* Confirmation */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+      <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-start space-x-3">
           <Checkbox
             id="confirm"
@@ -247,6 +247,41 @@ const ReviewStepNew = ({
             I've reviewed all details and confirm that the information above is correct.
           </Label>
         </div>
+
+        {/* Signature Toggle */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+          <div>
+            <Label htmlFor="signature-toggle" className="text-base font-medium text-gray-900">
+              Add Digital Signature
+            </Label>
+            <p className="text-sm text-gray-500 mt-1">Optional - Add your signature for verification</p>
+          </div>
+          <Switch
+            id="signature-toggle"
+            checked={signatureEnabled}
+            onCheckedChange={setSignatureEnabled}
+            data-testid="signature-toggle"
+          />
+        </div>
+
+        {/* Signature Field */}
+        {signatureEnabled && (
+          <div className="space-y-2 pt-2">
+            <Label htmlFor="signature" className="text-base font-medium text-gray-900">
+              Your Signature
+            </Label>
+            <Input
+              id="signature"
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+              placeholder="Type your full name as signature"
+              className="h-12 text-base rounded-xl border-gray-300"
+              style={{ fontFamily: 'cursive' }}
+              data-testid="signature-input"
+            />
+            <p className="text-xs text-gray-500">This will be recorded with your order</p>
+          </div>
+        )}
       </div>
     </div>
   );
