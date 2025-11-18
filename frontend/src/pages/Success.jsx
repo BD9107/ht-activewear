@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Printer, Share2, FileText } from "lucide-react";
+import { CheckCircle2, Printer, Share2, FileText, Download } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { GARMENT_PRICES, CUSTOMIZATION_PRICES, formatPrice, convertCurrency } from "@/utils/pricing";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
