@@ -22,9 +22,10 @@ const OrderForm = () => {
     phone: "",
     notes: "",
     customizationNeeded: false,
+    customizationType: "Printing",
     customizationDetails: "",
     artworkUrl: "",
-    currency: "USD",
+    currency: "AWG",
   });
 
   const [items, setItems] = useState([
