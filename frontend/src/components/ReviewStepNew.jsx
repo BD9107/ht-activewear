@@ -126,6 +126,21 @@ const ReviewStepNew = ({
           {orderDetails.customizationNeeded && (
             <>
               <div>
+                <p className="text-sm text-gray-500">Type</p>
+                <p className="text-base font-medium text-gray-900" data-testid="review-customization-type">
+                  {orderDetails.customizationType}
+                  {orderDetails.customizationType === 'Embroidery' && (
+                    <span className="ml-2 text-sm text-blue-600">(+AWG 10 per item)</span>
+                  )}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Artwork Status</p>
+                <p className="text-base font-medium text-gray-900" data-testid="review-artwork-status">
+                  {orderDetails.artworkStatus}
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-gray-500">Details</p>
                 <p className="text-base text-gray-900" data-testid="review-customization-details">{orderDetails.customizationDetails}</p>
               </div>
