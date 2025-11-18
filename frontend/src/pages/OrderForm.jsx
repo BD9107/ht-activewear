@@ -206,6 +206,7 @@ const OrderForm = () => {
             setItems={setItems}
             customizationType={orderDetails.customizationType}
             currency={orderDetails.currency}
+            customerEmail={orderDetails.email}
           />
         )}
         {currentStep === 3 && (
