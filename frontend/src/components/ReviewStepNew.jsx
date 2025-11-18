@@ -70,7 +70,7 @@ const ReviewStepNew = ({
                   : \"bg-gray-100 text-gray-600 hover:bg-gray-200\"
               }`}
             >
-              AWG (ƒ)
+              AWG
             </button>
             <button
               type=\"button\"
