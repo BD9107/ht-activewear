@@ -1,7 +1,21 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency } from "@/utils/pricing";
+import { useState } from "react";
 
-const ReviewStep = ({ orderDetails, items, confirmed, setConfirmed }) => {
+const ReviewStepNew = ({ 
+  orderDetails, 
+  items, 
+  confirmed, 
+  setConfirmed,
+  signatureEnabled,
+  setSignatureEnabled,
+  signature,
+  setSignature
+}) => {
+  const [currency, setCurrency] = useState("AWG");
   const getItemTotal = (item) => {
     return Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
   };
