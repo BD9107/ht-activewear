@@ -112,7 +112,7 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
           id="notes"
           value={orderDetails.notes}
           onChange={(e) => handleChange('notes', e.target.value)}
-          placeholder="Any additional information..."
+          placeholder="e.g., Rush order, specific delivery date, special instructions..."
           className="min-h-[100px] text-base rounded-xl border-gray-300 resize-none"
           data-testid="notes-textarea"
         />
