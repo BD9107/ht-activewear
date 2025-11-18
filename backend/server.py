@@ -106,6 +106,129 @@ def calculate_item_total(sizes: Dict[str, int]) -> int:
     """Calculate total quantity for an item"""
     return sum(sizes.values())
 
+async def send_order_confirmation_email(order_data: dict, submission: OrderSubmission):
+    """Send order confirmation emails to customer and admin"""
+    try:
+        smtp_host = os.environ.get('SMTP_HOST')
+        smtp_port = int(os.environ.get('SMTP_PORT', 465))
+        smtp_username = os.environ.get('SMTP_USERNAME')
+        smtp_password = os.environ.get('SMTP_PASSWORD')
+        smtp_from_email = os.environ.get('SMTP_FROM_EMAIL')
+        smtp_from_name = os.environ.get('SMTP_FROM_NAME', 'HT Activewear Orders')
+        admin_email = os.environ.get('ADMIN_EMAIL')
+        
+        # Skip if SMTP not configured
+        if not all([smtp_host, smtp_username, smtp_password]):
+            logging.warning("SMTP not configured, skipping email")
+            return
+        
+        order_number = order_data.get('Order Number')
+        customer_email = submission.order.email
+        
+        # Calculate order total
+        order_total_qty = sum(calculate_item_total(item.sizes) for item in submission.items)
+        
+        # Build items HTML
+        items_html = ""
+        for item in submission.items:
+            item_total = calculate_item_total(item.sizes)
+            size_breakdown = calculate_size_breakdown(item.sizes)
+            garment = item.garmentType if item.garmentType != "Other" else item.otherGarment
+            color = item.color if item.color != "Custom" else item.customColor
+            
+            items_html += f"""
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                    <strong>{garment}</strong> - {color}<br>
+                    <span style="color: #6b7280; font-size: 14px;">{size_breakdown}</span>
+                </td>
+                <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+                    <strong>{item_total} pcs</strong>
+                </td>
+            </tr>
+            """
+        
+        # Email HTML template
+        email_html = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: #111827; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0;">Order Confirmation</h1>
+                    <p style="margin: 10px 0 0 0; font-size: 18px;">Thank you for your order!</p>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h2 style="margin-top: 0; color: #111827;">Order #{order_number}</h2>
+                        <p style="color: #6b7280; margin: 5px 0;">Placed on {datetime.now(timezone.utc).strftime('%B %d, %Y at %I:%M %p UTC')}</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; color: #111827;">Customer Information</h3>
+                        <p style="margin: 5px 0;"><strong>Name:</strong> {submission.order.customerName}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> {submission.order.email}</p>
+                        {f'<p style="margin: 5px 0;"><strong>Phone:</strong> {submission.order.phone}</p>' if submission.order.phone else ''}
+                        {f'<p style="margin: 5px 0;"><strong>Notes:</strong> {submission.order.notes}</p>' if submission.order.notes else ''}
+                    </div>
+                    
+                    {f'''<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; color: #111827;">Customization</h3>
+                        <p style="margin: 5px 0;"><strong>Type:</strong> {submission.order.customizationType}</p>
+                        <p style="margin: 5px 0;"><strong>Artwork Status:</strong> {submission.order.artworkStatus}{f" - {submission.order.artworkStatusOther}" if submission.order.artworkStatus == "Other" else ""}</p>
+                        <p style="margin: 5px 0;"><strong>Details:</strong> {submission.order.customizationDetails}</p>
+                        {f'<p style="margin: 5px 0;"><strong>Artwork:</strong> <a href="{submission.order.artworkUrl}">{submission.order.artworkUrl}</a></p>' if submission.order.artworkUrl else ''}
+                    </div>''' if submission.order.customizationNeeded else ''}
+                    
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; color: #111827;">Order Items</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            {items_html}
+                        </table>
+                    </div>
+                    
+                    <div style="background: #111827; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <h3 style="margin: 0;">Order Total</h3>
+                        <p style="font-size: 32px; font-weight: bold; margin: 10px 0;">{order_total_qty} pieces</p>
+                    </div>
+                </div>
+                
+                <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none;">
+                    <p style="margin: 5px 0; color: #6b7280;">We'll contact you shortly to confirm your order details and provide pricing.</p>
+                    <p style="margin: 15px 0 5px 0; color: #6b7280; font-size: 14px;">HT Activewear | {smtp_from_email}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Create message
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f"Order Confirmation - #{order_number}"
+        msg['From'] = f"{smtp_from_name} <{smtp_from_email}>"
+        msg.attach(MIMEText(email_html, 'html'))
+        
+        # Send to customer
+        msg['To'] = customer_email
+        with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+            server.login(smtp_username, smtp_password)
+            server.send_message(msg)
+        
+        logging.info(f"Order confirmation sent to customer: {customer_email}")
+        
+        # Send to admin
+        if admin_email:
+            msg['To'] = admin_email
+            with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
+                server.login(smtp_username, smtp_password)
+                server.send_message(msg)
+            
+            logging.info(f"Order confirmation sent to admin: {admin_email}")
+            
+    except Exception as e:
+        logging.error(f"Error sending email: {e}")
+        # Don't fail the order if email fails
+
 async def upload_to_google_drive(file_content: bytes, filename: str, mime_type: str) -> str:
     """Upload file to Google Drive via Apps Script"""
     try:
