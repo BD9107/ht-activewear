@@ -124,7 +124,10 @@ const OrderForm = () => {
     setIsSubmitting(true);
     try {
       const response = await axios.post(`${API}/submitOrder`, {
-        order: orderDetails,
+        order: {
+          ...orderDetails,
+          signature: signatureEnabled ? signature : ""
+        },
         items: items,
       });
 
