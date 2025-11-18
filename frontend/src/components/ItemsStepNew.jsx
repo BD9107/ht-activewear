@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Minus, Plus, Trash2, Shirt, Zap } from "lucide-react";
-import { calculateItemPrice, formatPrice } from "@/utils/pricing";
-import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Minus, Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { calculateItemPrice, formatPrice, calculateOrderTotal, fetchPricing } from "@/utils/dynamicPricing";
+import { useState, useEffect } from "react";
 
 // GARMENT ICON CONFIGURATION
 // To use custom images instead of emojis:
