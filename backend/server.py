@@ -37,9 +37,10 @@ class OrderDetails(BaseModel):
     phone: Optional[str] = ""
     notes: Optional[str] = ""
     customizationNeeded: bool
+    customizationType: Optional[str] = "Printing"
     customizationDetails: Optional[str] = ""
     artworkUrl: Optional[str] = ""
-    currency: str = "USD"
+    currency: str = "AWG"
 
 class OrderItem(BaseModel):
     lineNumber: int
