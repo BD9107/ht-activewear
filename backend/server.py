@@ -131,16 +131,54 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         order_number = order_data.get('Order Number')
         customer_email = submission.order.email
         
-        # Calculate order total
+        # Calculate order total and pricing
         order_total_qty = sum(calculate_item_total(item.sizes) for item in submission.items)
         
-        # Build items HTML
+        # Fetch pricing data for calculations
+        try:
+            pricing_data = {
+                "garment_pricing": [],
+                "customization_prices": {"Printing": 0, "Embroidery": 10}
+            }
+            if pricing_table:
+                records = pricing_table.all()
+                pricing_data["garment_pricing"] = [
+                    {
+                        "garment_type": r['fields'].get('Garment Type'),
+                        "min_qty": r['fields'].get('Min Quantity', 1),
+                        "max_qty": r['fields'].get('Max Quantity', 999),
+                        "price": r['fields'].get('Price', 0)
+                    }
+                    for r in records
+                ]
+        except:
+            pricing_data = {
+                "garment_pricing": [],
+                "customization_prices": {"Printing": 0, "Embroidery": 10}
+            }
+        
+        # Helper function to get price
+        def get_item_price(garment_type, quantity, customization_type):
+            base_price = 0
+            for p in pricing_data["garment_pricing"]:
+                if (p["garment_type"] == garment_type and 
+                    quantity >= p["min_qty"] and 
+                    quantity <= p["max_qty"]):
+                    base_price = p["price"]
+                    break
+            customization_cost = pricing_data["customization_prices"].get(customization_type, 0)
+            return (base_price + customization_cost) * quantity
+        
+        # Build items HTML with pricing
         items_html = ""
+        order_subtotal = 0
         for item in submission.items:
             item_total = calculate_item_total(item.sizes)
             size_breakdown = calculate_size_breakdown(item.sizes)
             garment = item.garmentType if item.garmentType != "Other" else item.otherGarment
             color = item.color if item.color != "Custom" else item.customColor
+            item_price = get_item_price(item.garmentType, item_total, submission.order.customizationType or "Printing")
+            order_subtotal += item_price
             
             items_html += f"""
             <tr>
@@ -148,8 +186,11 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                     <strong>{garment}</strong> - {color}<br>
                     <span style="color: #6b7280; font-size: 14px;">{size_breakdown}</span>
                 </td>
-                <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+                <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: center;">
                     <strong>{item_total} pcs</strong>
+                </td>
+                <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: right;">
+                    <strong>AWG {item_price:.2f}</strong>
                 </td>
             </tr>
             """
