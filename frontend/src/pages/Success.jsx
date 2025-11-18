@@ -237,36 +237,43 @@ const Success = () => {
         <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
           <div className="space-y-4">
-            {orderData.items.map((item, index) => (
-              <div
-                key={index}
-                className="pb-4 border-b border-gray-200 last:border-0 last:pb-0"
-                data-testid={`success-item-${index}`}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900" data-testid={`success-item-title-${index}`}>
-                      {item['Garment Type'] === 'Other' ? item['Other Garment'] : item['Garment Type']} —{' '}
-                      {item['Color'] === 'Custom' ? item['Custom Color'] : item['Color']}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1" data-testid={`success-item-sizes-${index}`}>
-                      {getSizeBreakdown(item['Size Breakdown'])}
-                    </p>
-                    {item['Notes'] && (
-                      <p className="text-sm text-gray-600 mt-1 italic" data-testid={`success-item-notes-${index}`}>
-                        Note: {item['Notes']}
+            {orderData.items.map((item, index) => {
+              const itemPrice = calculateItemPrice(item);
+              const displayPrice = currency === 'USD' ? convertCurrency(itemPrice, 'AWG', 'USD') : itemPrice;
+              
+              return (
+                <div
+                  key={index}
+                  className="pb-4 border-b border-gray-200 last:border-0 last:pb-0"
+                  data-testid={`success-item-${index}`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <p className="text-base font-semibold text-gray-900" data-testid={`success-item-title-${index}`}>
+                        {item['Garment Type'] === 'Other' ? item['Other Garment'] : item['Garment Type']} —{' '}
+                        {item['Color'] === 'Custom' ? item['Custom Color'] : item['Color']}
                       </p>
-                    )}
-                  </div>
-                  <div className="text-right ml-4">
-                    <p className="text-lg font-bold text-gray-900" data-testid={`success-item-qty-${index}`}>
-                      {item['Total Qty']}
-                    </p>
-                    <p className="text-sm text-gray-500">pcs</p>
+                      <p className="text-sm text-gray-500 mt-1" data-testid={`success-item-sizes-${index}`}>
+                        {getSizeBreakdown(item['Size Breakdown'])}
+                      </p>
+                      {item['Notes'] && (
+                        <p className="text-sm text-gray-600 mt-1 italic" data-testid={`success-item-notes-${index}`}>
+                          Note: {item['Notes']}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right ml-4">
+                      <p className="text-lg font-bold text-gray-900" data-testid={`success-item-qty-${index}`}>
+                        {item['Total Qty']} pcs
+                      </p>
+                      <p className="text-sm text-blue-600 font-semibold" data-testid={`success-item-price-${index}`}>
+                        {formatPrice(displayPrice, currency)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
