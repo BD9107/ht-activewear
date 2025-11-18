@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DetailsStep from "@/components/DetailsStep";
-import ItemsStep from "@/components/ItemsStep";
+import ItemsStepNew from "@/components/ItemsStepNew";
 import ReviewStep from "@/components/ReviewStep";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
