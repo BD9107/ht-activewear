@@ -60,6 +60,10 @@ const OrderForm = () => {
       toast.error("Customization details are required when customization is enabled");
       return false;
     }
+    if (orderDetails.customizationNeeded && !orderDetails.artworkStatus) {
+      toast.error("Artwork status is required when customization is enabled");
+      return false;
+    }
     return true;
   };
 
