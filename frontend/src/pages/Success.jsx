@@ -75,6 +75,19 @@ const Success = () => {
     return sizeBreakdown || '';
   };
 
+  const calculateItemPrice = (item) => {
+    const garmentPrice = GARMENT_PRICES[item['Garment Type']] || 0;
+    const customizationType = orderData?.order?.['Customization Type'] || 'Printing';
+    const customizationCost = CUSTOMIZATION_PRICES[customizationType] || 0;
+    const totalQty = item['Total Qty'] || 0;
+    return (garmentPrice + customizationCost) * totalQty;
+  };
+
+  const calculateOrderTotal = () => {
+    if (!orderData || !orderData.items) return 0;
+    return orderData.items.reduce((total, item) => total + calculateItemPrice(item), 0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
