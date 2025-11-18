@@ -42,6 +42,8 @@ const OrderForm = () => {
   ]);
 
   const [confirmed, setConfirmed] = useState(false);
+  const [signatureEnabled, setSignatureEnabled] = useState(false);
+  const [signature, setSignature] = useState("");
 
   // Validation
   const validateDetails = () => {
