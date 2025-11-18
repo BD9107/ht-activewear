@@ -112,7 +112,8 @@ const Success = () => {
     
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(new Date(orderData.order.Timestamp).toLocaleString(), 20, 52);
+    const timestamp = orderData.order.Timestamp || orderData.order['Timestamp'] || new Date().toISOString();
+    doc.text(new Date(timestamp).toLocaleString(), 20, 52);
 
     // Customer Info
     doc.setFontSize(12);
