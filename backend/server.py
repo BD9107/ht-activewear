@@ -195,7 +195,13 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                 
                 <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none;">
                     <p style="margin: 5px 0; color: #6b7280;">We'll contact you shortly to confirm your order details and provide pricing.</p>
-                    <p style="margin: 15px 0 5px 0; color: #6b7280; font-size: 14px;">HT Activewear | {smtp_from_email}</p>
+                    <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
+                        <p style="margin: 0 0 10px 0; color: #111827; font-weight: bold;">Contact Information</p>
+                        <p style="margin: 5px 0; color: #4b5563;"><strong>Indy Chan</strong> - HT Activewear</p>
+                        <p style="margin: 5px 0; color: #4b5563;">WhatsApp/Call: <a href="tel:+2975942982" style="color: #2563eb; text-decoration: none;">(297) 594-2982</a></p>
+                        <p style="margin: 5px 0; color: #4b5563;">Email: <a href="mailto:{smtp_from_email}" style="color: #2563eb; text-decoration: none;">{smtp_from_email}</a></p>
+                    </div>
+                    <p style="margin: 15px 0 5px 0; color: #6b7280; font-size: 14px;">HT Activewear</p>
                 </div>
             </div>
         </body>
