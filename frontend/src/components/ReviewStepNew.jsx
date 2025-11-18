@@ -138,6 +138,9 @@ const ReviewStepNew = ({
                 <p className="text-sm text-gray-500">Artwork Status</p>
                 <p className="text-base font-medium text-gray-900" data-testid="review-artwork-status">
                   {orderDetails.artworkStatus}
+                  {orderDetails.artworkStatus === "Other" && orderDetails.artworkStatusOther && (
+                    <span className="text-gray-600"> - {orderDetails.artworkStatusOther}</span>
+                  )}
                 </p>
               </div>
               <div>
