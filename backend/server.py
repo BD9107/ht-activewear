@@ -335,7 +335,8 @@ async def submit_order(submission: OrderSubmission):
         else:
             raise HTTPException(status_code=500, detail="Airtable 'Order Items' table not found")
         
-        # TODO: Send email notifications (when SMTP configured)
+        # Send email notifications
+        await send_order_confirmation_email(order_data, submission)
         
         return OrderResponse(
             orderNumber=order_number,
