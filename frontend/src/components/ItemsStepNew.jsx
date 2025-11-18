@@ -118,35 +118,45 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
 
   return (
     <div className="space-y-6" data-testid="items-step">
-      {/* Currency Toggle */}
+      {/* Currency & Pricing Toggle */}
       <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-700">Currency</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setCurrencyToggle("AWG")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currencyToggle === "AWG"
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              AWG
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrencyToggle("USD")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currencyToggle === "USD"
-                  ? "bg-gray-900 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              USD ($)
-            </button>
-          </div>
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-gray-700">Show Pricing</span>
+          <Switch
+            checked={showPricing}
+            onCheckedChange={setShowPricing}
+            data-testid="pricing-toggle"
+          />
         </div>
+        {showPricing && (
+          <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+            <span className="text-sm font-medium text-gray-700">Currency</span>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrencyToggle("AWG")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currencyToggle === "AWG"
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                AWG
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrencyToggle("USD")}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currencyToggle === "USD"
+                    ? "bg-gray-900 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                USD ($)
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {items.map((item, index) => (
