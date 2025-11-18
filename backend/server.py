@@ -275,6 +275,74 @@ async def upload_to_google_drive(file_content: bytes, filename: str, mime_type: 
 async def root():
     return {"message": "HT Activewear Order API"}
 
+@api_router.get("/pricing")
+async def get_pricing():
+    """Get all pricing data from Airtable"""
+    try:
+        pricing_data = {
+            "garment_pricing": [],
+            "order_discounts": [],
+            "customer_discounts": [],
+            "customization_prices": {
+                "Printing": 0,
+                "Embroidery": 10
+            },
+            "show_pricing": os.environ.get('SHOW_PRICING', 'true').lower() == 'true'
+        }
+        
+        # Get garment pricing
+        if pricing_table:
+            records = pricing_table.all()
+            pricing_data["garment_pricing"] = [
+                {
+                    "garment_type": record['fields'].get('Garment Type'),
+                    "min_qty": record['fields'].get('Min Quantity', 1),
+                    "max_qty": record['fields'].get('Max Quantity', 999),
+                    "price": record['fields'].get('Price', 0)
+                }
+                for record in records
+            ]
+        
+        # Get order discounts
+        if order_discounts_table:
+            records = order_discounts_table.all()
+            pricing_data["order_discounts"] = [
+                {
+                    "name": record['fields'].get('Discount Name'),
+                    "min_total_qty": record['fields'].get('Min Order Total Qty', 0),
+                    "discount_type": record['fields'].get('Discount Type', 'Percentage'),
+                    "discount_value": record['fields'].get('Discount Value', 0)
+                }
+                for record in records
+            ]
+        
+        # Get customer discounts
+        if customer_discounts_table:
+            records = customer_discounts_table.all(formula="Active = TRUE()")
+            pricing_data["customer_discounts"] = [
+                {
+                    "email": record['fields'].get('Customer Email'),
+                    "discount_percentage": record['fields'].get('Discount Percentage', 0)
+                }
+                for record in records
+            ]
+        
+        return pricing_data
+        
+    except Exception as e:
+        logging.error(f"Error fetching pricing: {e}")
+        # Return default pricing if Airtable fails
+        return {
+            "garment_pricing": [],
+            "order_discounts": [],
+            "customer_discounts": [],
+            "customization_prices": {
+                "Printing": 0,
+                "Embroidery": 10
+            },
+            "show_pricing": True
+        }
+
 @api_router.post("/uploadArtwork")
 async def upload_artwork(file: UploadFile = File(...)):
     """Upload artwork file to Google Drive"""
