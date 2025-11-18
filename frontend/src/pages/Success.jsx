@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Printer, Share2, FileText, Download } from "lucide-react";
+import { CheckCircle2, Printer, Share2, Copy, Download } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { GARMENT_PRICES, CUSTOMIZATION_PRICES, formatPrice, convertCurrency } from "@/utils/pricing";
