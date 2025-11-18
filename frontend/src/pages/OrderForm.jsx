@@ -24,6 +24,7 @@ const OrderForm = () => {
     customizationNeeded: false,
     customizationType: "Printing",
     customizationDetails: "",
+    artworkStatus: "",
     artworkUrl: "",
     currency: "AWG",
   });
