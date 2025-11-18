@@ -163,35 +163,43 @@ const ReviewStepNew = ({
         </div>
       </div>
 
-      {/* Items */}
+      {/* Items with Pricing */}
       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
         <div className="space-y-4">
-          {items.map((item, index) => (
-            <div key={index} className="pb-4 border-b border-gray-200 last:border-0 last:pb-0" data-testid={`review-item-${index}`}>
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex-1">
-                  <p className="text-base font-semibold text-gray-900" data-testid={`review-item-title-${index}`}>
-                    {getGarmentDisplay(item)} — {getColorDisplay(item)}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1" data-testid={`review-item-sizes-${index}`}>
-                    {getSizeBreakdown(item.sizes)}
-                  </p>
-                  {item.notes && (
-                    <p className="text-sm text-gray-600 mt-1 italic" data-testid={`review-item-notes-${index}`}>
-                      Note: {item.notes}
+          {items.map((item, index) => {
+            const itemQty = getItemTotal(item);
+            const itemPrice = getItemPrice(item);
+            const displayPrice = currency === 'USD' ? convertCurrency(itemPrice, 'AWG', 'USD') : itemPrice;
+            
+            return (
+              <div key={index} className="pb-4 border-b border-gray-200 last:border-0 last:pb-0" data-testid={`review-item-${index}`}>
+                <div className="flex justify-between items-start mb-2">
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900" data-testid={`review-item-title-${index}`}>
+                      {getGarmentDisplay(item)} — {getColorDisplay(item)}
                     </p>
-                  )}
-                </div>
-                <div className="text-right ml-4">
-                  <p className="text-lg font-bold text-gray-900" data-testid={`review-item-qty-${index}`}>
-                    {getItemTotal(item)}
-                  </p>
-                  <p className="text-sm text-gray-500">pcs</p>
+                    <p className="text-sm text-gray-500 mt-1" data-testid={`review-item-sizes-${index}`}>
+                      {getSizeBreakdown(item.sizes)}
+                    </p>
+                    {item.notes && (
+                      <p className="text-sm text-gray-600 mt-1 italic" data-testid={`review-item-notes-${index}`}>
+                        Note: {item.notes}
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right ml-4">
+                    <p className="text-lg font-bold text-gray-900" data-testid={`review-item-qty-${index}`}>
+                      {itemQty} pcs
+                    </p>
+                    <p className="text-sm text-blue-600 font-semibold" data-testid={`review-item-price-${index}`}>
+                      {formatPrice(displayPrice, currency)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
