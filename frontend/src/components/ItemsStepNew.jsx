@@ -213,9 +213,11 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                   
                   <div className="text-center">
                     <div className="text-xs font-semibold text-gray-900 leading-tight">{garment.label}</div>
-                    <div className="text-xs font-bold text-blue-600 mt-1">
-                      {formatPrice(garment.price, currencyToggle)}
-                    </div>
+                    {showPricing && pricingData && (
+                      <div className="text-xs font-bold text-blue-600 mt-1">
+                        from {formatPrice(garment.price, currencyToggle)}
+                      </div>
+                    )}
                   </div>
                   {item.garmentType === garment.value && (
                     <div className="absolute top-1 right-1 w-5 h-5 bg-gray-900 text-white rounded-full flex items-center justify-center">
