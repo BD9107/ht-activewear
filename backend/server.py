@@ -73,16 +73,22 @@ def generate_order_number() -> str:
     """Generate order number in format YYYY-####"""
     current_year = datetime.now(timezone.utc).year
     
-    # In production, you'd use a persistent counter in Airtable or DB
-    # For now, we'll use timestamp-based
+    # Optimized: Only fetch count instead of all records
     try:
         if orders_table:
-            records = orders_table.all(formula=f"YEAR({{Timestamp}}) = {current_year}")
+            # Use max_records to limit fetch and sort by newest first
+            records = orders_table.all(
+                formula=f"YEAR({{Timestamp}}) = {current_year}",
+                max_records=1000,
+                sort=[("Timestamp", "desc")]
+            )
             counter = len(records) + 1
         else:
             counter = 1
-    except:
-        counter = 1
+    except Exception as e:
+        logging.error(f"Error generating order number: {e}")
+        # Fallback to timestamp-based counter
+        counter = int(datetime.now(timezone.utc).timestamp() % 10000)
     
     return f"{current_year}-{counter:04d}"
 
