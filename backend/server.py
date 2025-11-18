@@ -40,6 +40,7 @@ class OrderDetails(BaseModel):
     customizationType: Optional[str] = "Printing"
     customizationDetails: Optional[str] = ""
     artworkStatus: Optional[str] = ""
+    artworkStatusOther: Optional[str] = ""
     artworkUrl: Optional[str] = ""
     currency: str = "AWG"
     signature: Optional[str] = ""
