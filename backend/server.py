@@ -166,8 +166,10 @@ async def submit_order(submission: OrderSubmission):
             "Customization Needed": submission.order.customizationNeeded,
             "Customization Type": submission.order.customizationType or "",
             "Customization Details": submission.order.customizationDetails or "",
+            "Artwork Status": submission.order.artworkStatus or "",
             "Artwork": submission.order.artworkUrl or "",
             "Currency": submission.order.currency,
+            "Signature": submission.order.signature or "",
             "Order Total Qty": order_total_qty
         }
         
