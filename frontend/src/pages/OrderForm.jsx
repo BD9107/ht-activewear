@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DetailsStep from "@/components/DetailsStep";
 import ItemsStepNew from "@/components/ItemsStepNew";
-import ReviewStep from "@/components/ReviewStep";
+import ReviewStepNew from "@/components/ReviewStepNew";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import axios from "axios";
