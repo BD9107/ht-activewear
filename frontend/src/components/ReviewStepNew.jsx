@@ -55,6 +55,37 @@ const ReviewStepNew = ({
 
   return (
     <div className="space-y-6" data-testid="review-step">
+      {/* Currency Toggle */}
+      <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium text-gray-700">View Prices In</span>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrency("AWG")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currency === "AWG"
+                  ? "bg-gray-900 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              AWG
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrency("USD")}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                currency === "USD"
+                  ? "bg-gray-900 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              USD ($)
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Customer Details */}
       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Customer Details</h3>
