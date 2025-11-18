@@ -5,6 +5,14 @@ import { Minus, Plus, Trash2, Shirt, Zap } from "lucide-react";
 import { calculateItemPrice, formatPrice } from "@/utils/pricing";
 import { useState } from "react";
 
+// GARMENT ICON CONFIGURATION
+// To use custom images instead of emojis:
+// 1. Place your image files in /app/frontend/public/icons/garments/
+// 2. Recommended dimensions: 48x48px (PNG with transparent background)
+// 3. Name files: shirts.png, vneck.png, tank.png, etc.
+// 4. Update icon field to: icon: "/icons/garments/shirts.png"
+// 5. Uncomment the <img> tag in the render section below
+
 const GARMENT_TYPES = [
   { value: "Shirts", label: "Shirts", icon: "👕", price: 20 },
   { value: "V-Neck", label: "V-Neck", icon: "👔", price: 25 },
