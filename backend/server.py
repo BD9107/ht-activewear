@@ -162,6 +162,7 @@ async def submit_order(submission: OrderSubmission):
             "Phone": submission.order.phone or "",
             "Notes": submission.order.notes or "",
             "Customization Needed": submission.order.customizationNeeded,
+            "Customization Type": submission.order.customizationType or "",
             "Customization Details": submission.order.customizationDetails or "",
             "Artwork": submission.order.artworkUrl or "",
             "Currency": submission.order.currency,
