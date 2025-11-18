@@ -396,17 +396,52 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
       </Button>
 
       {/* Order Total */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-lg font-semibold">Order Total</span>
-          <span className="text-3xl font-bold" data-testid="order-total-price">
-            {formatPrice(getOrderTotal(), currencyToggle)}
-          </span>
+      {showPricing && pricingData && (
+        <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
+          <div className="space-y-3">
+            {(() => {
+              const orderData = getOrderTotalData();
+              const displaySubtotal = currencyToggle === 'USD' ? orderData.subtotal / 1.75 : orderData.subtotal;
+              const displayTotal = currencyToggle === 'USD' ? orderData.total / 1.75 : orderData.total;
+              
+              return (
+                <>
+                  {orderData.discounts.length > 0 && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <span className="text-base font-medium">Subtotal</span>
+                        <span className="text-xl font-semibold">
+                          {formatPrice(displaySubtotal, currencyToggle)}
+                        </span>
+                      </div>
+                      {orderData.discounts.map((discount, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-green-300">
+                          <span className="text-sm">
+                            {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currencyToggle)})
+                          </span>
+                          <span className="text-sm font-semibold">
+                            -{formatPrice(currencyToggle === 'USD' ? discount.amount / 1.75 : discount.amount, currencyToggle)}
+                          </span>
+                        </div>
+                      ))}
+                      <div className="border-t border-gray-600 pt-3"></div>
+                    </>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-semibold">Order Total</span>
+                    <span className="text-3xl font-bold" data-testid="order-total-price">
+                      {formatPrice(displayTotal, currencyToggle)}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-300">
+                    {currencyToggle === "AWG" ? "≈ " + formatPrice(orderData.total / 1.75, "USD") : "≈ " + formatPrice(orderData.total * 1.75, "AWG")}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         </div>
-        <div className="text-sm text-gray-300">
-          {currencyToggle === "AWG" ? "USD: " + formatPrice(getOrderTotal() / 1.75, "USD") : "AWG: " + formatPrice(getOrderTotal() * 1.75, "AWG")}
-        </div>
-      </div>
+      )}
     </div>
   );
 };
