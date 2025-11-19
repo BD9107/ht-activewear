@@ -1,0 +1,241 @@
+<analysis>**original_problem_statement:**
+The user wants to build a public, mobile-first landing page with a 3-step order form for an activewear business (HT Activewear). The form should capture order details, a list of items with quantities, and provide a review step before submission.
+
+**Initial Requirements (have since evolved):**
+-   **Routes:**  for the form,  for a confirmation page.
+-   **Form Steps:** Details -> Items -> Review.
+-   **Details Step:** Customer Name, Email, Phone, Notes, Customization toggle with details and optional artwork upload.
+-   **Items Step:** Repeatable cards for garments (T-Shirt, Hoodie, etc.), colors, and a size grid (XS-3XL).
+-   **Review Step:** Read-only summary of the order.
+-   **Backend:** Originally Google Sheets, but the user requested to switch to **Airtable**.
+-   **Data Submission:** A  request to a backend endpoint () with a specific JSON structure.
+-   **Success Page:** Display order number and a summary of the submitted order.
+
+**Subsequent Feature Requests & Changes (PRODUCT REQUIREMENTS):**
+1.  **Backend Change:** Use Airtable instead of Google Sheets.
+2.  **File Upload:** Use Google Drive for artwork uploads (this is currently broken).
+3.  **Email Notifications:** Send confirmation emails to the customer and an admin email upon successful order submission.
+4.  **Pricing & Calculator:**
+    -   Add item prices and calculate a running order total.
+    -   Support two currencies (USD and AWG) with a fixed conversion rate.
+    -   Implement a dynamic, Airtable-driven pricing system for garments, customer-specific discounts, and order-total-based discounts.
+5.  **UI/UX Enhancements:**
+    -   Use radio buttons with icons/color swatches for garment and color selection.
+    -   Add a client signature field (optional).
+    -   Add an Artwork Status field.
+    -   Display pricing and discounts on the review and success pages.
+6.  **PDF Generation:** Generate a PDF receipt of the order from the success page.
+
+**User's preferred language**: English
+
+**what currently exists?**
+A full-stack application with a React frontend and FastAPI backend. The application is a multi-step order form for an activewear company.
+
+**Key Features Implemented:**
+-   A 3-step order form (Details, Items, Review) and a Success page.
+-   Backend integration with Airtable to store orders and items.
+-   Dynamic, Airtable-driven pricing for garments, customer-specific discounts, and order total discounts.
+-   Dual currency support (USD/AWG) with a toggle.
+-   SMTP email notifications to the customer and admin upon order submission.
+-   PDF receipt generation on the success page.
+-   UI enhancements like color swatches and improved layouts.
+-   Backend performance optimizations, including removing unused MongoDB dependencies.
+
+**What is NOT working:**
+-   File upload for artwork is broken. It was made optional as a workaround.
+-   Pricing and discount calculations have several bugs.
+
+**Last working item**:
+-   **Last item agent was working:** The agent was in the middle of a major refactor of the discount application logic and UI based on user feedback. The user disliked the previous discount implementation and requested a more subtle UI (a checkbox and dropdown below the order total). The agent had just added the new UI elements to  but had not yet wired up the state management or calculation logic, nor removed the old UI.
+-   **Status:** IN PROGRESS
+-   **Agent Testing Done:** N
+-   **Which testing method agent to use?** Frontend testing agent (to verify UI changes and calculations) and manual testing via curl (to verify backend payloads).
+--   **User Testing Done:** N
+
+**All Pending/In progress Issue list**:
+-   **Issue 1 (P0):** Incorrect pricing calculations and display.
+-   **Issue 2 (P1):** Discount logic is not consistently applied across all pages.
+-   **Issue 3 (P2):** The file upload feature is broken.
+-   **Issue 4 (P3):** Redesign of the discount UI is incomplete.
+
+**Issues Detail:**
+-   **Issue 1: Incorrect pricing calculations and display**
+    -   **Description:** The user reported that prices shown for garments in Step 2 do not match the prices in Airtable. This leads to incorrect sub-total and total calculations.
+    -   **Attempted fixes:** The agent started to edit  to fetch prices correctly, but the work is incomplete.
+    -   **Next debug checklist:**
+        1.  In , verify that the  hook that calls  is correctly fetching and setting the prices for all garments.
+        2.  Check the  function in the same file to ensure it correctly looks up the price for a given garment.
+        3.  Log the API response from  to ensure the backend is sending the correct data.
+        4.  Confirm the calculations for , , and  in  are using the dynamically fetched prices.
+    -   **Why fix this issue and what will be achieved with the fix?** The core pricing functionality is broken, making the order form unusable for generating accurate quotes. Fixing this is critical for the application's main purpose.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** Both.
+
+-   **Issue 2: Discount logic is not consistently applied across all pages**
+    -   **Description:** The user reported that after selecting a discount in the Items step, the discount value disappears when they proceed to the Review step. This needs to be fixed for the ,  page, and the email templates.
+    -   **Attempted fixes:** The agent started passing  and discount-related state down as props but did not complete the implementation across all components.
+    -   **Next debug checklist:**
+        1.  In , ensure the , , and  states are passed correctly to .
+        2.  In , implement logic to receive and display the discount and final total.
+        3.  In , ensure the  fetched includes discount details and display them.
+        4.  In , verify that the  function includes the discount information in both the admin and customer email templates.
+    -   **Why fix this issue and what will be achieved with the fix?** To ensure the final price shown to the user is accurate and consistent throughout the entire checkout flow.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both.
+
+-   **Issue 3: The file upload feature is broken**
+    -   **Description:** The artwork upload feature, which uses a Google Apps Script, has been failing repeatedly with 403, 500, and CORS errors. The agent made the feature optional as a workaround, but the underlying issue was never solved.
+    -   **Attempted fixes:** The agent tried verifying the script URL, script code, and deployment settings. A local HTML test page was created, but it also failed. The agent concluded it was likely a CORS or permissions issue with the Apps Script deployment.
+    -   **Next debug checklist:**
+        1.  Re-examine the Google Apps Script code in  for correctness.
+        2.  Instruct the user to re-deploy the Apps Script with Execute as: Me and Who has access: Anyone. This is a common fix for such permission issues.
+        3.  Verify the  request in  is correctly formatted.
+    -   **Why fix this issue and what will be achieved with the fix?** This is a core requirement from the original problem statement. Fixing it will complete the application's functionality.
+    -   **Status:** NOT STARTED (workaround was implemented, but the root cause remains)
+    -   **Is recurring issue?** Y
+    -   **Should Test frontend/backend/both after fix?** Both.
+
+-   **Issue 4: Redesign of the discount UI is incomplete**
+    -   **Description:** The user wants the discount selection to be a checkbox that reveals a dropdown, placed below the order total section. The agent added the UI elements but did not finish the implementation.
+    -   **Attempted fixes:** The agent edited  to add the  and  components.
+    -   **Next debug checklist:**
+        1.  In , remove the old discount  component from the top of the order summary.
+        2.  Implement state management for the new checkbox () and dropdown ().
+        3.  Ensure that the main calculation logic only applies a discount if the checkbox is checked.
+        4.  Update the  parent component to handle the new state.
+    -   **Why fix this issue and what will be achieved with the fix?** To meet the user's specific UX request for applying discounts.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Frontend.
+
+**In progress Task List**:
+-   **Task 1: Complete the discount UI and logic refactor** (Priority: P0)
+    -   **Where to resume:** .
+    -   **What will be achieved with this?** A functional and user-approved interface for applying order discounts. This task resolves Issue #1, #2, and #4.
+    -   **Status:** IN PROGRESS
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on something:** No.
+
+**Upcoming and Future Tasks**
+-   **Upcoming Tasks:**
+    -   (P1) Fix the broken file upload functionality (see Issue #3).
+-   **Future Tasks:**
+    -   (P2) Implement user-configurable image icons for garment types. The code has comments and placeholders for this.
+    -   (P3) Assist the user with deployment to their own server, as previously discussed.
+
+**Completed work in this session**
+-   Initial 3-step order form (Details, Items, Review) created.
+-   Backend migrated from the proposed Google Sheets to Airtable.
+-   Dynamic, Airtable-driven pricing and discount system implemented.
+-   SMTP email notifications for admin and customer created.
+-   PDF receipt generation added to the success page.
+-   UI enhancements: currency toggle (USD/AWG), color swatches, client signature field, artwork status.
+-   Backend performance optimization: removed unused MongoDB dependencies and improved order number generation.
+-   Numerous UI/UX adjustments and bug fixes based on continuous user feedback.
+
+**Earlier issues found/mentioned but not fixed**
+-   **Issue 1: File Upload with Google Apps Script is not working**
+    -   **Debug checklist:**
+        1.  Confirm the Google Apps Script is deployed with permissions Execute as: Me and Who has access: Anyone.
+        2.  Review the  function in the Apps Script to ensure it correctly handles the file data and returns JSON.
+        3.  Check the browser console for CORS or other network errors when the upload is attempted.
+    -   **Why to solve this issue and what will be achieved with this?** It's a required feature for customers to provide artwork.
+    -   **Should Test frontend/backend/both after fix:** Both.
+    -   **Is recurring issue?** Y
+
+**Known issue recurrence from previous fork**
+-   N/A
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+-   **Frontend:** React (with Hooks for state management), TailwindCSS,  for PDF generation,  for icons.
+-   **Backend:** FastAPI,  for Airtable communication, Python's  for email.
+-   **Database:** Airtable (serves as the database for orders, items, and dynamic pricing).
+-   **Integrations:** SMTP for email, Google Apps Script for (broken) file uploads.
+
+**key DB schema**
+Airtable Base ( in ) with the following tables:
+-   **Orders:** Stores order-level data (, , , , , etc.).
+-   **Order Items:** Stores line-item data linked to Orders (, , , , etc.).
+-   **Pricing - Garments:** Lookup table for base price per garment type.
+-   **Pricing - Customers:** Lookup table for customer-email-based discounts (percentage).
+-   **Pricing - Order Total:** Tiered discounts based on total order quantity.
+
+**changes in tech stack**
+-   The backend was pivoted from the initial plan of Google Sheets to **Airtable**.
+-   The initial template included MongoDB, but  and  dependencies were removed as they were unused.
+
+**All files**
+-   **/app/backend/server.py**: Main FastAPI application file. Contains all API endpoints for order submission, pricing lookup, and email sending logic.
+-   **/app/backend/.env**: Contains all secrets: Airtable keys, SMTP credentials.
+-   **/app/frontend/src/pages/OrderForm.jsx**: The parent component for the entire form. Manages state for all steps and passes data/handlers down to child components.
+-   **/app/frontend/src/components/ItemsStepNew.jsx**: The second step of the form. Contains logic for item selection, quantity steppers, color swatches, and the new dynamic pricing and discount calculations. **This is where the current work is focused.**
+-   **/app/frontend/src/components/ReviewStepNew.jsx**: The third step of the form. Displays a read-only summary and needs updates to correctly show discounts.
+-   **/app/frontend/src/pages/Success.jsx**: The page shown after a successful order. Displays a summary and contains logic for printing and PDF generation.
+-   **/app/frontend/src/utils/dynamicPricing.js**: Utility file to fetch pricing and discount data from the backend API.
+-   **/app/AIRTABLE_PRICING_SETUP_GUIDE.md**: A detailed guide created for the user to set up the necessary Airtable tables for the dynamic pricing feature.
+
+**Areas that need refactoring**:
+-   **State Management:** The state in  is managed with numerous  hooks passed down through props. This is becoming complex and could be refactored using  or a context for cleaner state propagation.
+-   **File Upload Logic:** The code for file uploads in  is still present but non-functional. It should either be fixed or commented out more clearly to prevent future confusion.
+
+**key api endpoints**
+-   : Submits the final order payload to the backend, which saves to Airtable and sends emails.
+-   : **(BROKEN)** Intended to handle file uploads to Google Drive.
+-   : Fetches the price list for all garment types from Airtable.
+-   : Fetches customer-specific discounts from Airtable.
+-   : Fetches quantity-based order discounts from Airtable.
+
+**Critical Info for New Agent**
+-   The user is technically savvy and provides excellent, detailed feedback. Pay close attention to their UI/UX requests.
+-   **Do not use MongoDB.** The project is fully reliant on Airtable. All necessary keys are in .
+-   **Dynamic pricing is critical.** It's driven by three separate tables in Airtable. The setup guide is in . The current bugs are related to this feature not working as expected.
+-   The file upload feature is a known, persistent failure point. Be prepared to debug the Google Apps Script permissions and code if you tackle this.
+-   The user wants discounts to be selectable (either by customer or by order total, not both) and for the UI to be subtle. The implementation for this is half-done.
+
+**documents created in this job**
+-   
+-   
+-   
+-   
+-   
+-   
+
+**Last 5 User Messages and any pending user messages**
+1.  **User:** before some adjustments, I must say, amazing job. very nicely executed. 1. make the discount as the price and total section selectable. we cannot use both discount it is either customer discount or item discount. 2. pricing on the garment type selection in step 2 does not match the pricing given in the Airtable 3. once I click next to go to the review page, all discount disappear, remember to add it to the review page and the success page and email as well
+    -   **Status:** In Progress. The agent has started implementing these changes but hasn't finished.
+2.  **User:** I see compiled with problems error in reviewStepNew.jsx
+    -   **Status:** Resolved. The agent fixed a wrong import path.
+3.  **User:** 1. PDF button gives Uncaught runtime error 2. change the copy Order Number icon in the button to another icon, showing copied page 3. Show me how to create the Airtable sheet for dynamic pricing
+    -   **Status:** Resolved. The agent fixed the PDF error, changed the icon, and created a detailed Airtable setup guide.
+4sever. **Agent:** Prices are not showing in the email sent to admin. Please add pricing to admin as well. (This was an agent self-correction/note, not a user message).
+    -   **Status:** Resolved.
+5.  **User:** 1. some garment type do not show the price. I also see that the price is not correct, example the shirt, I see 18. 2. I do not like the way we now apply the discount, i would like to add it below the item price box, using a check and dropdown to select the type of discount. It has to be an option but not directly visible so a client may easily see it 3. the calculation does not match the pricing, like i said before, the price in the garment type does not match the calculations on the sub total and total 4. did you include the discount on all the pages? the items, review and success page?
+    -   **Status:** In Progress. This is the latest request the agent is working on. The agent has started on #2 but #1, #3, and #4 are still pending full implementation and verification.
+
+**Project Health Check:**
+-   **Broken:**
+    -   File Upload feature via Google Apps Script.
+    -   Dynamic pricing and discount calculations.
+-   **Mocked:**
+    -   Garment type icons are currently emojis/placeholders, with comments in the code for the user to add real image paths later.
+
+**Testing status**
+-   **Testing agent used after significant changes:** NO
+-   **Troubleshoot agent used after agent stuck in loop:** NO
+-   **Test files created:** [ (temporary, deleted)]
+-   **Known regressions:** The dynamic pricing feature introduced bugs in calculation and display consistency.
+
+**Credentials to test flow:**
+-   **Airtable:**  and  are in .
+-   **SMTP:** , , ,  are in .
+-   **Google Apps Script:**  is in .
+
+**What agent forgot to execute**
+- The agent added the new UI for discount selection in  but did not remove the old, now-redundant discount selection UI.
+- The agent has not fully propagated the discount state and display logic to the , , and email templates as requested by the user.
+- The agent has not fully debugged why the garment prices are displaying incorrectly in the  UI.</analysis>
