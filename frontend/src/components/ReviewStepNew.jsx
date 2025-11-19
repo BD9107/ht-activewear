@@ -254,9 +254,9 @@ const ReviewStepNew = ({
                     
                     {/* Volume Savings */}
                     {hasVolumeSavings && (
-                      <div className="flex items-center justify-between text-green-300 italic">
-                        <span className="text-sm">Volume Savings</span>
-                        <span className="text-sm font-semibold">
+                      <div className="flex items-center justify-between text-yellow-300">
+                        <span className="text-sm font-medium">Volume Savings</span>
+                        <span className="text-sm font-bold">
                           -{formatPrice(displayVolumeSavings, currency)}
                         </span>
                       </div>
