@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Printer, Share2, Copy, Download } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
-import { fetchPricing, calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency } from "@/utils/dynamicPricing";
+import { fetchPricing, calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency, calculateVolumeSavings } from "@/utils/dynamicPricing";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
