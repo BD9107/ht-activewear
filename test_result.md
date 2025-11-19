@@ -137,15 +137,18 @@ backend:
   
   - task: "Email notifications with discount information"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated email template to include discount calculations and display. Shows subtotal, discounts, and final total in both AWG and USD"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Email notifications working correctly. Backend logs confirm emails sent to both customer (test@example.com) and admin (customorders@blindingmedia.com). Discount information included in email templates."
 
 frontend:
   - task: "Items step - garment pricing display"
