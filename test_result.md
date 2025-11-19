@@ -204,15 +204,18 @@ frontend:
   
   - task: "Success page - dynamic pricing and discounts"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/Success.jsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Completely refactored Success.jsx to use dynamicPricing.js instead of static pricing. Fetches pricing from Airtable, calculates discounts, and displays on success page"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Success page fully functional with dynamic pricing. Shows discount breakdown (Small Bulk 5% = AWG 49.50). Currency toggle working (AWG 940.50 = USD 537.43). Order details display correctly."
   
   - task: "PDF generation with discounts"
     implemented: true
