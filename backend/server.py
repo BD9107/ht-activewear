@@ -507,8 +507,13 @@ async def upload_artwork(file: UploadFile = File(...)):
         logging.error(f"Upload error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+class OrderSubmissionWithDiscount(BaseModel):
+    order: OrderDetails
+    items: List[OrderItem]
+    discountType: Optional[str] = "none"
+
 @api_router.post("/submitOrder", response_model=OrderResponse)
-async def submit_order(submission: OrderSubmission):
+async def submit_order(submission: OrderSubmissionWithDiscount):
     """Submit order to Airtable"""
     try:
         # Generate order number
@@ -573,8 +578,8 @@ async def submit_order(submission: OrderSubmission):
         else:
             raise HTTPException(status_code=500, detail="Airtable 'Order Items' table not found")
         
-        # Send email notifications
-        await send_order_confirmation_email(order_data, submission)
+        # Send email notifications with discount type
+        await send_order_confirmation_email(order_data, submission, submission.discountType)
         
         return OrderResponse(
             orderNumber=order_number,
