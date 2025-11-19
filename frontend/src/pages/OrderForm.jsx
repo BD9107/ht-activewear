@@ -135,6 +135,7 @@ const OrderForm = () => {
           signature: signatureEnabled ? signature : ""
         },
         items: items,
+        discountType: discountType,
       });
 
       const { orderNumber } = response.data;
