@@ -326,9 +326,14 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                                     <td colspan="2" style="padding: 12px; text-align: right; border-top: 2px solid #e5e7eb;"><strong>Subtotal:</strong></td>
                                     <td style="padding: 12px; text-align: right; border-top: 2px solid #e5e7eb;"><strong>AWG {order_subtotal:.2f}</strong></td>
                                 </tr>
+                                {discount_html}
+                                <tr style="background: #111827; color: white;">
+                                    <td colspan="2" style="padding: 12px; text-align: right;"><strong>Order Total:</strong></td>
+                                    <td style="padding: 12px; text-align: right;"><strong>AWG {order_total:.2f}</strong></td>
+                                </tr>
                                 <tr style="background: #f9fafb;">
                                     <td colspan="2" style="padding: 12px; text-align: right;"><em style="color: #6b7280;">Approx USD:</em></td>
-                                    <td style="padding: 12px; text-align: right;"><em style="color: #6b7280;">${(order_subtotal / 1.75):.2f}</em></td>
+                                    <td style="padding: 12px; text-align: right;"><em style="color: #6b7280;">${(order_total / 1.75):.2f}</em></td>
                                 </tr>
                             </tfoot>
                         </table>
