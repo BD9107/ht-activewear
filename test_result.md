@@ -189,15 +189,18 @@ frontend:
   
   - task: "Review step - discount display"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ReviewStepNew.jsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Review page already has discount logic implemented. Receives discountType prop and displays accordingly"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Discount information persists correctly on Review page. Shows subtotal, discount breakdown, and final total. Currency toggle works properly."
   
   - task: "Success page - dynamic pricing and discounts"
     implemented: true
