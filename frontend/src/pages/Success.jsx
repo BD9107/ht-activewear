@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, Printer, Share2, Copy, Download } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
-import { GARMENT_PRICES, CUSTOMIZATION_PRICES, formatPrice, convertCurrency } from "@/utils/pricing";
+import { fetchPricing, calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency } from "@/utils/dynamicPricing";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -19,6 +19,7 @@ const Success = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currency, setCurrency] = useState("AWG");
+  const [pricingData, setPricingData] = useState(null);
 
   useEffect(() => {
     if (!orderNumber) {
@@ -27,7 +28,13 @@ const Success = () => {
     }
 
     fetchOrderData();
+    loadPricing();
   }, [orderNumber]);
+
+  const loadPricing = async () => {
+    const data = await fetchPricing();
+    setPricingData(data);
+  };
 
   const fetchOrderData = async () => {
     try {
@@ -77,24 +84,48 @@ const Success = () => {
     return sizeBreakdown || '';
   };
 
-  const calculateItemPrice = (item) => {
-    const garmentPrice = GARMENT_PRICES[item['Garment Type']] || 0;
+  const calculateItemPriceFromOrder = (item) => {
+    if (!pricingData) return 0;
     const customizationType = orderData?.order?.['Customization Type'] || 'Printing';
-    const customizationCost = CUSTOMIZATION_PRICES[customizationType] || 0;
     const totalQty = item['Total Qty'] || 0;
-    return (garmentPrice + customizationCost) * totalQty;
+    const garmentType = item['Garment Type'];
+    return calculateItemPrice(pricingData, garmentType, customizationType, totalQty);
   };
 
-  const calculateOrderTotal = () => {
-    if (!orderData || !orderData.items) return 0;
-    return orderData.items.reduce((total, item) => total + calculateItemPrice(item), 0);
+  const getOrderTotalData = () => {
+    if (!pricingData || !orderData) return { subtotal: 0, total: 0, discounts: [] };
+    
+    // Reconstruct items array from order data
+    const items = orderData.items.map(item => {
+      // Parse size breakdown back to sizes object
+      const sizes = { XS: 0, S: 0, M: 0, L: 0, XL: 0, "2XL": 0, "3XL": 0 };
+      const sizeBreakdown = item['Size Breakdown'] || '';
+      sizeBreakdown.split(', ').forEach(part => {
+        const [size, qty] = part.split(':');
+        if (size && qty) {
+          sizes[size.trim()] = parseInt(qty.trim()) || 0;
+        }
+      });
+      
+      return {
+        garmentType: item['Garment Type'],
+        sizes: sizes
+      };
+    });
+    
+    const customizationType = orderData.order['Customization Type'] || 'Printing';
+    const customerEmail = orderData.order['Email'];
+    
+    // Calculate with discounts - pass email if available
+    return calculateOrderTotal(pricingData, items, customizationType, customerEmail);
   };
 
   const generatePDF = () => {
-    if (!orderData) return;
+    if (!orderData || !pricingData) return;
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
+    const orderTotalData = getOrderTotalData();
 
     // Header
     doc.setFontSize(20);
@@ -164,7 +195,7 @@ const Success = () => {
       const color = item['Color'] === 'Custom' ? item['Custom Color'] : item['Color'];
       const sizeBreakdown = getSizeBreakdown(item['Size Breakdown']);
       const qty = item['Total Qty'];
-      const price = calculateItemPrice(item);
+      const price = calculateItemPriceFromOrder(item);
       return [
         `${garmentType} - ${color}`,
         sizeBreakdown,
@@ -182,16 +213,31 @@ const Success = () => {
       styles: { fontSize: 9 },
     });
 
-    // Total
+    // Pricing Summary with Discounts
     yPos = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    
+    const displaySubtotal = currency === 'USD' ? convertCurrency(orderTotalData.subtotal, 'AWG', 'USD') : orderTotalData.subtotal;
+    const displayTotal = currency === 'USD' ? convertCurrency(orderTotalData.total, 'AWG', 'USD') : orderTotalData.total;
+    
+    if (orderTotalData.discounts.length > 0) {
+      doc.text(`Subtotal: ${formatPrice(displaySubtotal, currency)}`, 20, yPos);
+      yPos += 7;
+      
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      orderTotalData.discounts.forEach(discount => {
+        const discountAmount = currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount;
+        doc.text(`${discount.name} (${discount.type === 'Percentage' ? discount.value + '%' : formatPrice(discount.value, currency)}): -${formatPrice(discountAmount, currency)}`, 20, yPos);
+        yPos += 6;
+      });
+      yPos += 3;
+    }
+    
     doc.setFontSize(14);
     doc.setFont(undefined, 'bold');
-    const total = calculateOrderTotal();
-    const displayTotal = formatPrice(
-      currency === 'USD' ? convertCurrency(total, 'AWG', 'USD') : total,
-      currency
-    );
-    doc.text(`Order Total: ${displayTotal}`, 20, yPos);
+    doc.text(`Order Total: ${formatPrice(displayTotal, currency)}`, 20, yPos);
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text(`Total Quantity: ${orderData.order['Order Total Qty']} pieces`, 20, yPos + 7);
@@ -232,6 +278,10 @@ const Success = () => {
       </div>
     );
   }
+
+  const orderTotalData = getOrderTotalData();
+  const displaySubtotal = currency === 'USD' ? convertCurrency(orderTotalData.subtotal, 'AWG', 'USD') : orderTotalData.subtotal;
+  const displayTotal = currency === 'USD' ? convertCurrency(orderTotalData.total, 'AWG', 'USD') : orderTotalData.total;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="success-page">
@@ -392,7 +442,7 @@ const Success = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Items</h3>
           <div className="space-y-4">
             {orderData.items.map((item, index) => {
-              const itemPrice = calculateItemPrice(item);
+              const itemPrice = calculateItemPriceFromOrder(item);
               const displayPrice = currency === 'USD' ? convertCurrency(itemPrice, 'AWG', 'USD') : itemPrice;
               
               return (
@@ -431,7 +481,7 @@ const Success = () => {
           </div>
         </div>
 
-        {/* Order Summary */}
+        {/* Order Summary with Discounts */}
         <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -440,21 +490,39 @@ const Success = () => {
                 {orderData.order['Order Total Qty']} pcs
               </span>
             </div>
+            {orderTotalData.discounts.length > 0 && (
+              <>
+                <div className="flex items-center justify-between pt-3 border-t border-gray-600">
+                  <span className="text-base font-medium">Subtotal</span>
+                  <span className="text-xl font-semibold">
+                    {formatPrice(displaySubtotal, currency)}
+                  </span>
+                </div>
+                {orderTotalData.discounts.map((discount, idx) => {
+                  const discountAmount = currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount;
+                  return (
+                    <div key={idx} className="flex items-center justify-between text-green-300">
+                      <span className="text-sm">
+                        {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
+                      </span>
+                      <span className="text-sm font-semibold">
+                        -{formatPrice(discountAmount, currency)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
             <div className="flex items-center justify-between pt-3 border-t border-gray-600">
               <span className="text-lg font-semibold">Order Total</span>
               <span className="text-3xl font-bold" data-testid="success-order-total-price">
-                {formatPrice(
-                  currency === 'USD' 
-                    ? convertCurrency(calculateOrderTotal(), 'AWG', 'USD') 
-                    : calculateOrderTotal(), 
-                  currency
-                )}
+                {formatPrice(displayTotal, currency)}
               </span>
             </div>
             <div className="text-sm text-gray-300">
               {currency === "AWG" 
-                ? `≈ ${formatPrice(calculateOrderTotal() / 1.75, "USD")}`
-                : `≈ ${formatPrice(calculateOrderTotal() * 1.75, "AWG")}`
+                ? `≈ ${formatPrice(orderTotalData.total / 1.75, "USD")}`
+                : `≈ ${formatPrice(orderTotalData.total * 1.75, "AWG")}`
               }
             </div>
           </div>
