@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Minus, Plus, Trash2 } from "lucide-react";
-import { calculateItemPrice, formatPrice, calculateOrderTotal, fetchPricing } from "@/utils/dynamicPricing";
+import { calculateItemPrice, formatPrice, calculateOrderTotal, fetchPricing, calculateVolumeSavings } from "@/utils/dynamicPricing";
 import { useState, useEffect } from "react";
 
 // GARMENT ICON CONFIGURATION
