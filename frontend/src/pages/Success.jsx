@@ -116,7 +116,7 @@ const Success = () => {
     const customizationType = orderData.order['Customization Type'] || 'Printing';
     const customerEmail = orderData.order['Email'];
     
-    // Calculate with discounts - pass email if available
+    // Always calculate all discounts to show what was available/applied
     return calculateOrderTotal(pricingData, items, customizationType, customerEmail);
   };
 
