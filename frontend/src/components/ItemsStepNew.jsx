@@ -113,29 +113,10 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
   };
 
   const getOrderTotalData = () => {
-    if (!pricingData) return { subtotal: 0, total: 0, discounts: [], availableDiscounts: [] };
+    if (!pricingData) return { subtotal: 0, total: 0, discounts: [] };
     
-    // Always calculate all available discounts for display
-    const allDiscountsResult = calculateOrderTotal(pricingData, items, customizationType, customerEmail);
-    
-    // Determine which discounts to actually apply based on selection
-    let appliedDiscounts = [];
-    let finalTotal = allDiscountsResult.subtotal;
-    
-    if (discountType === "customer") {
-      appliedDiscounts = allDiscountsResult.discounts.filter(d => d.name.includes("Customer"));
-      finalTotal = allDiscountsResult.subtotal - appliedDiscounts.reduce((sum, d) => sum + d.amount, 0);
-    } else if (discountType === "order") {
-      appliedDiscounts = allDiscountsResult.discounts.filter(d => !d.name.includes("Customer"));
-      finalTotal = allDiscountsResult.subtotal - appliedDiscounts.reduce((sum, d) => sum + d.amount, 0);
-    }
-    
-    return {
-      subtotal: allDiscountsResult.subtotal,
-      total: finalTotal,
-      discounts: appliedDiscounts,
-      availableDiscounts: allDiscountsResult.discounts // All discounts available
-    };
+    // Always calculate with customer email to show all available discounts
+    return calculateOrderTotal(pricingData, items, customizationType, customerEmail);
   };
 
   return (
