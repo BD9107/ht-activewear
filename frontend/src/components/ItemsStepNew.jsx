@@ -113,21 +113,29 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
   };
 
   const getOrderTotalData = () => {
-    if (!pricingData) return { subtotal: 0, total: 0, discounts: [] };
+    if (!pricingData) return { subtotal: 0, total: 0, discounts: [], availableDiscounts: [] };
     
-    // Pass email only if customer discount is selected
-    const emailForDiscount = discountType === "customer" ? customerEmail : null;
-    const result = calculateOrderTotal(pricingData, items, customizationType, emailForDiscount);
+    // Always calculate all available discounts for display
+    const allDiscountsResult = calculateOrderTotal(pricingData, items, customizationType, customerEmail);
     
-    // Filter discounts based on selected type
-    if (discountType === "none") {
-      return { ...result, discounts: [], total: result.subtotal };
-    } else if (discountType === "customer") {
-      return { ...result, discounts: result.discounts.filter(d => d.name.includes("Customer")) };
+    // Determine which discounts to actually apply based on selection
+    let appliedDiscounts = [];
+    let finalTotal = allDiscountsResult.subtotal;
+    
+    if (discountType === "customer") {
+      appliedDiscounts = allDiscountsResult.discounts.filter(d => d.name.includes("Customer"));
+      finalTotal = allDiscountsResult.subtotal - appliedDiscounts.reduce((sum, d) => sum + d.amount, 0);
     } else if (discountType === "order") {
-      return { ...result, discounts: result.discounts.filter(d => !d.name.includes("Customer")) };
+      appliedDiscounts = allDiscountsResult.discounts.filter(d => !d.name.includes("Customer"));
+      finalTotal = allDiscountsResult.subtotal - appliedDiscounts.reduce((sum, d) => sum + d.amount, 0);
     }
-    return result;
+    
+    return {
+      subtotal: allDiscountsResult.subtotal,
+      total: finalTotal,
+      discounts: appliedDiscounts,
+      availableDiscounts: allDiscountsResult.discounts // All discounts available
+    };
   };
 
   return (
