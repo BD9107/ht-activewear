@@ -112,7 +112,7 @@ def calculate_item_total(sizes: Dict[str, int]) -> int:
     """Calculate total quantity for an item"""
     return sum(sizes.values())
 
-async def send_order_confirmation_email(order_data: dict, submission: OrderSubmission):
+async def send_order_confirmation_email(order_data: dict, submission: OrderSubmission, discount_type: str = "none"):
     """Send order confirmation emails to customer and admin"""
     try:
         smtp_host = os.environ.get('SMTP_HOST')
@@ -134,11 +134,13 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         # Calculate order total and pricing
         order_total_qty = sum(calculate_item_total(item.sizes) for item in submission.items)
         
-        # Fetch pricing data for calculations
+        # Fetch pricing data for calculations including discounts
         try:
             pricing_data = {
                 "garment_pricing": [],
-                "customization_prices": {"Printing": 0, "Embroidery": 10}
+                "customization_prices": {"Printing": 0, "Embroidery": 10},
+                "order_discounts": [],
+                "customer_discounts": []
             }
             if pricing_table:
                 records = pricing_table.all()
@@ -151,10 +153,32 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                     }
                     for r in records
                 ]
+            if order_discounts_table:
+                records = order_discounts_table.all()
+                pricing_data["order_discounts"] = [
+                    {
+                        "name": r['fields'].get('Discount Name'),
+                        "min_total_qty": r['fields'].get('Min Order Total Qty', 0),
+                        "discount_type": r['fields'].get('Discount Type', 'Percentage'),
+                        "discount_value": r['fields'].get('Discount Value', 0)
+                    }
+                    for r in records
+                ]
+            if customer_discounts_table:
+                records = customer_discounts_table.all(formula="Active = TRUE()")
+                pricing_data["customer_discounts"] = [
+                    {
+                        "email": r['fields'].get('Customer Email'),
+                        "discount_percentage": r['fields'].get('Discount Percentage', 0)
+                    }
+                    for r in records
+                ]
         except:
             pricing_data = {
                 "garment_pricing": [],
-                "customization_prices": {"Printing": 0, "Embroidery": 10}
+                "customization_prices": {"Printing": 0, "Embroidery": 10},
+                "order_discounts": [],
+                "customer_discounts": []
             }
         
         # Helper function to get price
@@ -168,6 +192,44 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                     break
             customization_cost = pricing_data["customization_prices"].get(customization_type, 0)
             return (base_price + customization_cost) * quantity
+        
+        # Calculate discounts
+        def calculate_discounts(subtotal, total_qty, customer_email_addr):
+            discounts = []
+            total = subtotal
+            
+            # Customer discount
+            if discount_type == "customer":
+                customer_discount = next((d for d in pricing_data["customer_discounts"] if d["email"].lower() == customer_email_addr.lower()), None)
+                if customer_discount and customer_discount["discount_percentage"] > 0:
+                    discount_amount = (subtotal * customer_discount["discount_percentage"]) / 100
+                    total -= discount_amount
+                    discounts.append({
+                        "name": "Customer Discount",
+                        "type": "Percentage",
+                        "value": customer_discount["discount_percentage"],
+                        "amount": discount_amount
+                    })
+            
+            # Order discount
+            if discount_type == "order":
+                applicable_discounts = [d for d in pricing_data["order_discounts"] if total_qty >= d["min_total_qty"]]
+                if applicable_discounts:
+                    applicable_discounts.sort(key=lambda x: x["min_total_qty"], reverse=True)
+                    order_discount = applicable_discounts[0]
+                    if order_discount["discount_type"] == "Percentage":
+                        discount_amount = (total * order_discount["discount_value"]) / 100
+                    else:
+                        discount_amount = order_discount["discount_value"]
+                    total -= discount_amount
+                    discounts.append({
+                        "name": order_discount["name"],
+                        "type": order_discount["discount_type"],
+                        "value": order_discount["discount_value"],
+                        "amount": discount_amount
+                    })
+            
+            return discounts, max(0, total)
         
         # Build items HTML with pricing
         items_html = ""
