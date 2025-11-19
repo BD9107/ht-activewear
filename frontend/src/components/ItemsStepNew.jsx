@@ -439,10 +439,11 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                 const orderData = getOrderTotalData();
                 const displaySubtotal = currencyToggle === 'USD' ? orderData.subtotal / 1.75 : orderData.subtotal;
                 const displayTotal = currencyToggle === 'USD' ? orderData.total / 1.75 : orderData.total;
+                const hasAppliedDiscounts = orderData.discounts.length > 0;
                 
                 return (
                   <>
-                    {orderData.discounts.length > 0 && (
+                    {hasAppliedDiscounts && (
                       <>
                         <div className="flex items-center justify-between">
                           <span className="text-base font-medium">Subtotal</span>
@@ -464,11 +465,33 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                       </>
                     )}
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-semibold">Order Total</span>
+                      <span className="text-lg font-semibold">{hasAppliedDiscounts ? 'Order Total' : 'Subtotal'}</span>
                       <span className="text-3xl font-bold" data-testid="order-total-price">
                         {formatPrice(displayTotal, currencyToggle)}
                       </span>
                     </div>
+                    {/* Show available discounts if not applied */}
+                    {!hasAppliedDiscounts && orderData.availableDiscounts && orderData.availableDiscounts.length > 0 && (
+                      <>
+                        {orderData.availableDiscounts.map((discount, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-green-300">
+                            <span className="text-sm">
+                              Available: {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currencyToggle)})
+                            </span>
+                            <span className="text-sm font-semibold">
+                              Save {formatPrice(currencyToggle === 'USD' ? discount.amount / 1.75 : discount.amount, currencyToggle)}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="border-t border-gray-600 pt-3"></div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-base font-medium text-green-300">Potential Total with Discount</span>
+                          <span className="text-xl font-bold text-green-300">
+                            {formatPrice(currencyToggle === 'USD' ? orderData.availableDiscounts.reduce((total, d) => total - d.amount, orderData.subtotal) / 1.75 : orderData.availableDiscounts.reduce((total, d) => total - d.amount, orderData.subtotal), currencyToggle)}
+                          </span>
+                        </div>
+                      </>
+                    )}
                     <div className="text-sm text-gray-300">
                       {currencyToggle === "AWG" ? "≈ " + formatPrice(orderData.total / 1.75, "USD") : "≈ " + formatPrice(orderData.total * 1.75, "AWG")}
                     </div>
