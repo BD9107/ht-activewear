@@ -159,15 +159,18 @@ frontend:
   
   - task: "Items step - discount UI"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ItemsStepNew.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Discount UI with checkbox and dropdown exists below order total. Allows selection of customer or order discount (not both)"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Discount UI present and functional. Minor: Checkbox requires clicking on text label rather than checkbox itself. Dropdown appears correctly when enabled. Core functionality works."
   
   - task: "Items step - discount calculations"
     implemented: true
