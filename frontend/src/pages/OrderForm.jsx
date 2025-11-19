@@ -222,6 +222,7 @@ const OrderForm = () => {
             setSignatureEnabled={setSignatureEnabled}
             signature={signature}
             setSignature={setSignature}
+            discountType={discountType}
           />
         )}
       </div>
