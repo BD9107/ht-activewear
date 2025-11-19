@@ -122,15 +122,18 @@ backend:
   
   - task: "Order submission with discount tracking"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated submit_order endpoint to accept discountType parameter and pass it to email function"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Order submission endpoint working correctly. Accepts discountType parameter. Successfully created Order #2025-2018. Backend logs show successful processing."
   
   - task: "Email notifications with discount information"
     implemented: true
