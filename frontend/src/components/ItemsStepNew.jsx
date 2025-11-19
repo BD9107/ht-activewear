@@ -266,11 +266,19 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                   
                   <div className="text-center">
                     <div className="text-xs font-semibold text-gray-900 leading-tight">{garment.label}</div>
-                    {showPricing && pricingData && (
-                      <div className="text-xs font-bold text-blue-600 mt-1">
-                        from {formatPrice(garment.price, currencyToggle)}
-                      </div>
-                    )}
+                    {showPricing && pricingData && (() => {
+                      // Get the lowest price for this garment type
+                      const priceOptions = pricingData.garment_pricing.filter(p => p.garment_type === garment.value);
+                      if (priceOptions.length > 0) {
+                        const lowestPrice = Math.min(...priceOptions.map(p => p.price));
+                        return (
+                          <div className="text-xs font-bold text-blue-600 mt-1">
+                            from {formatPrice(lowestPrice, currencyToggle)}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   {item.garmentType === garment.value && (
                     <div className="absolute top-1 right-1 w-5 h-5 bg-gray-900 text-white rounded-full flex items-center justify-center">
