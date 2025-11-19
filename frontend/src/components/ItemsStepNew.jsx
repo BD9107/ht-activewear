@@ -237,7 +237,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                         const displayPrice = currencyToggle === 'USD' ? basePrice / 1.75 : basePrice;
                         return (
                           <div className="text-xs font-bold text-blue-600 mt-1">
-                            {formatPrice(displayPrice, currencyToggle)}+
+                            From {formatPrice(displayPrice, currencyToggle)}
                           </div>
                         );
                       }
