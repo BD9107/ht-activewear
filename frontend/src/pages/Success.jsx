@@ -280,8 +280,27 @@ const Success = () => {
   }
 
   const orderTotalData = getOrderTotalData();
+  
+  // Calculate volume savings
+  const items = orderData.items.map(item => {
+    const sizes = { XS: 0, S: 0, M: 0, L: 0, XL: 0, "2XL": 0, "3XL": 0 };
+    const sizeBreakdown = item['Size Breakdown'] || '';
+    sizeBreakdown.split(', ').forEach(part => {
+      const [size, qty] = part.split(':');
+      if (size && qty) {
+        sizes[size.trim()] = parseInt(qty.trim()) || 0;
+      }
+    });
+    return {
+      garmentType: item['Garment Type'],
+      sizes: sizes
+    };
+  });
+  const volumeSavings = pricingData ? calculateVolumeSavings(pricingData, items, orderData.order['Customization Type'] || 'Printing') : 0;
+  
   const displaySubtotal = currency === 'USD' ? convertCurrency(orderTotalData.subtotal, 'AWG', 'USD') : orderTotalData.subtotal;
   const displayTotal = currency === 'USD' ? convertCurrency(orderTotalData.total, 'AWG', 'USD') : orderTotalData.total;
+  const displayVolumeSavings = currency === 'USD' ? convertCurrency(volumeSavings, 'AWG', 'USD') : volumeSavings;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="success-page">
