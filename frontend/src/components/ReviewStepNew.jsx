@@ -13,9 +13,19 @@ const ReviewStepNew = ({
   signatureEnabled,
   setSignatureEnabled,
   signature,
-  setSignature
+  setSignature,
+  discountType
 }) => {
   const [currency, setCurrency] = useState("AWG");
+  const [pricingData, setPricingData] = useState(null);
+
+  useEffect(() => {
+    const loadPricing = async () => {
+      const data = await fetchPricing();
+      setPricingData(data);
+    };
+    loadPricing();
+  }, []);
   const getItemTotal = (item) => {
     return Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
   };
