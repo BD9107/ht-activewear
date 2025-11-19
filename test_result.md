@@ -263,16 +263,10 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus:
-    - "Dynamic pricing display on Items page"
-    - "Discount selection and calculation on Items page"
-    - "Discount display on Review page"
-    - "Discount display on Success page"
-    - "PDF generation with discounts"
-    - "Email notifications with discounts"
+  current_focus: []
   stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+  test_all: true
+  test_priority: "completed"
 
 agent_communication:
   - agent: "main"
