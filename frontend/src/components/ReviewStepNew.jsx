@@ -2,8 +2,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency } from "@/utils/pricing";
-import { useState } from "react";
+import { calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency, fetchPricing } from "@/utils/pricing";
+import { useState, useEffect } from "react";
 
 const ReviewStepNew = ({ 
   orderDetails, 
