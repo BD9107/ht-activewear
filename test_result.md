@@ -174,15 +174,18 @@ frontend:
   
   - task: "Items step - discount calculations"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ItemsStepNew.jsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Discount logic implemented using dynamicPricing.js. Calculates and displays subtotal, discount, and total based on selected discount type"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Discount calculations working correctly. Tested with 60 pieces: AWG 1080.00 → AWG 1026.00 with customer discount applied. Dynamic pricing integration successful."
   
   - task: "Review step - discount display"
     implemented: true
