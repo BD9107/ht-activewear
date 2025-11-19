@@ -509,7 +509,7 @@ const Success = () => {
                 {orderData.order['Order Total Qty']} pcs
               </span>
             </div>
-            {orderTotalData.discounts && orderTotalData.discounts.length > 0 ? (
+            {(volumeSavings > 0 || (orderTotalData.discounts && orderTotalData.discounts.length > 0)) ? (
               <>
                 <div className="flex items-center justify-between pt-3 border-t border-gray-600">
                   <span className="text-base font-medium">Subtotal</span>
@@ -517,7 +517,19 @@ const Success = () => {
                     {formatPrice(displaySubtotal, currency)}
                   </span>
                 </div>
-                {orderTotalData.discounts.map((discount, idx) => {
+                
+                {/* Volume Savings */}
+                {volumeSavings > 0 && (
+                  <div className="flex items-center justify-between text-green-300 italic">
+                    <span className="text-sm">Volume Savings</span>
+                    <span className="text-sm font-semibold">
+                      -{formatPrice(displayVolumeSavings, currency)}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Order Discounts */}
+                {orderTotalData.discounts && orderTotalData.discounts.map((discount, idx) => {
                   const discountAmount = currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount;
                   return (
                     <div key={idx} className="flex items-center justify-between text-green-300 italic">
@@ -530,6 +542,7 @@ const Success = () => {
                     </div>
                   );
                 })}
+                
                 <div className="flex items-center justify-between pt-3 border-t border-gray-600">
                   <span className="text-lg font-semibold">Order Total</span>
                   <span className="text-3xl font-bold" data-testid="success-order-total-price">
