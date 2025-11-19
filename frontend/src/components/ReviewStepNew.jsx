@@ -233,13 +233,17 @@ const ReviewStepNew = ({
           </div>
           {(() => {
             const orderData = getOrderTotalData();
+            const volumeSavings = calculateVolumeSavings(pricingData, items, orderDetails.customizationType);
             const displaySubtotal = currency === 'USD' ? convertCurrency(orderData.subtotal, 'AWG', 'USD') : orderData.subtotal;
             const displayTotal = currency === 'USD' ? convertCurrency(orderData.total, 'AWG', 'USD') : orderData.total;
+            const displayVolumeSavings = currency === 'USD' ? convertCurrency(volumeSavings, 'AWG', 'USD') : volumeSavings;
             const hasDiscounts = orderData.discounts && orderData.discounts.length > 0;
+            const hasVolumeSavings = volumeSavings > 0;
+            const hasAnySavings = hasDiscounts || hasVolumeSavings;
             
             return (
               <>
-                {hasDiscounts ? (
+                {hasAnySavings ? (
                   <>
                     <div className="flex items-center justify-between pt-3 border-t border-gray-600">
                       <span className="text-base font-medium">Subtotal</span>
@@ -247,6 +251,18 @@ const ReviewStepNew = ({
                         {formatPrice(displaySubtotal, currency)}
                       </span>
                     </div>
+                    
+                    {/* Volume Savings */}
+                    {hasVolumeSavings && (
+                      <div className="flex items-center justify-between text-green-300 italic">
+                        <span className="text-sm">Volume Savings</span>
+                        <span className="text-sm font-semibold">
+                          -{formatPrice(displayVolumeSavings, currency)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Order Discounts */}
                     {orderData.discounts.map((discount, idx) => (
                       <div key={idx} className="flex items-center justify-between text-green-300 italic">
                         <span className="text-sm">
@@ -257,6 +273,7 @@ const ReviewStepNew = ({
                         </span>
                       </div>
                     ))}
+                    
                     <div className="flex items-center justify-between pt-3 border-t border-gray-600">
                       <span className="text-lg font-semibold">Order Total</span>
                       <span className="text-3xl font-bold" data-testid="review-order-total-price">
