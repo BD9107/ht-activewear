@@ -423,50 +423,83 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
 
       {/* Order Total */}
       {showPricing && pricingData && (
-        <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
-          <div className="space-y-3">
-            {(() => {
-              const orderData = getOrderTotalData();
-              const displaySubtotal = currencyToggle === 'USD' ? orderData.subtotal / 1.75 : orderData.subtotal;
-              const displayTotal = currencyToggle === 'USD' ? orderData.total / 1.75 : orderData.total;
-              
-              return (
-                <>
-                  {orderData.discounts.length > 0 && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-medium">Subtotal</span>
-                        <span className="text-xl font-semibold">
-                          {formatPrice(displaySubtotal, currencyToggle)}
-                        </span>
-                      </div>
-                      {orderData.discounts.map((discount, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-green-300">
-                          <span className="text-sm">
-                            {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currencyToggle)})
-                          </span>
-                          <span className="text-sm font-semibold">
-                            -{formatPrice(currencyToggle === 'USD' ? discount.amount / 1.75 : discount.amount, currencyToggle)}
+        <>
+          <div className="bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-2xl p-6 shadow-lg">
+            <div className="space-y-3">
+              {(() => {
+                const orderData = getOrderTotalData();
+                const displaySubtotal = currencyToggle === 'USD' ? orderData.subtotal / 1.75 : orderData.subtotal;
+                const displayTotal = currencyToggle === 'USD' ? orderData.total / 1.75 : orderData.total;
+                
+                return (
+                  <>
+                    {orderData.discounts.length > 0 && (
+                      <>
+                        <div className="flex items-center justify-between">
+                          <span className="text-base font-medium">Subtotal</span>
+                          <span className="text-xl font-semibold">
+                            {formatPrice(displaySubtotal, currencyToggle)}
                           </span>
                         </div>
-                      ))}
-                      <div className="border-t border-gray-600 pt-3"></div>
-                    </>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold">Order Total</span>
-                    <span className="text-3xl font-bold" data-testid="order-total-price">
-                      {formatPrice(displayTotal, currencyToggle)}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-300">
-                    {currencyToggle === "AWG" ? "≈ " + formatPrice(orderData.total / 1.75, "USD") : "≈ " + formatPrice(orderData.total * 1.75, "AWG")}
-                  </div>
-                </>
-              );
-            })()}
+                        {orderData.discounts.map((discount, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-green-300">
+                            <span className="text-sm">
+                              {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currencyToggle)})
+                            </span>
+                            <span className="text-sm font-semibold">
+                              -{formatPrice(currencyToggle === 'USD' ? discount.amount / 1.75 : discount.amount, currencyToggle)}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="border-t border-gray-600 pt-3"></div>
+                      </>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-semibold">Order Total</span>
+                      <span className="text-3xl font-bold" data-testid="order-total-price">
+                        {formatPrice(displayTotal, currencyToggle)}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-300">
+                      {currencyToggle === "AWG" ? "≈ " + formatPrice(orderData.total / 1.75, "USD") : "≈ " + formatPrice(orderData.total * 1.75, "AWG")}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
           </div>
-        </div>
+
+          {/* Discount Options - Collapsible */}
+          <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="apply-discount"
+                checked={discountType !== "none"}
+                onCheckedChange={(checked) => setDiscountType(checked ? "customer" : "none")}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label htmlFor="apply-discount" className="text-base font-medium text-gray-900 cursor-pointer">
+                  Apply Discount
+                </Label>
+                <p className="text-sm text-gray-500 mt-1">Check to apply customer or order volume discount</p>
+                
+                {discountType !== "none" && (
+                  <div className="mt-3">
+                    <select
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value)}
+                      className="w-full h-10 px-3 text-base rounded-xl border border-gray-300 bg-white"
+                    >
+                      <option value="customer">Customer Discount (by email)</option>
+                      <option value="order">Order Volume Discount (by quantity)</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
