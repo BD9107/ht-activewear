@@ -267,13 +267,16 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                   <div className="text-center">
                     <div className="text-xs font-semibold text-gray-900 leading-tight">{garment.label}</div>
                     {showPricing && pricingData && (() => {
-                      // Get the lowest price for this garment type
+                      // Get pricing for this garment type
                       const priceOptions = pricingData.garment_pricing.filter(p => p.garment_type === garment.value);
                       if (priceOptions.length > 0) {
-                        const lowestPrice = Math.min(...priceOptions.map(p => p.price));
+                        // Sort by min_qty to get the base price (lowest quantity tier)
+                        const sortedPrices = priceOptions.sort((a, b) => a.min_qty - b.min_qty);
+                        const basePrice = sortedPrices[0].price; // Price for smallest quantity
+                        const displayPrice = currencyToggle === 'USD' ? basePrice / 1.75 : basePrice;
                         return (
                           <div className="text-xs font-bold text-blue-600 mt-1">
-                            from {formatPrice(lowestPrice, currencyToggle)}
+                            {formatPrice(displayPrice, currencyToggle)}+
                           </div>
                         );
                       }
