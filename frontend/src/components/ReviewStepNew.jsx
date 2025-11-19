@@ -254,29 +254,45 @@ const ReviewStepNew = ({
             const orderData = getOrderTotalData();
             const displaySubtotal = currency === 'USD' ? convertCurrency(orderData.subtotal, 'AWG', 'USD') : orderData.subtotal;
             const displayTotal = currency === 'USD' ? convertCurrency(orderData.total, 'AWG', 'USD') : orderData.total;
+            const hasAppliedDiscounts = orderData.discounts.length > 0;
             
             return (
               <>
-                {orderData.discounts.length > 0 && (
+                <div className="flex items-center justify-between pt-3 border-t border-gray-600">
+                  <span className="text-base font-medium">Subtotal</span>
+                  <span className="text-xl font-semibold">
+                    {formatPrice(displaySubtotal, currency)}
+                  </span>
+                </div>
+                
+                {/* Show applied discounts */}
+                {hasAppliedDiscounts && orderData.discounts.map((discount, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-green-300">
+                    <span className="text-sm">
+                      {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
+                    </span>
+                    <span className="text-sm font-semibold">
+                      -{formatPrice(currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount, currency)}
+                    </span>
+                  </div>
+                ))}
+                
+                {/* Show available discounts if not applied */}
+                {!hasAppliedDiscounts && orderData.availableDiscounts && orderData.availableDiscounts.length > 0 && (
                   <>
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-600">
-                      <span className="text-base font-medium">Subtotal</span>
-                      <span className="text-xl font-semibold">
-                        {formatPrice(displaySubtotal, currency)}
-                      </span>
-                    </div>
-                    {orderData.discounts.map((discount, idx) => (
+                    {orderData.availableDiscounts.map((discount, idx) => (
                       <div key={idx} className="flex items-center justify-between text-green-300">
                         <span className="text-sm">
-                          {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
+                          Available: {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
                         </span>
                         <span className="text-sm font-semibold">
-                          -{formatPrice(currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount, currency)}
+                          Save {formatPrice(currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount, currency)}
                         </span>
                       </div>
                     ))}
                   </>
                 )}
+                
                 <div className="flex items-center justify-between pt-3 border-t border-gray-600">
                   <span className="text-lg font-semibold">Order Total</span>
                   <span className="text-3xl font-bold" data-testid="review-order-total-price">
