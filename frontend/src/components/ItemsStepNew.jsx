@@ -349,9 +349,21 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                     >
                       <Minus className="w-4 h-4" />
                     </Button>
-                    <span className="text-base font-semibold text-gray-900 min-w-[40px] text-center" data-testid={`size-qty-${index}-${size}`}>
-                      {item.sizes[size]}
-                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="999"
+                      value={item.sizes[size]}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value) || 0;
+                        const clampedValue = Math.max(0, Math.min(999, value));
+                        const newItems = [...items];
+                        newItems[index].sizes[size] = clampedValue;
+                        setItems(newItems);
+                      }}
+                      className="w-16 h-10 text-base font-semibold text-gray-900 text-center border border-gray-300 rounded-lg"
+                      data-testid={`size-qty-${index}-${size}`}
+                    />
                     <Button
                       type="button"
                       variant="outline"
