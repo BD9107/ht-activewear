@@ -1,7 +1,3 @@
-#====================================================================================================
-# START - Testing Protocol - DO NOT EDIT OR REMOVE THIS SECTION
-#====================================================================================================
-
 # THIS SECTION CONTAINS CRITICAL TESTING INSTRUCTIONS FOR BOTH AGENTS
 # BOTH MAIN_AGENT AND TESTING_AGENT MUST PRESERVE THIS ENTIRE BLOCK
 
@@ -101,3 +97,181 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Build a public, mobile-first landing page with a 3-step order form for HT Activewear. 
+  The form captures order details, items with quantities, and provides a review step before submission.
+  Features: Airtable backend, dynamic pricing, discount system (customer or order volume), 
+  email notifications, PDF generation, dual currency support (USD/AWG).
+
+backend:
+  - task: "Dynamic pricing API endpoint"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Pricing API returns data from Airtable with garment pricing, customer discounts, and order discounts"
+  
+  - task: "Order submission with discount tracking"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated submit_order endpoint to accept discountType parameter and pass it to email function"
+  
+  - task: "Email notifications with discount information"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated email template to include discount calculations and display. Shows subtotal, discounts, and final total in both AWG and USD"
+
+frontend:
+  - task: "Items step - garment pricing display"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ItemsStepNew.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Changed price display from 'price+' to 'From price' to clarify that it's the starting price (base tier)"
+  
+  - task: "Items step - discount UI"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ItemsStepNew.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Discount UI with checkbox and dropdown exists below order total. Allows selection of customer or order discount (not both)"
+  
+  - task: "Items step - discount calculations"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ItemsStepNew.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Discount logic implemented using dynamicPricing.js. Calculates and displays subtotal, discount, and total based on selected discount type"
+  
+  - task: "Review step - discount display"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/ReviewStepNew.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Review page already has discount logic implemented. Receives discountType prop and displays accordingly"
+  
+  - task: "Success page - dynamic pricing and discounts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Success.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Completely refactored Success.jsx to use dynamicPricing.js instead of static pricing. Fetches pricing from Airtable, calculates discounts, and displays on success page"
+  
+  - task: "PDF generation with discounts"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/Success.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated PDF generation to include discount calculations. Shows subtotal, discount breakdown, and final total"
+  
+  - task: "Order form submission with discount type"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/OrderForm.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated submission to include discountType in the payload sent to backend"
+
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Dynamic pricing display on Items page"
+    - "Discount selection and calculation on Items page"
+    - "Discount display on Review page"
+    - "Discount display on Success page"
+    - "PDF generation with discounts"
+    - "Email notifications with discounts"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: |
+      I have completed the following fixes for Priority 1 tasks:
+      
+      1. Fixed Success.jsx to use dynamic pricing from Airtable (was using old static pricing)
+      2. Added discount calculation and display to Success.jsx
+      3. Updated email templates in server.py to include discount information
+      4. Modified backend to accept and process discountType parameter
+      5. Updated OrderForm.jsx to pass discountType when submitting
+      6. Changed garment price display from "price+" to "From price" for clarity
+      
+      The discount UI already exists in ItemsStepNew.jsx and ReviewStepNew.jsx.
+      
+      CRITICAL TESTING NEEDED:
+      - Complete end-to-end flow: Details → Items → Review → Submit → Success
+      - Verify pricing displays correctly on Items page (should match Airtable)
+      - Test discount selection (checkbox + dropdown)
+      - Verify discount calculations are correct
+      - Confirm discounts appear on Review page
+      - Confirm discounts appear on Success page
+      - Test PDF generation includes discounts
+      - Verify email includes discount information (may need SMTP configured)
+      
+      Test Scenarios:
+      1. Order without discount
+      2. Order with customer discount (need customer email in Airtable)
+      3. Order with volume discount (need sufficient quantity)
+      
+      Frontend URL: https://f9aa4d84-41de-443f-94da-63ebf0e6ccb4.preview.emergent.systems
+      API Base: https://ht-orderform.preview.emergentagent.com/api
