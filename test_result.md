@@ -107,15 +107,18 @@ user_problem_statement: |
 backend:
   - task: "Dynamic pricing API endpoint"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Pricing API returns data from Airtable with garment pricing, customer discounts, and order discounts"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Pricing API working correctly. Returns 200 status. Provides garment pricing, customer discounts, and order discounts from Airtable. Frontend successfully consumes API data."
   
   - task: "Order submission with discount tracking"
     implemented: true
