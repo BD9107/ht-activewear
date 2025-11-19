@@ -275,3 +275,34 @@ agent_communication:
       
       Frontend URL: https://f9aa4d84-41de-443f-94da-63ebf0e6ccb4.preview.emergent.systems
       API Base: https://ht-orderform.preview.emergentagent.com/api
+  - agent: "testing"
+    message: |
+      COMPREHENSIVE END-TO-END TESTING COMPLETED
+      
+      ✅ SUCCESSFUL TESTS:
+      - Complete order flow: Details → Items → Review → Submit → Success
+      - Dynamic pricing from Airtable working correctly
+      - Garment price displays "From AWG 25.00" format (not "price+")
+      - Item pricing calculations accurate (20 pcs = AWG 440.00, 55 pcs = AWG 990.00, 60 pcs = AWG 1080.00)
+      - Order submission successful (Order #2025-2018)
+      - Success page displays all order details correctly
+      - Currency toggle working (AWG ↔ USD conversion rate 1.75)
+      - PDF download button present and functional
+      - Email notifications sent successfully (confirmed in backend logs)
+      - Discount calculations working on Success page (Small Bulk 5% = AWG 49.50 discount)
+      - Discount information persists through Review and Success pages
+      
+      ⚠️ MINOR ISSUES FOUND:
+      - Discount checkbox on Items page requires clicking on text label rather than checkbox itself
+      - Discount dropdown defaults to "Customer Discount" instead of "Order Volume Discount"
+      - Minor UI interaction issue but core functionality works
+      
+      🔍 TESTING DETAILS:
+      - Tested with 60 pieces total to trigger order volume discount
+      - Verified discount applies correctly (AWG 1080.00 → AWG 1026.00 with customer discount)
+      - Currency conversion accurate: AWG 940.50 = USD 537.43
+      - All API calls successful (pricing, order submission, order retrieval)
+      - Backend processing working correctly
+      
+      📊 TEST RESULTS SUMMARY:
+      All critical functionality working. The discount system, dynamic pricing, order flow, and success page are fully functional. Minor UI interaction improvements could be made but do not affect core business logic.
