@@ -490,29 +490,25 @@ const Success = () => {
                 {orderData.order['Order Total Qty']} pcs
               </span>
             </div>
-            {orderTotalData.discounts.length > 0 && (
-              <>
-                <div className="flex items-center justify-between pt-3 border-t border-gray-600">
-                  <span className="text-base font-medium">Subtotal</span>
-                  <span className="text-xl font-semibold">
-                    {formatPrice(displaySubtotal, currency)}
+            <div className="flex items-center justify-between pt-3 border-t border-gray-600">
+              <span className="text-base font-medium">Subtotal</span>
+              <span className="text-xl font-semibold">
+                {formatPrice(displaySubtotal, currency)}
+              </span>
+            </div>
+            {orderTotalData.discounts && orderTotalData.discounts.length > 0 && orderTotalData.discounts.map((discount, idx) => {
+              const discountAmount = currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount;
+              return (
+                <div key={idx} className="flex items-center justify-between text-green-300">
+                  <span className="text-sm">
+                    {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
+                  </span>
+                  <span className="text-sm font-semibold">
+                    -{formatPrice(discountAmount, currency)}
                   </span>
                 </div>
-                {orderTotalData.discounts.map((discount, idx) => {
-                  const discountAmount = currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount;
-                  return (
-                    <div key={idx} className="flex items-center justify-between text-green-300">
-                      <span className="text-sm">
-                        {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
-                      </span>
-                      <span className="text-sm font-semibold">
-                        -{formatPrice(discountAmount, currency)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </>
-            )}
+              );
+            })}
             <div className="flex items-center justify-between pt-3 border-t border-gray-600">
               <span className="text-lg font-semibold">Order Total</span>
               <span className="text-3xl font-bold" data-testid="success-order-total-price">
