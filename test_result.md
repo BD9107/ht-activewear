@@ -144,15 +144,18 @@ backend:
 frontend:
   - task: "Items step - garment pricing display"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/components/ItemsStepNew.jsx"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Changed price display from 'price+' to 'From price' to clarify that it's the starting price (base tier)"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Garment prices display correctly as 'From AWG 25.00' format. Dynamic pricing from Airtable working properly. Tested with Shirts showing correct base price."
   
   - task: "Items step - discount UI"
     implemented: true
