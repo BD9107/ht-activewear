@@ -58,6 +58,40 @@ export const calculateItemPrice = (pricingData, garmentType, customizationType, 
   return (basePrice + customizationCost) * quantity;
 };
 
+export const getBasePrice = (pricingData, garmentType) => {
+  if (!pricingData || !pricingData.garment_pricing) return 0;
+  
+  // Get the first/lowest quantity tier price (base price)
+  const basePriceTier = pricingData.garment_pricing
+    .filter(p => p.garment_type === garmentType)
+    .sort((a, b) => a.min_qty - b.min_qty)[0];
+  
+  return basePriceTier ? basePriceTier.price : 0;
+};
+
+export const calculateVolumeSavings = (pricingData, items, customizationType) => {
+  let totalSavings = 0;
+  
+  items.forEach(item => {
+    const quantity = Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
+    if (quantity === 0) return;
+    
+    const basePrice = getBasePrice(pricingData, item.garmentType);
+    const actualPrice = getGarmentPrice(pricingData, item.garmentType, quantity);
+    const customizationCost = getCustomizationCost(pricingData, customizationType);
+    
+    const baseTotalPrice = (basePrice + customizationCost) * quantity;
+    const actualTotalPrice = (actualPrice + customizationCost) * quantity;
+    
+    const savings = baseTotalPrice - actualTotalPrice;
+    if (savings > 0) {
+      totalSavings += savings;
+    }
+  });
+  
+  return totalSavings;
+};
+
 export const getCustomerDiscount = (pricingData, email) => {
   if (!pricingData || !pricingData.customer_discounts || !email) return 0;
   
