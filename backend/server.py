@@ -257,6 +257,25 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
             </tr>
             """
         
+        # Calculate discounts
+        discounts, order_total = calculate_discounts(order_subtotal, order_total_qty, customer_email)
+        
+        # Build discount HTML
+        discount_html = ""
+        if discounts:
+            for discount in discounts:
+                discount_display = f"{discount['value']}%" if discount['type'] == 'Percentage' else f"AWG {discount['value']:.2f}"
+                discount_html += f"""
+                <tr style="background: #f9fafb;">
+                    <td colspan="2" style="padding: 12px; text-align: right; color: #10b981;">
+                        <em>{discount['name']} ({discount_display})</em>
+                    </td>
+                    <td style="padding: 12px; text-align: right; color: #10b981;">
+                        <em>-AWG {discount['amount']:.2f}</em>
+                    </td>
+                </tr>
+                """
+        
         # Email HTML template
         email_html = f"""
         <html>
