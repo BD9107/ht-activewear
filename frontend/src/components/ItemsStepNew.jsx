@@ -15,17 +15,17 @@ import { useState, useEffect } from "react";
 // 5. Uncomment the <img> tag in the render section below
 
 const GARMENT_TYPES = [
-  { value: "Shirts", label: "Shirts", icon: "👕", price: 20 },
-  { value: "V-Neck", label: "V-Neck", icon: "👔", price: 25 },
-  { value: "Tank Tops", label: "Tank Tops", icon: "🎽", price: 20 },
-  { value: "Women Shirts", label: "Women Shirts", icon: "👚", price: 20 },
-  { value: "Polo Shirts", label: "Polo Shirts", icon: "🏌️", price: 25 },
-  { value: "Long Sleeve", label: "Long Sleeve", icon: "🧥", price: 35 },
-  { value: "Long Sleeve with Hoodie", label: "LS Hoodie", icon: "🧥", price: 40 },
-  { value: "Zippered Hoodie", label: "Zip Hoodie", icon: "🧥", price: 50 },
-  { value: "Neck Gaiter", label: "Neck Gaiter", icon: "🧣", price: 10 },
-  { value: "Sport Jersey", label: "Sport Jersey", icon: "⚽", price: 25 },
-  { value: "Other", label: "Other", icon: "📦", price: 0 }
+  { value: "Shirts", label: "Shirts", icon: "👕" },
+  { value: "V-Neck", label: "V-Neck", icon: "👔" },
+  { value: "Tank Tops", label: "Tank Tops", icon: "🎽" },
+  { value: "Women Shirts", label: "Women Shirts", icon: "👚" },
+  { value: "Polo Shirts", label: "Polo Shirts", icon: "🏌️" },
+  { value: "Long Sleeve", label: "Long Sleeve", icon: "🧥" },
+  { value: "Long Sleeve with Hoodie", label: "LS Hoodie", icon: "🧥" },
+  { value: "Zippered Hoodie", label: "Zip Hoodie", icon: "🧥" },
+  { value: "Neck Gaiter", label: "Neck Gaiter", icon: "🧣" },
+  { value: "Sport Jersey", label: "Sport Jersey", icon: "⚽" },
+  { value: "Other", label: "Other", icon: "📦" }
 ];
 
 const COLORS = [
