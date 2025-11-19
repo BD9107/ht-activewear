@@ -417,13 +417,17 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
           <div className="space-y-3">
             {(() => {
               const orderData = getOrderTotalData();
+              const volumeSavings = calculateVolumeSavings(pricingData, items, customizationType);
               const displaySubtotal = currencyToggle === 'USD' ? orderData.subtotal / 1.75 : orderData.subtotal;
               const displayTotal = currencyToggle === 'USD' ? orderData.total / 1.75 : orderData.total;
+              const displayVolumeSavings = currencyToggle === 'USD' ? volumeSavings / 1.75 : volumeSavings;
               const hasDiscounts = orderData.discounts && orderData.discounts.length > 0;
+              const hasVolumeSavings = volumeSavings > 0;
+              const hasAnySavings = hasDiscounts || hasVolumeSavings;
               
               return (
                 <>
-                  {hasDiscounts ? (
+                  {hasAnySavings ? (
                     <>
                       <div className="flex items-center justify-between">
                         <span className="text-base font-medium">Subtotal</span>
@@ -431,6 +435,18 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                           {formatPrice(displaySubtotal, currencyToggle)}
                         </span>
                       </div>
+                      
+                      {/* Volume Savings */}
+                      {hasVolumeSavings && (
+                        <div className="flex items-center justify-between text-green-300 italic">
+                          <span className="text-sm">Volume Savings</span>
+                          <span className="text-sm font-semibold">
+                            -{formatPrice(displayVolumeSavings, currencyToggle)}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Order Discounts */}
                       {orderData.discounts.map((discount, idx) => (
                         <div key={idx} className="flex items-center justify-between text-green-300 italic">
                           <span className="text-sm">
@@ -441,6 +457,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                           </span>
                         </div>
                       ))}
+                      
                       <div className="border-t border-gray-600 pt-3"></div>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-semibold">Order Total</span>
