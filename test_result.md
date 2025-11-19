@@ -234,15 +234,18 @@ frontend:
   
   - task: "Order form submission with discount type"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/pages/OrderForm.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Updated submission to include discountType in the payload sent to backend"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Order submission successful with discountType parameter. Order #2025-2018 created successfully. Backend processing working correctly."
 
 metadata:
   created_by: "main_agent"
