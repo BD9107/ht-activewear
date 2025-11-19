@@ -51,8 +51,27 @@ const ReviewStepNew = ({
   };
 
   const getItemPrice = (item) => {
+    if (!pricingData) return 0;
     const qty = getItemTotal(item);
-    return calculateItemPrice(item.garmentType, orderDetails.customizationType, qty);
+    return calculateItemPrice(pricingData, item.garmentType, orderDetails.customizationType, qty);
+  };
+
+  const getOrderTotalData = () => {
+    if (!pricingData) return { subtotal: 0, total: 0, discounts: [] };
+    
+    // Apply discount based on selected type
+    const emailForDiscount = discountType === "customer" ? orderDetails.email : null;
+    const result = calculateOrderTotal(pricingData, items, orderDetails.customizationType, emailForDiscount);
+    
+    // Filter discounts based on selected type
+    if (discountType === "none") {
+      return { ...result, discounts: [], total: result.subtotal };
+    } else if (discountType === "customer") {
+      return { ...result, discounts: result.discounts.filter(d => d.name.includes("Customer")) };
+    } else if (discountType === "order") {
+      return { ...result, discounts: result.discounts.filter(d => !d.name.includes("Customer")) };
+    }
+    return result;
   };
 
   const getGarmentDisplay = (item) => {
