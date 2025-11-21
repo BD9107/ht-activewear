@@ -194,23 +194,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
               />
             </div>
 
-            {/* Artwork URL */}
-            <div className="space-y-2">
-              <Label htmlFor="artworkUrl" className="text-base font-medium text-gray-900">
-                Artwork URL (optional)
-              </Label>
-              <p className="text-sm text-gray-500 mb-2">Provide a link to your artwork (Google Drive, Dropbox, etc.)</p>
-              <Input
-                id="artworkUrl"
-                type="url"
-                value={orderDetails.artworkUrl}
-                onChange={(e) => handleChange('artworkUrl', e.target.value)}
-                placeholder="https://drive.google.com/..."
-                className="h-12 text-base rounded-xl border-gray-300"
-                data-testid="artwork-url-input"
-              />
-            </div>
-
             {/* Artwork Status */}
             <div className="space-y-2">
               <Label className="text-base font-medium text-gray-900">
