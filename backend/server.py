@@ -346,19 +346,24 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                         </p>
                     </div>
                     
-                    <div style="background: #111827; color: white; padding: 20px; border-radius: 8px; text-align: center;">
-                        <h3 style="margin: 0;">Order Total</h3>
-                        <p style="font-size: 32px; font-weight: bold; margin: 10px 0;">{order_total_qty} pieces</p>
-                    </div>
                 </div>
                 
                 <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none;">
+                    <!-- Payment Terms with actual amounts -->
                     <div style="margin: 20px 0; padding: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; text-align: left;">
                         <p style="margin: 0 0 10px 0; color: #92400e; font-weight: bold; font-size: 16px;">💰 Payment Terms</p>
-                        <p style="margin: 5px 0; color: #92400e;"><strong>70% downpayment required</strong> before production starts</p>
-                        <p style="margin: 5px 0; color: #92400e;">Payment structure: 70% upfront / 30% on completion</p>
-                        <p style="margin: 5px 0; color: #92400e;">Final payment due before delivery</p>
+                        <p style="margin: 5px 0; color: #92400e;"><strong>70% downpayment required: AWG {downpayment_70:.2f}</strong> (≈ ${(downpayment_70 / 1.75):.2f} USD)</p>
+                        <p style="margin: 5px 0; color: #92400e;">Remaining 30%: AWG {remaining_30:.2f} (≈ ${(remaining_30 / 1.75):.2f} USD)</p>
+                        <p style="margin: 5px 0; color: #92400e; font-size: 13px;"><em>Production starts after downpayment received. Final payment due before delivery.</em></p>
                     </div>
+                    
+                    <!-- Order Summary Box (smaller) -->
+                    <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px; border: 2px solid #111827;">
+                        <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 14px;">Order Summary</p>
+                        <p style="font-size: 24px; font-weight: bold; margin: 5px 0; color: #111827;">{order_total_qty} pieces</p>
+                        <p style="font-size: 20px; font-weight: bold; margin: 5px 0; color: #111827;">AWG {order_total:.2f}</p>
+                    </div>
+                    
                     <p style="margin: 5px 0; color: #6b7280;">We'll contact you shortly to arrange payment and confirm your order details.</p>
                     <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
                         <p style="margin: 0 0 10px 0; color: #111827; font-weight: bold;">Contact Information</p>
