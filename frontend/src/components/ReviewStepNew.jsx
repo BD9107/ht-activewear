@@ -19,6 +19,7 @@ const ReviewStepNew = ({
 }) => {
   const [currency, setCurrency] = useState("AWG");
   const [pricingData, setPricingData] = useState(null);
+  const signaturePadRef = useRef(null);
 
   useEffect(() => {
     const loadPricing = async () => {
@@ -27,6 +28,20 @@ const ReviewStepNew = ({
     };
     loadPricing();
   }, []);
+
+  const clearSignature = () => {
+    if (signaturePadRef.current) {
+      signaturePadRef.current.clear();
+      setSignature("");
+    }
+  };
+
+  const handleSignatureEnd = () => {
+    if (signaturePadRef.current) {
+      const signatureData = signaturePadRef.current.toDataURL();
+      setSignature(signatureData);
+    }
+  };
   const getItemTotal = (item) => {
     return Object.values(item.sizes).reduce((sum, qty) => sum + qty, 0);
   };
