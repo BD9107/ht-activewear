@@ -567,11 +567,27 @@ const Success = () => {
           </div>
         </div>
 
+        {/* Payment Terms Reminder */}
+        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-xl">💰</span>
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-amber-900 mb-2">Next Steps - Payment Required</h3>
+              <div className="space-y-1 text-sm text-amber-900">
+                <p><strong>70% downpayment required</strong> before we start production</p>
+                <p>Remaining 30% due before delivery</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Note */}
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
           <p className="text-sm text-blue-900">
             A confirmation email has been sent to <strong>{orderData.order['Email']}</strong>.
-            We'll contact you shortly to confirm your order details.
+            We'll contact you shortly to arrange payment and confirm your order details.
           </p>
         </div>
       </div>
