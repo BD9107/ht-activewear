@@ -317,7 +317,27 @@ const ReviewStepNew = ({
         </div>
       </div>
 
-      {/* Confirmation */}
+      {/* Payment Terms & Agreement */}
+      <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+            <span className="text-white text-xl">💰</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-amber-900 mb-2">Payment Terms</h3>
+            <div className="space-y-2 text-sm text-amber-900">
+              <p className="font-semibold">
+                <strong>70% downpayment required before production starts</strong>
+              </p>
+              <p>• Payment structure: 70% upfront / 30% on completion</p>
+              <p>• No order will be processed without initial payment</p>
+              <p>• Final payment due before delivery</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Confirmation & Signature */}
       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-start space-x-3">
           <Checkbox
@@ -331,7 +351,7 @@ const ReviewStepNew = ({
             htmlFor="confirm"
             className="text-base font-medium text-gray-900 leading-relaxed cursor-pointer"
           >
-            I've reviewed all details and confirm that the information above is correct.
+            I've reviewed all details, understand the 70%-30% payment terms, and confirm that the information above is correct.
           </Label>
         </div>
 
@@ -339,34 +359,53 @@ const ReviewStepNew = ({
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div>
             <Label htmlFor="signature-toggle" className="text-base font-medium text-gray-900">
-              Add Digital Signature
+              Add Signature
             </Label>
-            <p className="text-sm text-gray-500 mt-1">Optional - Add your signature for verification</p>
+            <p className="text-sm text-gray-500 mt-1">Sign with your finger or mouse</p>
           </div>
           <Switch
             id="signature-toggle"
             checked={signatureEnabled}
-            onCheckedChange={setSignatureEnabled}
+            onCheckedChange={(checked) => {
+              setSignatureEnabled(checked);
+              if (!checked) {
+                setSignature("");
+              }
+            }}
             data-testid="signature-toggle"
           />
         </div>
 
-        {/* Signature Field */}
+        {/* Signature Canvas */}
         {signatureEnabled && (
-          <div className="space-y-2 pt-2">
-            <Label htmlFor="signature" className="text-base font-medium text-gray-900">
+          <div className="space-y-3 pt-2">
+            <Label className="text-base font-medium text-gray-900">
               Your Signature
             </Label>
-            <Input
-              id="signature"
-              value={signature}
-              onChange={(e) => setSignature(e.target.value)}
-              placeholder="Type your full name as signature"
-              className="h-12 text-base rounded-xl border-gray-300"
-              style={{ fontFamily: 'cursive' }}
-              data-testid="signature-input"
-            />
-            <p className="text-xs text-gray-500">This will be recorded with your order</p>
+            <div className="border-2 border-gray-300 rounded-xl overflow-hidden bg-white">
+              <SignatureCanvas
+                ref={signaturePadRef}
+                canvasProps={{
+                  className: 'signature-canvas w-full h-40',
+                  style: { width: '100%', height: '160px' }
+                }}
+                onEnd={handleSignatureEnd}
+                data-testid="signature-canvas"
+              />
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-gray-500">Sign above using your finger or mouse</p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={clearSignature}
+                className="text-sm"
+                data-testid="clear-signature-button"
+              >
+                Clear Signature
+              </Button>
+            </div>
           </div>
         )}
       </div>
