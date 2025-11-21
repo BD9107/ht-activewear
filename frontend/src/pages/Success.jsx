@@ -573,12 +573,20 @@ const Success = () => {
             <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-white text-xl">💰</span>
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="text-base font-bold text-amber-900 mb-2">Next Steps - Payment Required</h3>
-              <div className="space-y-1 text-sm text-amber-900">
-                <p><strong>70% downpayment required</strong> before we start production</p>
-                <p>Remaining 30% due before delivery</p>
-              </div>
+              {(() => {
+                const downpayment70 = displayTotal * 0.70;
+                const remaining30 = displayTotal * 0.30;
+                
+                return (
+                  <div className="space-y-1 text-sm text-amber-900">
+                    <p className="font-bold">70% downpayment: {formatPrice(downpayment70, currency)}</p>
+                    <p className="text-xs">(≈ {currency === 'AWG' ? formatPrice(downpayment70 / 1.75, 'USD') : formatPrice(downpayment70 * 1.75, 'AWG')})</p>
+                    <p>Remaining 30%: {formatPrice(remaining30, currency)} due before delivery</p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
