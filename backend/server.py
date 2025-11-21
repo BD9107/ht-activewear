@@ -378,28 +378,32 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         </html>
         """
         
-        # Create message
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = f"Order Confirmation - #{order_number}"
-        msg['From'] = f"{smtp_from_name} <{smtp_from_email}>"
-        msg.attach(MIMEText(email_html, 'html'))
-        
         # Send to customer
-        msg['To'] = customer_email
+        msg_customer = MIMEMultipart('alternative')
+        msg_customer['Subject'] = f"Order Confirmation - #{order_number}"
+        msg_customer['From'] = f"{smtp_from_name} <{smtp_from_email}>"
+        msg_customer['To'] = customer_email
+        msg_customer.attach(MIMEText(email_html, 'html'))
+        
         with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
             server.login(smtp_username, smtp_password)
-            server.send_message(msg)
+            server.send_message(msg_customer)
         
         logging.info(f"Order confirmation sent to customer: {customer_email}")
         
-        # Send to admin
-        if admin_email:
-            msg['To'] = admin_email
+        # Send to admin (create separate message object)
+        if admin_email and admin_email != customer_email:
+            msg_admin = MIMEMultipart('alternative')
+            msg_admin['Subject'] = f"New Order Received - #{order_number}"
+            msg_admin['From'] = f"{smtp_from_name} <{smtp_from_email}>"
+            msg_admin['To'] = admin_email
+            msg_admin.attach(MIMEText(email_html, 'html'))
+            
             with smtplib.SMTP_SSL(smtp_host, smtp_port) as server:
                 server.login(smtp_username, smtp_password)
-                server.send_message(msg)
+                server.send_message(msg_admin)
             
-            logging.info(f"Order confirmation sent to admin: {admin_email}")
+            logging.info(f"Order notification sent to admin: {admin_email}")
             
     except Exception as e:
         logging.error(f"Error sending email: {e}")
