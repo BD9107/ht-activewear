@@ -323,16 +323,28 @@ const ReviewStepNew = ({
           <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
             <span className="text-white text-xl">💰</span>
           </div>
-          <div>
+          <div className="flex-1">
             <h3 className="text-lg font-bold text-amber-900 mb-2">Payment Terms</h3>
-            <div className="space-y-2 text-sm text-amber-900">
-              <p className="font-semibold">
-                <strong>70% downpayment required before production starts</strong>
-              </p>
-              <p>• Payment structure: 70% upfront / 30% on completion</p>
-              <p>• No order will be processed without initial payment</p>
-              <p>• Final payment due before delivery</p>
-            </div>
+            {(() => {
+              const orderData = getOrderTotalData();
+              const displayTotal = currency === 'USD' ? convertCurrency(orderData.total, 'AWG', 'USD') : orderData.total;
+              const downpayment70 = displayTotal * 0.70;
+              const remaining30 = displayTotal * 0.30;
+              
+              return (
+                <div className="space-y-2 text-sm text-amber-900">
+                  <p className="font-bold text-base">
+                    70% downpayment required: {formatPrice(downpayment70, currency)}
+                  </p>
+                  <p className="font-semibold">
+                    (≈ {currency === 'AWG' ? formatPrice(downpayment70 / 1.75, 'USD') : formatPrice(downpayment70 * 1.75, 'AWG')})
+                  </p>
+                  <p>• Remaining 30%: {formatPrice(remaining30, currency)}</p>
+                  <p>• Production starts after downpayment received</p>
+                  <p>• Final payment due before delivery</p>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
