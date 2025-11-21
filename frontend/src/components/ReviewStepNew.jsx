@@ -1,9 +1,10 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency, fetchPricing, calculateVolumeSavings } from "@/utils/dynamicPricing";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import SignatureCanvas from "react-signature-canvas";
 
 const ReviewStepNew = ({ 
   orderDetails, 
