@@ -448,23 +448,13 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                         </span>
                       </div>
                       
-                      {/* Volume Savings */}
-                      {hasVolumeSavings && (
-                        <div className="flex items-center justify-between text-yellow-300">
-                          <span className="text-sm font-medium">Volume Savings</span>
-                          <span className="text-sm font-bold">
-                            -{formatPrice(displayVolumeSavings, currencyToggle)}
-                          </span>
-                        </div>
-                      )}
-                      
                       {/* Order Discounts */}
                       {orderData.discounts.map((discount, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-green-300 italic">
-                          <span className="text-sm">
+                        <div key={idx} className="flex items-center justify-between text-green-300">
+                          <span className="text-sm font-bold">
                             {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currencyToggle)})
                           </span>
-                          <span className="text-sm font-semibold">
+                          <span className="text-sm font-bold">
                             -{formatPrice(currencyToggle === 'USD' ? discount.amount / 1.75 : discount.amount, currencyToggle)}
                           </span>
                         </div>
@@ -477,6 +467,16 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                           {formatPrice(displayTotal, currencyToggle)}
                         </span>
                       </div>
+                      
+                      {/* Volume Savings (below total) */}
+                      {hasVolumeSavings && (
+                        <div className="flex items-center justify-between text-yellow-300 italic">
+                          <span className="text-xs">Volume Savings Applied</span>
+                          <span className="text-xs font-semibold">
+                            -{formatPrice(displayVolumeSavings, currencyToggle)}
+                          </span>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="flex items-center justify-between">
