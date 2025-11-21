@@ -193,41 +193,39 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
             customization_cost = pricing_data["customization_prices"].get(customization_type, 0)
             return (base_price + customization_cost) * quantity
         
-        # Calculate discounts
+        # Calculate discounts - ALWAYS calculate ALL applicable discounts (matching frontend behavior)
         def calculate_discounts(subtotal, total_qty, customer_email_addr):
             discounts = []
             total = subtotal
             
-            # Customer discount
-            if discount_type == "customer":
-                customer_discount = next((d for d in pricing_data["customer_discounts"] if d["email"].lower() == customer_email_addr.lower()), None)
-                if customer_discount and customer_discount["discount_percentage"] > 0:
-                    discount_amount = (subtotal * customer_discount["discount_percentage"]) / 100
-                    total -= discount_amount
-                    discounts.append({
-                        "name": "Customer Discount",
-                        "type": "Percentage",
-                        "value": customer_discount["discount_percentage"],
-                        "amount": discount_amount
-                    })
+            # Check for customer discount (always check, regardless of discount_type)
+            customer_discount = next((d for d in pricing_data["customer_discounts"] if d["email"].lower() == customer_email_addr.lower()), None)
+            if customer_discount and customer_discount["discount_percentage"] > 0:
+                discount_amount = (total * customer_discount["discount_percentage"]) / 100
+                total -= discount_amount
+                discounts.append({
+                    "name": "Customer Discount",
+                    "type": "Percentage",
+                    "value": customer_discount["discount_percentage"],
+                    "amount": discount_amount
+                })
             
-            # Order discount
-            if discount_type == "order":
-                applicable_discounts = [d for d in pricing_data["order_discounts"] if total_qty >= d["min_total_qty"]]
-                if applicable_discounts:
-                    applicable_discounts.sort(key=lambda x: x["min_total_qty"], reverse=True)
-                    order_discount = applicable_discounts[0]
-                    if order_discount["discount_type"] == "Percentage":
-                        discount_amount = (total * order_discount["discount_value"]) / 100
-                    else:
-                        discount_amount = order_discount["discount_value"]
-                    total -= discount_amount
-                    discounts.append({
-                        "name": order_discount["name"],
-                        "type": order_discount["discount_type"],
-                        "value": order_discount["discount_value"],
-                        "amount": discount_amount
-                    })
+            # Check for order discount (always check, regardless of discount_type)
+            applicable_order_discounts = [d for d in pricing_data["order_discounts"] if total_qty >= d["min_total_qty"]]
+            if applicable_order_discounts:
+                applicable_order_discounts.sort(key=lambda x: x["min_total_qty"], reverse=True)
+                order_discount = applicable_order_discounts[0]
+                if order_discount["discount_type"] == "Percentage":
+                    discount_amount = (total * order_discount["discount_value"]) / 100
+                else:
+                    discount_amount = order_discount["discount_value"]
+                total -= discount_amount
+                discounts.append({
+                    "name": order_discount["name"],
+                    "type": order_discount["discount_type"],
+                    "value": order_discount["discount_value"],
+                    "amount": discount_amount
+                })
             
             return discounts, max(0, total)
         
