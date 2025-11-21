@@ -349,7 +349,13 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
                 </div>
                 
                 <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none;">
-                    <p style="margin: 5px 0; color: #6b7280;">We'll contact you shortly to confirm your order details and provide pricing.</p>
+                    <div style="margin: 20px 0; padding: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; text-align: left;">
+                        <p style="margin: 0 0 10px 0; color: #92400e; font-weight: bold; font-size: 16px;">💰 Payment Terms</p>
+                        <p style="margin: 5px 0; color: #92400e;"><strong>70% downpayment required</strong> before production starts</p>
+                        <p style="margin: 5px 0; color: #92400e;">Payment structure: 70% upfront / 30% on completion</p>
+                        <p style="margin: 5px 0; color: #92400e;">Final payment due before delivery</p>
+                    </div>
+                    <p style="margin: 5px 0; color: #6b7280;">We'll contact you shortly to arrange payment and confirm your order details.</p>
                     <div style="margin: 20px 0; padding: 15px; background: white; border-radius: 8px;">
                         <p style="margin: 0 0 10px 0; color: #111827; font-weight: bold;">Contact Information</p>
                         <p style="margin: 5px 0; color: #4b5563;"><strong>Indy Chan</strong> - HT Activewear</p>
