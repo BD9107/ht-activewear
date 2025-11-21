@@ -268,23 +268,13 @@ const ReviewStepNew = ({
                       </span>
                     </div>
                     
-                    {/* Volume Savings */}
-                    {hasVolumeSavings && (
-                      <div className="flex items-center justify-between text-yellow-300">
-                        <span className="text-sm font-medium">Volume Savings</span>
-                        <span className="text-sm font-bold">
-                          -{formatPrice(displayVolumeSavings, currency)}
-                        </span>
-                      </div>
-                    )}
-                    
                     {/* Order Discounts */}
                     {orderData.discounts.map((discount, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-green-300 italic">
-                        <span className="text-sm">
+                      <div key={idx} className="flex items-center justify-between text-green-300">
+                        <span className="text-sm font-bold">
                           {discount.name} ({discount.type === 'Percentage' ? `${discount.value}%` : formatPrice(discount.value, currency)})
                         </span>
-                        <span className="text-sm font-semibold">
+                        <span className="text-sm font-bold">
                           -{formatPrice(currency === 'USD' ? convertCurrency(discount.amount, 'AWG', 'USD') : discount.amount, currency)}
                         </span>
                       </div>
@@ -296,6 +286,16 @@ const ReviewStepNew = ({
                         {formatPrice(displayTotal, currency)}
                       </span>
                     </div>
+                    
+                    {/* Volume Savings (below total) */}
+                    {hasVolumeSavings && (
+                      <div className="flex items-center justify-between text-yellow-300 italic">
+                        <span className="text-xs">Volume Savings Applied</span>
+                        <span className="text-xs font-semibold">
+                          -{formatPrice(displayVolumeSavings, currency)}
+                        </span>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="flex items-center justify-between pt-3 border-t border-gray-600">
