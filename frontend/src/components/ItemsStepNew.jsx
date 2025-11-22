@@ -16,17 +16,17 @@ import { useState, useEffect } from "react";
 // 5. Uncomment the <img> tag in the render section below
 
 const GARMENT_TYPES = [
-  { value: "Shirts", label: "Shirts", icon: "👕" },
-  { value: "V-Neck", label: "V-Neck", icon: "👔" },
-  { value: "Tank Tops", label: "Tank Tops", icon: "🎽" },
-  { value: "Women Shirts", label: "Women Shirts", icon: "👚" },
-  { value: "Polo Shirts", label: "Polo Shirts", icon: "🏌️" },
-  { value: "Long Sleeve", label: "Long Sleeve", icon: "🧥" },
-  { value: "Long Sleeve with Hoodie", label: "LS Hoodie", icon: "🧥" },
-  { value: "Zippered Hoodie", label: "Zip Hoodie", icon: "🧥" },
-  { value: "Neck Gaiter", label: "Neck Gaiter", icon: "🧣" },
-  { value: "Sport Jersey", label: "Sport Jersey", icon: "⚽" },
-  { value: "Other", label: "Other", icon: "📦" }
+  { value: "Shirts", label: "Shirts", icon: "/icons/garments/shirts.png" },
+  { value: "V-Neck", label: "V-Neck", icon: "/icons/garments/vneck.png" },
+  { value: "Tank Tops", label: "Tank Tops", icon: "/icons/garments/tank.png" },
+  { value: "Women Shirts", label: "Women Shirts", icon: "/icons/garments/women-shirts.png" },
+  { value: "Polo Shirts", label: "Polo Shirts", icon: "/icons/garments/polo.png" },
+  { value: "Long Sleeve", label: "Long Sleeve", icon: "/icons/garments/longsleeve.png" },
+  { value: "Long Sleeve with Hoodie", label: "LS Hoodie", icon: "/icons/garments/hoodie.png" },
+  { value: "Zippered Hoodie", label: "Zip Hoodie", icon: "/icons/garments/zip-hoodie.png" },
+  { value: "Neck Gaiter", label: "Neck Gaiter", icon: "/icons/garments/gaiter.png" },
+  { value: "Sport Jersey", label: "Sport Jersey", icon: "/icons/garments/jersey.png" },
+  { value: "Other", label: "Other", icon: "/icons/garments/other.png" }
 ];
 
 const COLORS = [
