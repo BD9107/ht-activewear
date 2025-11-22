@@ -153,17 +153,8 @@ const OrderForm = () => {
       {/* Header */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-[460px] mx-auto px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/images/logo.png" 
-              alt="HT Activewear" 
-              className="h-12 w-auto object-contain"
-            />
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900" data-testid="form-title">HT Activewear</h1>
-              <p className="text-sm text-gray-500">New Order</p>
-            </div>
-          </div>
+          <h1 className="text-xl font-semibold text-gray-900" data-testid="form-title">HT Activewear</h1>
+          <p className="text-sm text-gray-500 mt-1">New Order</p>
         </div>
       </div>
 
