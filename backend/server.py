@@ -284,6 +284,7 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                 <div style="background: #111827; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                    <img src="https://f9aa4d84-41de-443f-94da-63ebf0e6ccb4.preview.emergent.systems/images/logo.png" alt="HT Activewear" style="height: 60px; margin-bottom: 15px;" />
                     <h1 style="margin: 0;">Order Confirmation</h1>
                     <p style="margin: 10px 0 0 0; font-size: 18px;">Thank you for your order!</p>
                 </div>
