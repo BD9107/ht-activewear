@@ -204,15 +204,12 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
                   }`}
                   data-testid={`garment-${index}-${garment.value}`}
                 >
-                  {/* Icon - Use emoji by default, uncomment below for image icons */}
-                  <div className="text-2xl">{garment.icon}</div>
-                  {/* For custom image icons (48x48px recommended):
+                  {/* Custom image icons */}
                   <img 
                     src={garment.icon} 
                     alt={garment.label}
                     className="w-10 h-10 object-contain"
                   />
-                  */}
                   
                   <div className="text-center">
                     <div className="text-xs font-semibold text-gray-900 leading-tight">{garment.label}</div>
