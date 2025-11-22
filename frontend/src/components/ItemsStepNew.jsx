@@ -8,12 +8,11 @@ import { calculateItemPrice, formatPrice, calculateOrderTotal, fetchPricing, cal
 import { useState, useEffect } from "react";
 
 // GARMENT ICON CONFIGURATION
-// To use custom images instead of emojis:
-// 1. Place your image files in /app/frontend/public/icons/garments/
-// 2. Recommended dimensions: 48x48px (PNG with transparent background)
-// 3. Name files: shirts.png, vneck.png, tank.png, etc.
-// 4. Update icon field to: icon: "/icons/garments/shirts.png"
-// 5. Uncomment the <img> tag in the render section below
+// Custom garment icons are now active!
+// Icons are located in /app/frontend/public/icons/garments/
+// Dimensions: 48x48px (PNG with transparent background)
+// Files: shirts.png, vneck.png, tank.png, women-shirts.png, polo.png, 
+//        longsleeve.png, hoodie.png, zip-hoodie.png, gaiter.png, jersey.png, other.png
 
 const GARMENT_TYPES = [
   { value: "Shirts", label: "Shirts", icon: "/icons/garments/shirts.png" },
