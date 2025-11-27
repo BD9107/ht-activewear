@@ -640,7 +640,7 @@ const AdminCatalog = () => {
               </div>
             ) : (
               <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4' : 'space-y-2'}>
-                {products.map((product, index) => (
+                {getSortedProducts().map((product, index) => (
                   <div key={product.id} data-testid={`product-item-${product.id}`}>
                     {viewMode === 'grid' ? (
                       <Card className="overflow-hidden hover:shadow-lg transition-shadow border-2">
