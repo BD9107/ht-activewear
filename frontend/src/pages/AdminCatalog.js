@@ -878,11 +878,79 @@ const AdminCatalog = () => {
                 </div>
                 <div>
                   <Label>Sizes</Label>
-                  <Input
-                    value={editingProduct.sizes_available || ''}
-                    onChange={(e) => setEditingProduct({...editingProduct, sizes_available: e.target.value})}
-                    className="mt-2"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start mt-2"
+                      >
+                        {editingProduct.sizes_available && editingProduct.sizes_available.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {editingProduct.sizes_available.map(size => (
+                              <Badge key={size} variant="secondary" className="text-xs">
+                                {size}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-500">Select sizes...</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium mb-2">Select Sizes</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {PRODUCT_SIZES.map(size => (
+                            <div key={size} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`edit-size-${size}`}
+                                checked={editingProduct.sizes_available?.includes(size)}
+                                onCheckedChange={() => {
+                                  const sizes = editingProduct.sizes_available || [];
+                                  if (sizes.includes(size)) {
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      sizes_available: sizes.filter(s => s !== size)
+                                    });
+                                  } else {
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      sizes_available: [...sizes, size]
+                                    });
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={`edit-size-${size}`}
+                                className="text-sm cursor-pointer flex-1"
+                              >
+                                {size}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {editingProduct.sizes_available && editingProduct.sizes_available.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {editingProduct.sizes_available.map(size => (
+                        <Badge key={size} variant="secondary" className="text-xs">
+                          {size}
+                          <button
+                            onClick={() => setEditingProduct({
+                              ...editingProduct,
+                              sizes_available: editingProduct.sizes_available.filter(s => s !== size)
+                            })}
+                            className="ml-1 hover:text-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -905,23 +973,12 @@ const AdminCatalog = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3 p-3 border rounded bg-slate-50">
-                  <Switch
-                    checked={editingProduct.is_published}
-                    onCheckedChange={(checked) => setEditingProduct({...editingProduct, is_published: checked})}
-                  />
-                  <Label>Show in catalog?</Label>
-                </div>
-                <div>
-                  <Label>Sort Order</Label>
-                  <Input
-                    type="number"
-                    value={editingProduct.sort_order}
-                    onChange={(e) => setEditingProduct({...editingProduct, sort_order: parseInt(e.target.value) || 100})}
-                    className="mt-2"
-                  />
-                </div>
+              <div className="flex items-center space-x-3 p-3 border rounded bg-slate-50">
+                <Switch
+                  checked={editingProduct.is_published}
+                  onCheckedChange={(checked) => setEditingProduct({...editingProduct, is_published: checked})}
+                />
+                <Label>Show in catalog?</Label>
               </div>
             </div>
           )}
