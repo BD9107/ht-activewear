@@ -160,6 +160,7 @@ const AdminCatalog = () => {
   const openEditModal = (product) => {
     setEditingProduct({
       ...product,
+      colors: product.colors ? product.colors.split(' / ').map(c => c.trim()) : [],
       tags: product.tags ? product.tags.join(', ') : ''
     });
     setEditModalOpen(true);
