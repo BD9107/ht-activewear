@@ -180,6 +180,7 @@ const AdminCatalog = () => {
     try {
       const payload = {
         ...editingProduct,
+        colors: Array.isArray(editingProduct.colors) ? editingProduct.colors.join(' / ') : editingProduct.colors,
         tags: editingProduct.tags ? editingProduct.tags.split(',').map(t => t.trim()).filter(t => t) : []
       };
       delete payload.id;
