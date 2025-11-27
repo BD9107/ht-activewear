@@ -162,6 +162,7 @@ const AdminCatalog = () => {
     setEditingProduct({
       ...product,
       colors: product.colors ? product.colors.split(' / ').map(c => c.trim()) : [],
+      sizes_available: product.sizes_available ? product.sizes_available.split(',').map(s => s.trim()) : [],
       tags: product.tags ? product.tags.join(', ') : ''
     });
     setEditModalOpen(true);
