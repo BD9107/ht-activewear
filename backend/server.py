@@ -189,8 +189,11 @@ async def verify_auth(payload: dict = Depends(verify_token)):
 # ============ PRODUCT API ENDPOINTS ============
 
 @api_router.post("/products", response_model=Product)
-async def create_product(product_input: ProductCreate):
-    """Create a new product"""
+async def create_product(
+    product_input: ProductCreate,
+    payload: dict = Depends(verify_token)
+):
+    """Create a new product (requires authentication)"""
     product_dict = product_input.model_dump()
     product_obj = Product(**product_dict)
     
@@ -205,11 +208,21 @@ async def create_product(product_input: ProductCreate):
 
 
 @api_router.get("/products", response_model=List[Product])
-async def get_products(published_only: bool = False):
-    """Get all products, optionally filter by published status"""
-    query = {}
-    if published_only:
-        query['is_published'] = True
+async def get_products(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get all products. Returns only published products for unauthenticated users."""
+    # Check if user is authenticated
+    is_authenticated = False
+    if credentials:
+        try:
+            jwt.decode(credentials.credentials, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+            is_authenticated = True
+        except JWTError:
+            pass
+    
+    # Build query based on authentication
+    query = {} if is_authenticated else {"is_published": True}
     
     # Exclude MongoDB's _id field and sort by sort_order
     products = await db.products.find(query, {"_id": 0}).sort("sort_order", 1).to_list(1000)
