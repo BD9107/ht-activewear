@@ -126,7 +126,6 @@ const Admin = () => {
           <p className="text-slate-600">© 2025 HT Activewear. All rights reserved.</p>
         </div>
       </div>
-      </div>
     </div>
   );
 };
