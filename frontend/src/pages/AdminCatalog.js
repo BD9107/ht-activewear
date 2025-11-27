@@ -83,7 +83,7 @@ const AdminCatalog = () => {
       category: '',
       description: '',
       colors: [],
-      sizes_available: '',
+      sizes_available: [],
       main_image_url: '',
       is_published: true,
       sort_order: 100,
