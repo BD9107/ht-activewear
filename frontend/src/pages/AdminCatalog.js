@@ -449,14 +449,64 @@ const AdminCatalog = () => {
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="sizes" className="text-base">Available Sizes</Label>
-                    <Input
-                      id="sizes"
-                      value={formData.sizes_available}
-                      onChange={(e) => handleInputChange('sizes_available', e.target.value)}
-                      placeholder="e.g. XS-3XL"
-                      className="mt-2 h-12 text-base"
-                    />
+                    <Label className="text-base">Available Sizes</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start h-12 mt-2"
+                        >
+                          {formData.sizes_available.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {formData.sizes_available.map(size => (
+                                <Badge key={size} variant="secondary" className="text-xs">
+                                  {size}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">Select sizes...</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-3">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium mb-2">Select Sizes</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {PRODUCT_SIZES.map(size => (
+                              <div key={size} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`size-${size}`}
+                                  checked={formData.sizes_available.includes(size)}
+                                  onCheckedChange={() => toggleSize(size)}
+                                />
+                                <label
+                                  htmlFor={`size-${size}`}
+                                  className="text-sm cursor-pointer flex-1"
+                                >
+                                  {size}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    {formData.sizes_available.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.sizes_available.map(size => (
+                          <Badge key={size} variant="secondary" className="text-xs">
+                            {size}
+                            <button
+                              onClick={() => removeSize(size)}
+                              className="ml-1 hover:text-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -485,29 +535,16 @@ const AdminCatalog = () => {
                   <p className="text-sm text-slate-500 mt-1">Separate tags with commas</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-center space-x-3 p-4 border rounded-lg bg-slate-50">
-                    <Switch
-                      id="published"
-                      checked={formData.is_published}
-                      onCheckedChange={(checked) => handleInputChange('is_published', checked)}
-                      data-testid="publish-toggle"
-                    />
-                    <Label htmlFor="published" className="text-base cursor-pointer">
-                      Show in catalog?
-                    </Label>
-                  </div>
-                  <div>
-                    <Label htmlFor="sort_order" className="text-base">Sort Order</Label>
-                    <Input
-                      id="sort_order"
-                      type="number"
-                      value={formData.sort_order}
-                      onChange={(e) => handleInputChange('sort_order', parseInt(e.target.value) || 100)}
-                      className="mt-2 h-12 text-base"
-                    />
-                    <p className="text-sm text-slate-500 mt-1">Lower numbers appear first</p>
-                  </div>
+                <div className="flex items-center space-x-3 p-4 border rounded-lg bg-slate-50">
+                  <Switch
+                    id="published"
+                    checked={formData.is_published}
+                    onCheckedChange={(checked) => handleInputChange('is_published', checked)}
+                    data-testid="publish-toggle"
+                  />
+                  <Label htmlFor="published" className="text-base cursor-pointer">
+                    Show in catalog?
+                  </Label>
                 </div>
 
                 <div className="flex gap-4 pt-4">
