@@ -183,6 +183,7 @@ const AdminCatalog = () => {
       const payload = {
         ...editingProduct,
         colors: Array.isArray(editingProduct.colors) ? editingProduct.colors.join(' / ') : editingProduct.colors,
+        sizes_available: Array.isArray(editingProduct.sizes_available) ? editingProduct.sizes_available.join(', ') : editingProduct.sizes_available,
         tags: editingProduct.tags ? editingProduct.tags.split(',').map(t => t.trim()).filter(t => t) : []
       };
       delete payload.id;
