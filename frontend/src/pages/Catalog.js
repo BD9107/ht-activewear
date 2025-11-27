@@ -121,7 +121,7 @@ const Catalog = () => {
           <Card className="shadow-lg">
             <CardContent className="py-12 text-center">
               <ShoppingBag className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600 text-lg">No products available at the moment.</p>
+              <p className="text-slate-600 text-lg font-medium">No products in the catalog yet</p>
               <p className="text-slate-500 text-sm mt-2">Check back soon for new arrivals!</p>
             </CardContent>
           </Card>
