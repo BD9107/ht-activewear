@@ -109,7 +109,7 @@ const Login = () => {
             <div className="mt-6 pt-6 border-t border-slate-200">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/catalog')}
+                onClick={() => window.open('/catalog', '_blank')}
                 className="w-full text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               >
                 <Store className="w-4 h-4 mr-2" />
