@@ -224,8 +224,8 @@ async def get_products(
     # Build query based on authentication
     query = {} if is_authenticated else {"is_published": True}
     
-    # Exclude MongoDB's _id field and sort by sort_order
-    products = await db.products.find(query, {"_id": 0}).sort("sort_order", 1).to_list(1000)
+    # Exclude MongoDB's _id field and sort by sort_order ascending, then created_at descending
+    products = await db.products.find(query, {"_id": 0}).sort([("sort_order", 1), ("created_at", -1)]).to_list(1000)
     
     # Convert ISO string timestamps back to datetime objects
     for product in products:
