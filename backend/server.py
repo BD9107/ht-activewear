@@ -137,6 +137,28 @@ class ProductUpdate(BaseModel):
     is_published: Optional[bool] = None
     sort_order: Optional[int] = None
 
+
+# ProductImage Model
+class ProductImage(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    product_id: str
+    image_url: str
+    sort_order: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ProductImageCreate(BaseModel):
+    product_id: str
+    image_url: str
+    sort_order: int = 0
+
+
+class BulkSortOrderUpdate(BaseModel):
+    product_id: str
+    sort_order: int
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
