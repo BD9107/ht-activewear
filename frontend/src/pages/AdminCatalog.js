@@ -31,7 +31,7 @@ const AdminCatalog = () => {
     code: '',
     category: '',
     description: '',
-    colors: '',
+    colors: [],
     sizes_available: '',
     main_image_url: '',
     is_published: true,
