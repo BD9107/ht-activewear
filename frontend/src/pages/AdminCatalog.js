@@ -657,26 +657,28 @@ const AdminCatalog = () => {
                               <ShoppingBag className="w-12 h-12 text-slate-300" />
                             </div>
                           )}
-                          <div className="absolute top-2 right-2 flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="h-8 w-8 p-0"
-                              onClick={() => moveProduct(index, 'up')}
-                              disabled={index === 0}
-                            >
-                              <ArrowUp className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="h-8 w-8 p-0"
-                              onClick={() => moveProduct(index, 'down')}
-                              disabled={index === products.length - 1}
-                            >
-                              <ArrowDown className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          {sortMode === 'custom' && (
+                            <div className="absolute top-2 right-2 flex gap-1">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 w-8 p-0"
+                                onClick={() => moveProduct(index, 'up')}
+                                disabled={index === 0}
+                              >
+                                <ArrowUp className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 w-8 p-0"
+                                onClick={() => moveProduct(index, 'down')}
+                                disabled={index === products.length - 1}
+                              >
+                                <ArrowDown className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                         <CardContent className="p-3">
                           <Badge variant="outline" className="mb-2 text-xs bg-blue-50 text-blue-700 border-blue-200">{product.category}</Badge>
