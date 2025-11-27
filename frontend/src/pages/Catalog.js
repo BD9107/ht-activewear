@@ -84,11 +84,16 @@ const Catalog = () => {
                       {product.category}
                     </Badge>
                     <CardTitle className="text-lg mb-1">{product.name}</CardTitle>
-                    <CardDescription className="text-sm">
+                    <CardDescription className="text-sm mb-2">
                       {product.code}
                     </CardDescription>
+                    {product.description && (
+                      <p className="text-sm text-slate-600 line-clamp-2 mb-2">
+                        {product.description}
+                      </p>
+                    )}
                     {product.colors && (
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-slate-500">
                         Colors: {product.colors}
                       </p>
                     )}
