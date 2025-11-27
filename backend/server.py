@@ -123,6 +123,111 @@ async def get_status_checks():
     
     return status_checks
 
+
+# ============ PRODUCT API ENDPOINTS ============
+
+@api_router.post("/products", response_model=Product)
+async def create_product(product_input: ProductCreate):
+    """Create a new product"""
+    product_dict = product_input.model_dump()
+    product_obj = Product(**product_dict)
+    
+    # Convert to dict and serialize datetime fields to ISO string for MongoDB
+    doc = product_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    doc['updated_at'] = doc['updated_at'].isoformat()
+    
+    # Insert into database
+    await db.products.insert_one(doc)
+    return product_obj
+
+
+@api_router.get("/products", response_model=List[Product])
+async def get_products(published_only: bool = False):
+    """Get all products, optionally filter by published status"""
+    query = {}
+    if published_only:
+        query['is_published'] = True
+    
+    # Exclude MongoDB's _id field and sort by sort_order
+    products = await db.products.find(query, {"_id": 0}).sort("sort_order", 1).to_list(1000)
+    
+    # Convert ISO string timestamps back to datetime objects
+    for product in products:
+        if isinstance(product.get('created_at'), str):
+            product['created_at'] = datetime.fromisoformat(product['created_at'])
+        if isinstance(product.get('updated_at'), str):
+            product['updated_at'] = datetime.fromisoformat(product['updated_at'])
+    
+    return products
+
+
+@api_router.get("/products/{product_id}", response_model=Product)
+async def get_product(product_id: str):
+    """Get a single product by ID"""
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Convert ISO string timestamps back to datetime objects
+    if isinstance(product.get('created_at'), str):
+        product['created_at'] = datetime.fromisoformat(product['created_at'])
+    if isinstance(product.get('updated_at'), str):
+        product['updated_at'] = datetime.fromisoformat(product['updated_at'])
+    
+    return product
+
+
+@api_router.put("/products/{product_id}", response_model=Product)
+async def update_product(product_id: str, product_update: ProductUpdate):
+    """Update a product by ID"""
+    # Get existing product
+    existing_product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    
+    if not existing_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    # Convert existing product timestamps
+    if isinstance(existing_product.get('created_at'), str):
+        existing_product['created_at'] = datetime.fromisoformat(existing_product['created_at'])
+    if isinstance(existing_product.get('updated_at'), str):
+        existing_product['updated_at'] = datetime.fromisoformat(existing_product['updated_at'])
+    
+    # Update only provided fields
+    update_data = product_update.model_dump(exclude_unset=True)
+    update_data['updated_at'] = datetime.now(timezone.utc)
+    
+    # Merge updates with existing data
+    existing_product.update(update_data)
+    
+    # Serialize datetime fields
+    existing_product['created_at'] = existing_product['created_at'].isoformat()
+    existing_product['updated_at'] = existing_product['updated_at'].isoformat()
+    
+    # Update in database
+    await db.products.update_one(
+        {"id": product_id},
+        {"$set": existing_product}
+    )
+    
+    # Convert back to datetime for response
+    existing_product['created_at'] = datetime.fromisoformat(existing_product['created_at'])
+    existing_product['updated_at'] = datetime.fromisoformat(existing_product['updated_at'])
+    
+    return Product(**existing_product)
+
+
+@api_router.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    """Delete a product by ID"""
+    result = await db.products.delete_one({"id": product_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    return {"message": "Product deleted successfully", "id": product_id}
+
 # Include the router in the main app
 app.include_router(api_router)
 
