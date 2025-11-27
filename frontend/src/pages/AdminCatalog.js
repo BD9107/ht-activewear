@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
 import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, ArrowUp, ArrowDown, ShoppingBag, X } from 'lucide-react';
-import { PRODUCT_CATEGORIES, PRODUCT_COLORS } from '../constants/productConstants';
+import { PRODUCT_CATEGORIES, PRODUCT_COLORS, PRODUCT_SIZES } from '../constants/productConstants';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
