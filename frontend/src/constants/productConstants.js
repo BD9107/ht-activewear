@@ -1,13 +1,17 @@
 // Shared product constants for order form and catalog management
 
 export const PRODUCT_CATEGORIES = [
-  'Jersey',
-  'Hoodie',
-  'Polo',
-  'Shorts',
-  'Pants',
-  'Tracksuit',
-  'Accessories'
+  'Shirts',
+  'V-Neck',
+  'Tank Tops',
+  'Women Shirts',
+  'Polo Shirts',
+  'Long Sleeve',
+  'LS Hoodie',
+  'Zip Hoodie',
+  'Neck Gaiter',
+  'Sport Jersey',
+  'Other'
 ];
 
 export const PRODUCT_COLORS = [
