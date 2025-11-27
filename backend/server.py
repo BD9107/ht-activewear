@@ -167,6 +167,25 @@ async def get_status_checks():
     return status_checks
 
 
+# ============ AUTH API ENDPOINTS ============
+
+@api_router.post("/login", response_model=LoginResponse)
+async def login(login_data: LoginRequest):
+    """Login with password and receive JWT token"""
+    if login_data.password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    
+    # Create token with simple payload
+    access_token = create_access_token({"sub": "admin", "role": "admin"})
+    return LoginResponse(access_token=access_token)
+
+
+@api_router.get("/verify")
+async def verify_auth(payload: dict = Depends(verify_token)):
+    """Verify if user is authenticated"""
+    return {"authenticated": True, "user": payload.get("sub")}
+
+
 # ============ PRODUCT API ENDPOINTS ============
 
 @api_router.post("/products", response_model=Product)
