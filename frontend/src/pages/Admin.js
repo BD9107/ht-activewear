@@ -100,7 +100,7 @@ const Admin = () => {
         <div className="mt-8">
           <Card 
             className="cursor-pointer hover:shadow-xl transition-shadow border-2 border-slate-200 hover:border-blue-300 shadow-lg"
-            onClick={() => navigate('/catalog')}
+            onClick={() => window.open('/catalog', '_blank')}
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
