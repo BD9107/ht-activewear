@@ -347,7 +347,99 @@ async def delete_product(
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Product not found")
     
+    # Also delete all product images
+    await db.product_images.delete_many({"product_id": product_id})
+    
     return {"message": "Product deleted successfully", "id": product_id}
+
+
+# ============ PRODUCT IMAGES API ENDPOINTS ============
+
+@api_router.post("/products/{product_id}/images", response_model=ProductImage)
+async def add_product_image(
+    product_id: str,
+    image_data: ProductImageCreate,
+    payload: dict = Depends(verify_token)
+):
+    """Add an image to a product (requires authentication)"""
+    # Verify product exists
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    image_obj = ProductImage(**image_data.model_dump())
+    doc = image_obj.model_dump()
+    doc['created_at'] = doc['created_at'].isoformat()
+    
+    await db.product_images.insert_one(doc)
+    return image_obj
+
+
+@api_router.get("/products/{product_id}/images", response_model=List[ProductImage])
+async def get_product_images(product_id: str):
+    """Get all images for a product, sorted by sort_order"""
+    images = await db.product_images.find(
+        {"product_id": product_id},
+        {"_id": 0}
+    ).sort("sort_order", 1).to_list(100)
+    
+    for img in images:
+        if isinstance(img.get('created_at'), str):
+            img['created_at'] = datetime.fromisoformat(img['created_at'])
+    
+    return images
+
+
+@api_router.put("/products/{product_id}/images/{image_id}")
+async def update_product_image(
+    product_id: str,
+    image_id: str,
+    sort_order: int,
+    payload: dict = Depends(verify_token)
+):
+    """Update image sort order (requires authentication)"""
+    result = await db.product_images.update_one(
+        {"id": image_id, "product_id": product_id},
+        {"$set": {"sort_order": sort_order}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return {"message": "Image updated successfully"}
+
+
+@api_router.delete("/products/{product_id}/images/{image_id}")
+async def delete_product_image(
+    product_id: str,
+    image_id: str,
+    payload: dict = Depends(verify_token)
+):
+    """Delete a product image (requires authentication)"""
+    result = await db.product_images.delete_one({"id": image_id, "product_id": product_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    return {"message": "Image deleted successfully"}
+
+
+# ============ BULK OPERATIONS ============
+
+@api_router.post("/products/bulk-sort-order")
+async def update_bulk_sort_order(
+    updates: List[BulkSortOrderUpdate],
+    payload: dict = Depends(verify_token)
+):
+    """Bulk update product sort orders (requires authentication)"""
+    for update in updates:
+        await db.products.update_one(
+            {"id": update.product_id},
+            {"$set": {"sort_order": update.sort_order}}
+        )
+    
+    return {"message": f"Updated {len(updates)} products"}
+
 
 # Include the router in the main app
 app.include_router(api_router)
