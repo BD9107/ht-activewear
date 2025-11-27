@@ -12,6 +12,7 @@ from enum import Enum
 import uuid
 from datetime import datetime, timezone, timedelta
 from jose import JWTError, jwt
+import certifi
 
 
 ROOT_DIR = Path(__file__).parent
@@ -27,10 +28,11 @@ connection_params = {
     'socketTimeoutMS': 30000
 }
 if 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url:
-    # Python 3.13 requires tlsAllowInvalidCertificates=True for Atlas connections
+    # Python 3.13 requires explicit certificate file specification
     connection_params.update({
         'tls': True,
-        'tlsAllowInvalidCertificates': True
+        'tlsCAFile': certifi.where(),
+        'tlsAllowInvalidCertificates': False
     })
 client = AsyncIOMotorClient(mongo_url, **connection_params)
 db = client[os.environ['DB_NAME']]
