@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
-import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, ArrowUp, ArrowDown, ShoppingBag } from 'lucide-react';
 import { PRODUCT_CATEGORIES } from '../constants/productConstants';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -43,6 +43,7 @@ const AdminCatalog = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [formExpanded, setFormExpanded] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     fetchProducts();
@@ -236,13 +237,17 @@ const AdminCatalog = () => {
     }
   };
 
+  const handleImageError = (productId) => {
+    setImageErrors(prev => ({ ...prev, [productId]: true }));
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-slate-50">
       <Toaster />
       
       <div className="bg-white shadow-sm border-b sticky top-0 z-10">
@@ -270,7 +275,7 @@ const AdminCatalog = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Card className="mb-8 shadow-lg">
+        <Card className="mb-8 shadow-lg border-2">
           <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setFormExpanded(!formExpanded)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -441,7 +446,7 @@ const AdminCatalog = () => {
           )}
         </Card>
 
-        <Card className="shadow-lg">
+        <Card className="shadow-lg border-2">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -453,6 +458,7 @@ const AdminCatalog = () => {
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('grid')}
+                  className={viewMode === 'grid' ? 'bg-blue-600' : ''}
                 >
                   <Grid3x3 className="w-4 h-4" />
                 </Button>
@@ -460,6 +466,7 @@ const AdminCatalog = () => {
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setViewMode('list')}
+                  className={viewMode === 'list' ? 'bg-blue-600' : ''}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -468,117 +475,140 @@ const AdminCatalog = () => {
           </CardHeader>
           <CardContent>
             {products.length === 0 ? (
-              <div className="text-center py-12 text-slate-500">
-                No products yet. Add your first product using the form above.
+              <div className="text-center py-12">
+                <ShoppingBag className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-600 text-lg">No products yet</p>
+                <p className="text-slate-500 text-sm mt-2">Add your first product using the form above.</p>
               </div>
             ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="products">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4' : 'space-y-2'}
-                    >
-                      {products.map((product, index) => (
-                        <Draggable key={product.id} draggableId={product.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              className={`${snapshot.isDragging ? 'opacity-50' : ''}`}
-                              data-testid={`product-item-${product.id}`}
-                            >
-                              {viewMode === 'grid' ? (
-                                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                                  <div {...provided.dragHandleProps} className="absolute top-2 left-2 z-10 bg-white/90 rounded p-1 cursor-move">
-                                    <GripVertical className="w-4 h-4 text-slate-400" />
-                                  </div>
-                                  <div className="aspect-square bg-slate-200 overflow-hidden relative">
-                                    <img
-                                      src={product.main_image_url}
-                                      alt={product.name}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        e.target.style.display = 'none';
-                                        e.target.parentElement.innerHTML = '<div class="flex items-center justify-center h-full bg-slate-100 text-slate-400">No Image</div>';
-                                      }}
-                                    />
-                                  </div>
-                                  <CardContent className="p-3">
-                                    <Badge variant="outline" className="mb-2 text-xs">{product.category}</Badge>
-                                    <h3 className="font-semibold text-sm mb-1 truncate">{product.name}</h3>
-                                    <p className="text-xs text-slate-600 mb-2">{product.code}</p>
-                                    
-                                    <div className="flex items-center justify-between mb-2 p-2 bg-slate-50 rounded text-xs">
-                                      <span className="font-medium">Visible:</span>
-                                      <Switch
-                                        checked={product.is_published}
-                                        onCheckedChange={() => handleTogglePublish(product)}
-                                        data-testid={`publish-toggle-${product.id}`}
-                                      />
-                                    </div>
-
-                                    <Button
-                                      onClick={() => openEditModal(product)}
-                                      className="w-full text-xs"
-                                      variant="outline"
-                                      size="sm"
-                                      data-testid={`edit-button-${product.id}`}
-                                    >
-                                      <Edit className="w-3 h-3 mr-1" />
-                                      Edit
-                                    </Button>
-                                  </CardContent>
-                                </Card>
-                              ) : (
-                                <div className="flex items-center gap-4 p-4 bg-white border rounded-lg hover:shadow-md transition-shadow">
-                                  <div {...provided.dragHandleProps} className="cursor-move">
-                                    <GripVertical className="w-5 h-5 text-slate-400" />
-                                  </div>
-                                  <img
-                                    src={product.main_image_url}
-                                    alt={product.name}
-                                    className="w-16 h-16 object-cover rounded"
-                                    onError={(e) => {
-                                      e.target.style.display = 'none';
-                                    }}
-                                  />
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <Badge variant="outline" className="text-xs">{product.category}</Badge>
-                                      <h3 className="font-semibold">{product.name}</h3>
-                                    </div>
-                                    <p className="text-sm text-slate-600">{product.code}</p>
-                                  </div>
-                                  <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-sm text-slate-600">Visible:</span>
-                                      <Switch
-                                        checked={product.is_published}
-                                        onCheckedChange={() => handleTogglePublish(product)}
-                                      />
-                                    </div>
-                                    <Button
-                                      onClick={() => openEditModal(product)}
-                                      variant="outline"
-                                      size="sm"
-                                    >
-                                      <Edit className="w-4 h-4 mr-1" />
-                                      Edit
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
+              <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4' : 'space-y-2'}>
+                {products.map((product, index) => (
+                  <div key={product.id} data-testid={`product-item-${product.id}`}>
+                    {viewMode === 'grid' ? (
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow border-2">
+                        <div className="aspect-square bg-slate-100 overflow-hidden relative">
+                          {!imageErrors[product.id] ? (
+                            <img
+                              src={product.main_image_url}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={() => handleImageError(product.id)}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-slate-100">
+                              <ShoppingBag className="w-12 h-12 text-slate-300" />
                             </div>
                           )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                          <div className="absolute top-2 right-2 flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0"
+                              onClick={() => moveProduct(index, 'up')}
+                              disabled={index === 0}
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0"
+                              onClick={() => moveProduct(index, 'down')}
+                              disabled={index === products.length - 1}
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <CardContent className="p-3">
+                          <Badge variant="outline" className="mb-2 text-xs bg-blue-50 text-blue-700 border-blue-200">{product.category}</Badge>
+                          <h3 className="font-semibold text-sm mb-1 truncate">{product.name}</h3>
+                          <p className="text-xs text-slate-600 mb-2">{product.code}</p>
+                          
+                          <div className="flex items-center justify-between mb-2 p-2 bg-slate-50 rounded text-xs">
+                            <span className="font-medium">Visible:</span>
+                            <Switch
+                              checked={product.is_published}
+                              onCheckedChange={() => handleTogglePublish(product)}
+                              data-testid={`publish-toggle-${product.id}`}
+                            />
+                          </div>
+
+                          <Button
+                            onClick={() => openEditModal(product)}
+                            className="w-full text-xs bg-blue-600 hover:bg-blue-700"
+                            size="sm"
+                            data-testid={`edit-button-${product.id}`}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Edit
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="flex items-center gap-4 p-4 bg-white border-2 rounded-lg hover:shadow-md transition-shadow">
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            onClick={() => moveProduct(index, 'up')}
+                            disabled={index === 0}
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
+                            onClick={() => moveProduct(index, 'down')}
+                            disabled={index === products.length - 1}
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        {!imageErrors[product.id] ? (
+                          <img
+                            src={product.main_image_url}
+                            alt={product.name}
+                            className="w-16 h-16 object-cover rounded"
+                            onError={() => handleImageError(product.id)}
+                          />
+                        ) : (
+                          <div className="w-16 h-16 flex items-center justify-center bg-slate-100 rounded">
+                            <ShoppingBag className="w-8 h-8 text-slate-300" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">{product.category}</Badge>
+                            <h3 className="font-semibold">{product.name}</h3>
+                          </div>
+                          <p className="text-sm text-slate-600">{product.code}</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-600">Visible:</span>
+                            <Switch
+                              checked={product.is_published}
+                              onCheckedChange={() => handleTogglePublish(product)}
+                            />
+                          </div>
+                          <Button
+                            onClick={() => openEditModal(product)}
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
