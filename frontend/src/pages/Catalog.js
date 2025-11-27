@@ -65,16 +65,38 @@ const Catalog = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
-              <Store className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <Store className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-slate-900" data-testid="catalog-page-title">
+                  HT Activewear Catalog
+                </h1>
+                <p className="text-slate-600 mt-1">Browse our collection of premium activewear</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900" data-testid="catalog-page-title">
-                HT Activewear Catalog
-              </h1>
-              <p className="text-slate-600 mt-1">Browse our collection of premium activewear</p>
-            </div>
+            
+            {/* Admin Link */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(isAuthenticated ? '/admin' : '/login')}
+              className="text-slate-600 hover:text-slate-900"
+            >
+              {isAuthenticated ? (
+                <>
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Admin
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 mr-2" />
+                  Admin Login
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </div>
