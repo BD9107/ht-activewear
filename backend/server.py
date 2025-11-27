@@ -315,8 +315,11 @@ async def update_product(
 
 
 @api_router.delete("/products/{product_id}")
-async def delete_product(product_id: str):
-    """Delete a product by ID"""
+async def delete_product(
+    product_id: str,
+    payload: dict = Depends(verify_token)
+):
+    """Delete a product by ID (requires authentication)"""
     result = await db.products.delete_one({"id": product_id})
     
     if result.deleted_count == 0:
