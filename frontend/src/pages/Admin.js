@@ -43,7 +43,7 @@ const Admin = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Order Form Card */}
           <Card 
-            className="cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 hover:border-blue-400"
+            className="cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 hover:border-blue-400 shadow-lg"
             onClick={() => navigate('/order')}
             data-testid="order-form-card"
           >
@@ -51,7 +51,7 @@ const Admin = () => {
               <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-4">
                 <ClipboardList className="w-8 h-8 text-blue-600" />
               </div>
-              <CardTitle className="text-3xl font-bold">Order Form</CardTitle>
+              <CardTitle className="text-3xl font-bold text-slate-900">Order Form</CardTitle>
               <CardDescription className="text-lg mt-2">
                 Create and manage customer orders
               </CardDescription>
@@ -70,7 +70,7 @@ const Admin = () => {
 
           {/* Manage Catalog Card */}
           <Card 
-            className="cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 hover:border-green-400"
+            className="cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 hover:border-green-400 shadow-lg"
             onClick={() => navigate('/admin/catalog')}
             data-testid="manage-catalog-card"
           >
@@ -78,7 +78,7 @@ const Admin = () => {
               <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-4">
                 <Package className="w-8 h-8 text-green-600" />
               </div>
-              <CardTitle className="text-3xl font-bold">Manage Catalog</CardTitle>
+              <CardTitle className="text-3xl font-bold text-slate-900">Manage Catalog</CardTitle>
               <CardDescription className="text-lg mt-2">
                 Edit products and inventory
               </CardDescription>
