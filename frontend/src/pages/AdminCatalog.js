@@ -244,6 +244,24 @@ const AdminCatalog = () => {
     setImageErrors(prev => ({ ...prev, [productId]: true }));
   };
 
+  const toggleColor = (color) => {
+    setFormData(prev => {
+      const colors = Array.isArray(prev.colors) ? prev.colors : [];
+      if (colors.includes(color)) {
+        return { ...prev, colors: colors.filter(c => c !== color) };
+      } else {
+        return { ...prev, colors: [...colors, color] };
+      }
+    });
+  };
+
+  const removeColor = (color) => {
+    setFormData(prev => ({
+      ...prev,
+      colors: prev.colors.filter(c => c !== color)
+    }));
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
