@@ -57,13 +57,7 @@ const AdminCatalog = () => {
       const response = await axios.get(`${API}/products`, {
         headers: getAuthHeader()
       });
-      const sorted = response.data.sort((a, b) => {
-        if (a.sort_order !== b.sort_order) {
-          return a.sort_order - b.sort_order;
-        }
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
-      setProducts(sorted);
+      setProducts(response.data);
     } catch (error) {
       toast({
         title: "Error",
@@ -71,6 +65,23 @@ const AdminCatalog = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const getSortedProducts = () => {
+    const sorted = [...products];
+    if (sortMode === 'custom') {
+      sorted.sort((a, b) => {
+        if (a.sort_order !== b.sort_order) {
+          return a.sort_order - b.sort_order;
+        }
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    } else if (sortMode === 'newest') {
+      sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    } else if (sortMode === 'oldest') {
+      sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    }
+    return sorted;
   };
 
   const handleInputChange = (field, value) => {
