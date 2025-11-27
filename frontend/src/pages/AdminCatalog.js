@@ -13,8 +13,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
-import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, ArrowUp, ArrowDown, ShoppingBag } from 'lucide-react';
-import { PRODUCT_CATEGORIES } from '../constants/productConstants';
+import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, ArrowUp, ArrowDown, ShoppingBag, X } from 'lucide-react';
+import { PRODUCT_CATEGORIES, PRODUCT_COLORS } from '../constants/productConstants';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
