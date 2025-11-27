@@ -21,11 +21,16 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 # Add SSL/TLS parameters for MongoDB Atlas (Python 3.13 compatibility)
 # Only enable TLS for remote MongoDB connections (Atlas), not localhost
-connection_params = {'serverSelectionTimeoutMS': 5000}
+connection_params = {
+    'serverSelectionTimeoutMS': 30000,
+    'connectTimeoutMS': 30000,
+    'socketTimeoutMS': 30000
+}
 if 'mongodb.net' in mongo_url or 'mongodb+srv' in mongo_url:
+    # Python 3.13 requires tlsAllowInvalidCertificates=True for Atlas connections
     connection_params.update({
         'tls': True,
-        'tlsAllowInvalidCertificates': False
+        'tlsAllowInvalidCertificates': True
     })
 client = AsyncIOMotorClient(mongo_url, **connection_params)
 db = client[os.environ['DB_NAME']]
