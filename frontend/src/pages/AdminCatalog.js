@@ -368,14 +368,64 @@ const AdminCatalog = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="colors" className="text-base">Available Colors</Label>
-                    <Input
-                      id="colors"
-                      value={formData.colors}
-                      onChange={(e) => handleInputChange('colors', e.target.value)}
-                      placeholder="e.g. Red / Blue / White"
-                      className="mt-2 h-12 text-base"
-                    />
+                    <Label className="text-base">Available Colors</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start h-12 mt-2"
+                        >
+                          {formData.colors.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {formData.colors.map(color => (
+                                <Badge key={color} variant="secondary" className="text-xs">
+                                  {color}
+                                </Badge>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-slate-500">Select colors...</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-64 p-3">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium mb-2">Select Colors</p>
+                          <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                            {PRODUCT_COLORS.map(color => (
+                              <div key={color} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`color-${color}`}
+                                  checked={formData.colors.includes(color)}
+                                  onCheckedChange={() => toggleColor(color)}
+                                />
+                                <label
+                                  htmlFor={`color-${color}`}
+                                  className="text-sm cursor-pointer flex-1"
+                                >
+                                  {color}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    {formData.colors.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {formData.colors.map(color => (
+                          <Badge key={color} variant="secondary" className="text-xs">
+                            {color}
+                            <button
+                              onClick={() => removeColor(color)}
+                              className="ml-1 hover:text-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="sizes" className="text-base">Available Sizes</Label>
