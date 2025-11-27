@@ -744,11 +744,79 @@ const AdminCatalog = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Colors</Label>
-                  <Input
-                    value={editingProduct.colors || ''}
-                    onChange={(e) => setEditingProduct({...editingProduct, colors: e.target.value})}
-                    className="mt-2"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start mt-2"
+                      >
+                        {editingProduct.colors && editingProduct.colors.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {editingProduct.colors.map(color => (
+                              <Badge key={color} variant="secondary" className="text-xs">
+                                {color}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-slate-500">Select colors...</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium mb-2">Select Colors</p>
+                        <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                          {PRODUCT_COLORS.map(color => (
+                            <div key={color} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`edit-color-${color}`}
+                                checked={editingProduct.colors?.includes(color)}
+                                onCheckedChange={() => {
+                                  const colors = editingProduct.colors || [];
+                                  if (colors.includes(color)) {
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      colors: colors.filter(c => c !== color)
+                                    });
+                                  } else {
+                                    setEditingProduct({
+                                      ...editingProduct,
+                                      colors: [...colors, color]
+                                    });
+                                  }
+                                }}
+                              />
+                              <label
+                                htmlFor={`edit-color-${color}`}
+                                className="text-sm cursor-pointer flex-1"
+                              >
+                                {color}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  {editingProduct.colors && editingProduct.colors.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {editingProduct.colors.map(color => (
+                        <Badge key={color} variant="secondary" className="text-xs">
+                          {color}
+                          <button
+                            onClick={() => setEditingProduct({
+                              ...editingProduct,
+                              colors: editingProduct.colors.filter(c => c !== color)
+                            })}
+                            className="ml-1 hover:text-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label>Sizes</Label>
