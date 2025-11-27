@@ -707,26 +707,28 @@ const AdminCatalog = () => {
                       </Card>
                     ) : (
                       <div className="flex items-center gap-4 p-4 bg-white border-2 rounded-lg hover:shadow-md transition-shadow">
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => moveProduct(index, 'up')}
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => moveProduct(index, 'down')}
-                            disabled={index === products.length - 1}
-                          >
-                            <ArrowDown className="w-4 h-4" />
-                          </Button>
-                        </div>
+                        {sortMode === 'custom' && (
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => moveProduct(index, 'up')}
+                              disabled={index === 0}
+                            >
+                              <ArrowUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-8 w-8 p-0"
+                              onClick={() => moveProduct(index, 'down')}
+                              disabled={index === products.length - 1}
+                            >
+                              <ArrowDown className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        )}
                         {!imageErrors[product.id] ? (
                           <img
                             src={product.main_image_url}
