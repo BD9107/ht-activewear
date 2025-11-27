@@ -25,7 +25,23 @@ export const PRODUCT_COLORS = [
   'Maroon'
 ];
 
+export const PRODUCT_SIZES = [
+  'XS',
+  'SM',
+  'MD',
+  'LG',
+  'XL',
+  '2XL',
+  '3XL',
+  '4XL'
+];
+
 export const COLOR_OPTIONS = PRODUCT_COLORS.map(color => ({
   value: color,
   label: color
+}));
+
+export const SIZE_OPTIONS = PRODUCT_SIZES.map(size => ({
+  value: size,
+  label: size
 }));
