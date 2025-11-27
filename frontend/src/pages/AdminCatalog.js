@@ -45,6 +45,7 @@ const AdminCatalog = () => {
   const [editingProduct, setEditingProduct] = useState(null);
   const [formExpanded, setFormExpanded] = useState(false);
   const [viewMode, setViewMode] = useState('grid');
+  const [sortMode, setSortMode] = useState('custom');
   const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
