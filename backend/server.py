@@ -19,7 +19,13 @@ load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+# Add SSL/TLS parameters for Python 3.13 compatibility
+client = AsyncIOMotorClient(
+    mongo_url,
+    tls=True,
+    tlsAllowInvalidCertificates=False,
+    serverSelectionTimeoutMS=5000
+)
 db = client[os.environ['DB_NAME']]
 
 # Auth configuration
