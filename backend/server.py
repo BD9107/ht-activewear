@@ -238,9 +238,26 @@ async def get_products(
 
 
 @api_router.get("/products/{product_id}", response_model=Product)
-async def get_product(product_id: str):
-    """Get a single product by ID"""
-    product = await db.products.find_one({"id": product_id}, {"_id": 0})
+async def get_product(
+    product_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a single product by ID. Returns only if published for unauthenticated users."""
+    # Check if user is authenticated
+    is_authenticated = False
+    if credentials:
+        try:
+            jwt.decode(credentials.credentials, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+            is_authenticated = True
+        except JWTError:
+            pass
+    
+    # Build query based on authentication
+    query = {"id": product_id}
+    if not is_authenticated:
+        query["is_published"] = True
+    
+    product = await db.products.find_one(query, {"_id": 0})
     
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -255,8 +272,12 @@ async def get_product(product_id: str):
 
 
 @api_router.put("/products/{product_id}", response_model=Product)
-async def update_product(product_id: str, product_update: ProductUpdate):
-    """Update a product by ID"""
+async def update_product(
+    product_id: str,
+    product_update: ProductUpdate,
+    payload: dict = Depends(verify_token)
+):
+    """Update a product by ID (requires authentication)"""
     # Get existing product
     existing_product = await db.products.find_one({"id": product_id}, {"_id": 0})
     
