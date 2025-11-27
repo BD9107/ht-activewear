@@ -13,19 +13,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Toaster } from '@/components/ui/toaster';
-import { ArrowLeft, LogOut, Edit, Plus, Save } from 'lucide-react';
+import { ArrowLeft, LogOut, Edit, Plus, Save, ChevronDown, ChevronUp, Grid3x3, List, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { PRODUCT_CATEGORIES } from '../constants/productConstants';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
-
-const CATEGORIES = ['Jersey', 'Hoodie', 'Polo', 'Shorts', 'Pants', 'Tracksuit', 'Accessories'];
 
 const AdminCatalog = () => {
   const { logout, getAuthHeader } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -39,13 +38,12 @@ const AdminCatalog = () => {
     tags: ''
   });
 
-  // Products list
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // Edit modal
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [formExpanded, setFormExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
 
   useEffect(() => {
     fetchProducts();
@@ -56,7 +54,6 @@ const AdminCatalog = () => {
       const response = await axios.get(`${API}/products`, {
         headers: getAuthHeader()
       });
-      // Sort by sort_order ascending, then by created_at descending
       const sorted = response.data.sort((a, b) => {
         if (a.sort_order !== b.sort_order) {
           return a.sort_order - b.sort_order;
@@ -93,7 +90,6 @@ const AdminCatalog = () => {
   };
 
   const handleSave = async (clearAfter = false) => {
-    // Validate required fields
     if (!formData.name || !formData.code || !formData.category || !formData.description || !formData.main_image_url) {
       toast({
         title: "Validation Error",
@@ -209,16 +205,48 @@ const AdminCatalog = () => {
     }
   };
 
+  const handleDragEnd = async (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(products);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setProducts(items);
+
+    const updates = items.map((product, index) => ({
+      product_id: product.id,
+      sort_order: index * 10
+    }));
+
+    try {
+      await axios.post(`${API}/products/bulk-sort-order`, updates, {
+        headers: getAuthHeader()
+      });
+
+      toast({
+        title: "Success",
+        description: "Product order updated"
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update order",
+        variant: "destructive"
+      });
+      fetchProducts();
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <Toaster />
       
-      {/* Header */}
       <div className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
@@ -231,7 +259,7 @@ const AdminCatalog = () => {
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Back
               </Button>
-              <h1 className="text-2xl font-bold" data-testid="admin-catalog-page-title">
+              <h1 className="text-2xl font-bold text-slate-900" data-testid="admin-catalog-page-title">
                 Manage Catalog
               </h1>
             </div>
@@ -244,181 +272,201 @@ const AdminCatalog = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Add Product Form */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <Plus className="w-6 h-6" />
-              Add New Product
-            </CardTitle>
-            <CardDescription>Fill in the details to add a new product to your catalog</CardDescription>
+        <Card className="mb-8 shadow-lg">
+          <CardHeader className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setFormExpanded(!formExpanded)}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Plus className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Add New Product</CardTitle>
+                  <CardDescription>Click to {formExpanded ? 'collapse' : 'expand'} the form</CardDescription>
+                </div>
+              </div>
+              {formExpanded ? <ChevronUp className="w-6 h-6 text-slate-400" /> : <ChevronDown className="w-6 h-6 text-slate-400" />}
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Name and Code */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {formExpanded && (
+            <CardContent className="pt-6 border-t">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="name" className="text-base">Product Name *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      placeholder="e.g. Classic Football Jersey"
+                      className="mt-2 h-12 text-base"
+                      data-testid="product-name-input"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="code" className="text-base">Product Code *</Label>
+                    <Input
+                      id="code"
+                      value={formData.code}
+                      onChange={(e) => handleInputChange('code', e.target.value)}
+                      placeholder="e.g. JER-001"
+                      className="mt-2 h-12 text-base"
+                      data-testid="product-code-input"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="name" className="text-base">Product Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="e.g. Classic Football Jersey"
-                    className="mt-2 h-12 text-base"
-                    data-testid="product-name-input"
+                  <Label htmlFor="category" className="text-base">Category *</Label>
+                  <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                    <SelectTrigger className="mt-2 h-12 text-base" data-testid="category-select">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PRODUCT_CATEGORIES.map(cat => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="description" className="text-base">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    placeholder="Detailed product description..."
+                    className="mt-2 min-h-32 text-base"
+                    data-testid="product-description-input"
                   />
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="colors" className="text-base">Available Colors</Label>
+                    <Input
+                      id="colors"
+                      value={formData.colors}
+                      onChange={(e) => handleInputChange('colors', e.target.value)}
+                      placeholder="e.g. Red / Blue / White"
+                      className="mt-2 h-12 text-base"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sizes" className="text-base">Available Sizes</Label>
+                    <Input
+                      id="sizes"
+                      value={formData.sizes_available}
+                      onChange={(e) => handleInputChange('sizes_available', e.target.value)}
+                      placeholder="e.g. XS-3XL"
+                      className="mt-2 h-12 text-base"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="code" className="text-base">Product Code *</Label>
+                  <Label htmlFor="image" className="text-base">Main Image URL *</Label>
                   <Input
-                    id="code"
-                    value={formData.code}
-                    onChange={(e) => handleInputChange('code', e.target.value)}
-                    placeholder="e.g. JER-001"
+                    id="image"
+                    value={formData.main_image_url}
+                    onChange={(e) => handleInputChange('main_image_url', e.target.value)}
+                    placeholder="https://example.com/image.jpg"
                     className="mt-2 h-12 text-base"
-                    data-testid="product-code-input"
+                    data-testid="product-image-input"
                   />
+                  <p className="text-sm text-slate-500 mt-1">Enter the full URL to the product image</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="tags" className="text-base">Tags</Label>
+                  <Input
+                    id="tags"
+                    value={formData.tags}
+                    onChange={(e) => handleInputChange('tags', e.target.value)}
+                    placeholder="e.g. Football, Basketball, School"
+                    className="mt-2 h-12 text-base"
+                  />
+                  <p className="text-sm text-slate-500 mt-1">Separate tags with commas</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg bg-slate-50">
+                    <Switch
+                      id="published"
+                      checked={formData.is_published}
+                      onCheckedChange={(checked) => handleInputChange('is_published', checked)}
+                      data-testid="publish-toggle"
+                    />
+                    <Label htmlFor="published" className="text-base cursor-pointer">
+                      Show in catalog?
+                    </Label>
+                  </div>
+                  <div>
+                    <Label htmlFor="sort_order" className="text-base">Sort Order</Label>
+                    <Input
+                      id="sort_order"
+                      type="number"
+                      value={formData.sort_order}
+                      onChange={(e) => handleInputChange('sort_order', parseInt(e.target.value) || 100)}
+                      className="mt-2 h-12 text-base"
+                    />
+                    <p className="text-sm text-slate-500 mt-1">Lower numbers appear first</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    onClick={() => handleSave(false)}
+                    disabled={loading}
+                    size="lg"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    data-testid="save-button"
+                  >
+                    <Save className="w-5 h-5 mr-2" />
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                  <Button
+                    onClick={() => handleSave(true)}
+                    disabled={loading}
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                    data-testid="save-add-new-button"
+                  >
+                    <Plus className="w-5 h-5 mr-2" />
+                    Save & Add New
+                  </Button>
                 </div>
               </div>
+            </CardContent>
+          )}
+        </Card>
 
-              {/* Category */}
+        <Card className="shadow-lg">
+          <CardHeader>
+            <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="category" className="text-base">Category *</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                  <SelectTrigger className="mt-2 h-12 text-base" data-testid="category-select">
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CardTitle className="text-2xl">Products ({products.length})</CardTitle>
+                <CardDescription>Manage your product catalog</CardDescription>
               </div>
-
-              {/* Description */}
-              <div>
-                <Label htmlFor="description" className="text-base">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  placeholder="Detailed product description..."
-                  className="mt-2 min-h-32 text-base"
-                  data-testid="product-description-input"
-                />
-              </div>
-
-              {/* Colors and Sizes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="colors" className="text-base">Available Colors</Label>
-                  <Input
-                    id="colors"
-                    value={formData.colors}
-                    onChange={(e) => handleInputChange('colors', e.target.value)}
-                    placeholder="e.g. Red / Blue / White"
-                    className="mt-2 h-12 text-base"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="sizes" className="text-base">Available Sizes</Label>
-                  <Input
-                    id="sizes"
-                    value={formData.sizes_available}
-                    onChange={(e) => handleInputChange('sizes_available', e.target.value)}
-                    placeholder="e.g. XS-3XL"
-                    className="mt-2 h-12 text-base"
-                  />
-                </div>
-              </div>
-
-              {/* Image URL */}
-              <div>
-                <Label htmlFor="image" className="text-base">Main Image URL *</Label>
-                <Input
-                  id="image"
-                  value={formData.main_image_url}
-                  onChange={(e) => handleInputChange('main_image_url', e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="mt-2 h-12 text-base"
-                  data-testid="product-image-input"
-                />
-                <p className="text-sm text-slate-500 mt-1">Enter the full URL to the product image</p>
-              </div>
-
-              {/* Tags */}
-              <div>
-                <Label htmlFor="tags" className="text-base">Tags</Label>
-                <Input
-                  id="tags"
-                  value={formData.tags}
-                  onChange={(e) => handleInputChange('tags', e.target.value)}
-                  placeholder="e.g. Football, Basketball, School"
-                  className="mt-2 h-12 text-base"
-                />
-                <p className="text-sm text-slate-500 mt-1">Separate tags with commas</p>
-              </div>
-
-              {/* Published and Sort Order */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center space-x-3 p-4 border rounded-lg">
-                  <Switch
-                    id="published"
-                    checked={formData.is_published}
-                    onCheckedChange={(checked) => handleInputChange('is_published', checked)}
-                    data-testid="publish-toggle"
-                  />
-                  <Label htmlFor="published" className="text-base cursor-pointer">
-                    Show in catalog?
-                  </Label>
-                </div>
-                <div>
-                  <Label htmlFor="sort_order" className="text-base">Sort Order</Label>
-                  <Input
-                    id="sort_order"
-                    type="number"
-                    value={formData.sort_order}
-                    onChange={(e) => handleInputChange('sort_order', parseInt(e.target.value) || 100)}
-                    className="mt-2 h-12 text-base"
-                  />
-                  <p className="text-sm text-slate-500 mt-1">Lower numbers appear first</p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-2">
                 <Button
-                  onClick={() => handleSave(false)}
-                  disabled={loading}
-                  size="lg"
-                  className="flex-1"
-                  data-testid="save-button"
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
                 >
-                  <Save className="w-5 h-5 mr-2" />
-                  {loading ? 'Saving...' : 'Save'}
+                  <Grid3x3 className="w-4 h-4" />
                 </Button>
                 <Button
-                  onClick={() => handleSave(true)}
-                  disabled={loading}
-                  variant="outline"
-                  size="lg"
-                  className="flex-1"
-                  data-testid="save-add-new-button"
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
                 >
-                  <Plus className="w-5 h-5 mr-2" />
-                  Save & Add New
+                  <List className="w-4 h-4" />
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Existing Products List */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Existing Products ({products.length})</CardTitle>
-            <CardDescription>Manage your product catalog</CardDescription>
           </CardHeader>
           <CardContent>
             {products.length === 0 ? (
@@ -426,52 +474,118 @@ const AdminCatalog = () => {
                 No products yet. Add your first product using the form above.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map(product => (
-                  <Card key={product.id} className="overflow-hidden" data-testid={`product-item-${product.id}`}>
-                    <div className="aspect-square bg-slate-200 overflow-hidden">
-                      <img
-                        src={product.main_image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/400x400?text=Product';
-                        }}
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <Badge variant="outline" className="mb-2">{product.category}</Badge>
-                      <h3 className="font-semibold text-lg mb-1">{product.name}</h3>
-                      <p className="text-sm text-slate-600 mb-3">Code: {product.code}</p>
-                      
-                      <div className="flex items-center justify-between mb-3 p-3 bg-slate-50 rounded">
-                        <span className="text-sm font-medium">Visible in catalog:</span>
-                        <Switch
-                          checked={product.is_published}
-                          onCheckedChange={() => handleTogglePublish(product)}
-                          data-testid={`publish-toggle-${product.id}`}
-                        />
-                      </div>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="products">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4' : 'space-y-2'}
+                    >
+                      {products.map((product, index) => (
+                        <Draggable key={product.id} draggableId={product.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              className={`${snapshot.isDragging ? 'opacity-50' : ''}`}
+                              data-testid={`product-item-${product.id}`}
+                            >
+                              {viewMode === 'grid' ? (
+                                <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                                  <div {...provided.dragHandleProps} className="absolute top-2 left-2 z-10 bg-white/90 rounded p-1 cursor-move">
+                                    <GripVertical className="w-4 h-4 text-slate-400" />
+                                  </div>
+                                  <div className="aspect-square bg-slate-200 overflow-hidden relative">
+                                    <img
+                                      src={product.main_image_url}
+                                      alt={product.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.parentElement.innerHTML = '<div class="flex items-center justify-center h-full bg-slate-100 text-slate-400">No Image</div>';
+                                      }}
+                                    />
+                                  </div>
+                                  <CardContent className="p-3">
+                                    <Badge variant="outline" className="mb-2 text-xs">{product.category}</Badge>
+                                    <h3 className="font-semibold text-sm mb-1 truncate">{product.name}</h3>
+                                    <p className="text-xs text-slate-600 mb-2">{product.code}</p>
+                                    
+                                    <div className="flex items-center justify-between mb-2 p-2 bg-slate-50 rounded text-xs">
+                                      <span className="font-medium">Visible:</span>
+                                      <Switch
+                                        checked={product.is_published}
+                                        onCheckedChange={() => handleTogglePublish(product)}
+                                        data-testid={`publish-toggle-${product.id}`}
+                                      />
+                                    </div>
 
-                      <Button
-                        onClick={() => openEditModal(product)}
-                        className="w-full"
-                        variant="outline"
-                        data-testid={`edit-button-${product.id}`}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit Product
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                                    <Button
+                                      onClick={() => openEditModal(product)}
+                                      className="w-full text-xs"
+                                      variant="outline"
+                                      size="sm"
+                                      data-testid={`edit-button-${product.id}`}
+                                    >
+                                      <Edit className="w-3 h-3 mr-1" />
+                                      Edit
+                                    </Button>
+                                  </CardContent>
+                                </Card>
+                              ) : (
+                                <div className="flex items-center gap-4 p-4 bg-white border rounded-lg hover:shadow-md transition-shadow">
+                                  <div {...provided.dragHandleProps} className="cursor-move">
+                                    <GripVertical className="w-5 h-5 text-slate-400" />
+                                  </div>
+                                  <img
+                                    src={product.main_image_url}
+                                    alt={product.name}
+                                    className="w-16 h-16 object-cover rounded"
+                                    onError={(e) => {
+                                      e.target.style.display = 'none';
+                                    }}
+                                  />
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <Badge variant="outline" className="text-xs">{product.category}</Badge>
+                                      <h3 className="font-semibold">{product.name}</h3>
+                                    </div>
+                                    <p className="text-sm text-slate-600">{product.code}</p>
+                                  </div>
+                                  <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm text-slate-600">Visible:</span>
+                                      <Switch
+                                        checked={product.is_published}
+                                        onCheckedChange={() => handleTogglePublish(product)}
+                                      />
+                                    </div>
+                                    <Button
+                                      onClick={() => openEditModal(product)}
+                                      variant="outline"
+                                      size="sm"
+                                    >
+                                      <Edit className="w-4 h-4 mr-1" />
+                                      Edit
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Edit Modal */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -510,7 +624,7 @@ const AdminCatalog = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map(cat => (
+                    {PRODUCT_CATEGORIES.map(cat => (
                       <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                     ))}
                   </SelectContent>
@@ -565,7 +679,7 @@ const AdminCatalog = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3 p-3 border rounded">
+                <div className="flex items-center space-x-3 p-3 border rounded bg-slate-50">
                   <Switch
                     checked={editingProduct.is_published}
                     onCheckedChange={(checked) => setEditingProduct({...editingProduct, is_published: checked})}
@@ -589,7 +703,7 @@ const AdminCatalog = () => {
             <Button variant="outline" onClick={() => setEditModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditSave} data-testid="modal-save-button">
+            <Button onClick={handleEditSave} data-testid="modal-save-button" className="bg-blue-600 hover:bg-blue-700">
               Save Changes
             </Button>
           </DialogFooter>
