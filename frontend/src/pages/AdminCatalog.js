@@ -265,6 +265,24 @@ const AdminCatalog = () => {
     }));
   };
 
+  const toggleSize = (size) => {
+    setFormData(prev => {
+      const sizes = Array.isArray(prev.sizes_available) ? prev.sizes_available : [];
+      if (sizes.includes(size)) {
+        return { ...prev, sizes_available: sizes.filter(s => s !== size) };
+      } else {
+        return { ...prev, sizes_available: [...sizes, size] };
+      }
+    });
+  };
+
+  const removeSize = (size) => {
+    setFormData(prev => ({
+      ...prev,
+      sizes_available: prev.sizes_available.filter(s => s !== size)
+    }));
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/login');
