@@ -97,15 +97,26 @@ const Admin = () => {
         </div>
 
         {/* Quick Links Section */}
-        <div className="mt-12 text-center">
-          <Button
-            variant="ghost"
-            size="lg"
+        <div className="mt-8">
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-slate-300"
             onClick={() => navigate('/catalog')}
-            className="text-slate-600 hover:text-slate-900"
           >
-            View Public Catalog →
-          </Button>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                    <Package className="w-6 h-6 text-slate-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-lg font-semibold text-slate-900">View Public Catalog</h3>
+                    <p className="text-sm text-slate-600">See how customers view your products</p>
+                  </div>
+                </div>
+                <span className="text-slate-400">→</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
