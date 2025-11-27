@@ -25,10 +25,24 @@ const Catalog = () => {
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${API}/products`);
-      setProducts(response.data);
+      // Only set error if the request actually failed
+      // An empty array [] is a valid successful response
+      if (response.status === 200) {
+        setProducts(Array.isArray(response.data) ? response.data : []);
+        setError(null);
+      } else {
+        setError('Failed to load products');
+      }
     } catch (err) {
-      setError('Failed to load products');
-      console.error(err);
+      // Only show error for actual HTTP failures (network errors, 4xx, 5xx)
+      if (err.response) {
+        setError(`Failed to load products (${err.response.status})`);
+      } else if (err.request) {
+        setError('Unable to connect to server');
+      } else {
+        setError('Failed to load products');
+      }
+      console.error('Error fetching products:', err);
     } finally {
       setLoading(false);
     }
