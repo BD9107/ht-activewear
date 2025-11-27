@@ -38,6 +38,62 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+
+# Product Category Enum
+class ProductCategory(str, Enum):
+    JERSEY = "Jersey"
+    HOODIE = "Hoodie"
+    POLO = "Polo"
+    SHORTS = "Shorts"
+    PANTS = "Pants"
+    TRACKSUIT = "Tracksuit"
+    ACCESSORIES = "Accessories"
+
+
+# Product Model
+class Product(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    code: str
+    category: ProductCategory
+    description: str
+    main_image_url: str
+    colors: Optional[str] = None
+    sizes_available: Optional[str] = None
+    tags: Optional[List[str]] = None
+    is_published: bool = True
+    sort_order: int = 100
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ProductCreate(BaseModel):
+    name: str
+    code: str
+    category: ProductCategory
+    description: str
+    main_image_url: str
+    colors: Optional[str] = None
+    sizes_available: Optional[str] = None
+    tags: Optional[List[str]] = None
+    is_published: bool = True
+    sort_order: int = 100
+
+
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    code: Optional[str] = None
+    category: Optional[ProductCategory] = None
+    description: Optional[str] = None
+    main_image_url: Optional[str] = None
+    colors: Optional[str] = None
+    sizes_available: Optional[str] = None
+    tags: Optional[List[str]] = None
+    is_published: Optional[bool] = None
+    sort_order: Optional[int] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
