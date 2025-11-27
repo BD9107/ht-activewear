@@ -204,18 +204,17 @@ const AdminCatalog = () => {
     }
   };
 
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
+  const moveProduct = async (index, direction) => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= products.length) return;
 
     const items = Array.from(products);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
+    [items[index], items[newIndex]] = [items[newIndex], items[index]];
     setProducts(items);
 
-    const updates = items.map((product, index) => ({
+    const updates = items.map((product, idx) => ({
       product_id: product.id,
-      sort_order: index * 10
+      sort_order: idx * 10
     }));
 
     try {
