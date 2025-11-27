@@ -106,6 +106,7 @@ const AdminCatalog = () => {
       const payload = {
         ...formData,
         colors: Array.isArray(formData.colors) ? formData.colors.join(' / ') : formData.colors,
+        sizes_available: Array.isArray(formData.sizes_available) ? formData.sizes_available.join(', ') : formData.sizes_available,
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(t => t) : []
       };
 
