@@ -648,11 +648,17 @@ async def get_order(order_number: str):
 
 app.include_router(api_router)
 
+# CORS configuration - allow both local and production frontends
+cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+# Always include Render frontend
+if 'https://ht-orderform-front.onrender.com' not in cors_origins:
+    cors_origins.append('https://ht-orderform-front.onrender.com')
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
+    allow_origins=cors_origins,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
