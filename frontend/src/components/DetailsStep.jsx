@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputMask from 'react-input-mask'; // Add this at the top of your file
 import axios from "axios";
 import { toast } from "sonner";
@@ -13,6 +13,13 @@ const API = `${BACKEND_URL}/api`;
 
 const DetailsStep = ({ orderDetails, setOrderDetails }) => {
   const [uploading, setUploading] = useState(false);
+
+  // set default area code on mount if phone is empty
+  useEffect(() => {
+    if (!orderDetails?.phone) {
+      setOrderDetails(prev => ({ ...prev, phone: "(297) " }));
+    }
+  }, [setOrderDetails]);
 
   const handleChange = (field, value) => {
     setOrderDetails({ ...orderDetails, [field]: value });
