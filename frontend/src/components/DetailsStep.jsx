@@ -106,8 +106,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
     'data-testid': 'phone-input'
   }}
 />
-  )}
-</InputMask>
       </div>
 
       {/* Notes */}
