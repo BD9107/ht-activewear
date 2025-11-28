@@ -598,8 +598,11 @@ async def submit_order(submission: OrderSubmissionWithDiscount):
         else:
             raise HTTPException(status_code=500, detail="Airtable 'Order Items' table not found")
         
-        # Send email notifications with discount type
-        await send_order_confirmation_email(order_data, submission, submission.discountType)
+        # Send email notifications with discount type (don't fail if email fails)
+        try:
+            await send_order_confirmation_email(order_data, submission, submission.discountType)
+        except Exception as email_error:
+            logging.error(f"Email sending failed (order still created): {email_error}")
         
         return OrderResponse(
             orderNumber=order_number,
