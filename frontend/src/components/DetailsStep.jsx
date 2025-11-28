@@ -96,27 +96,29 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
     Phone (optional)
   </Label>
   <PhoneInput
-    country={'aw'}                         // Default to Aruba
-    onlyCountries={['aw']}                 // Lock to Aruba
-    value={orderDetails.phone}            // Controlled value
-    onChange={(phone) => handleChange('phone', phone)}
-    inputProps={{
-      name: 'phone',
-      required: false,
-      id: 'phone',
-      'data-testid': 'phone-input',
-    }}
-    inputStyle={{
-      width: '100%',
-      height: '48px',
-      borderRadius: '0.75rem',
-      border: '1px solid #d1d5db',
-      fontSize: '1rem',
-      paddingLeft: '12px',
-    }}
-    disableDropdown={true}                // Hides flag dropdown
-    countryCodeEditable={true}           // Prevents changing +297
-  />
+  country={'aw'}
+  onlyCountries={['aw']}
+  disableDropdown={true}
+  countryCodeEditable={false}
+  inputProps={{
+    name: 'phone',
+    required: false,
+    autoFocus: false
+  }}
+  containerStyle={{ borderRadius: '12px' }}
+  inputStyle={{
+    width: '100%',
+    height: '48px',
+    fontSize: '16px',
+    borderRadius: '12px',
+    paddingLeft: '12px',
+    paddingRight: '12px',
+    border: '1px solid #d1d5db',
+  }}
+  buttonStyle={{ display: 'none' }} // 🔥 Hides the flag button
+  value={orderDetails.phone}
+  onChange={(value) => handleChange('phone', value)}
+/>
 </div>
 
       {/* Notes */}
