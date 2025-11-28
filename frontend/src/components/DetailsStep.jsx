@@ -71,9 +71,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
           placeholder="Enter full name"
           className="h-12 text-base rounded-xl border-gray-300"
           data-testid="customer-name-input"
-          required
-          minLength={2}
-          maxLength={100}
         />
       </div>
 
@@ -90,7 +87,6 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
           placeholder="email@example.com"
           className="h-12 text-base rounded-xl border-gray-300"
           data-testid="email-input"
-          required
         />
       </div>
 
