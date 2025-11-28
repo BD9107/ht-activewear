@@ -16,10 +16,10 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
 
   // set default area code on mount if phone is empty
   useEffect(() => {
-    if (!orderDetails?.phone) {
+    if (orderDetails && !orderDetails?.phone) {
       setOrderDetails(prev => ({ ...prev, phone: "(297) " }));
     }
-  }, [setOrderDetails]);
+  }, [orderDetails, setOrderDetails]);
 
   const handleChange = (field, value) => {
     setOrderDetails({ ...orderDetails, [field]: value });
