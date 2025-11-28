@@ -4,7 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import InputMask from 'react-input-mask'; // Add this at the top of your file
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -13,13 +14,6 @@ const API = `${BACKEND_URL}/api`;
 
 const DetailsStep = ({ orderDetails, setOrderDetails }) => {
   const [uploading, setUploading] = useState(false);
-
-  // set default area code on mount if phone is empty
-  useEffect(() => {
-    if (orderDetails && !orderDetails?.phone) {
-      setOrderDetails(prev => ({ ...prev, phone: "(297) " }));
-    }
-  }, [orderDetails, setOrderDetails]);
 
   const handleChange = (field, value) => {
     setOrderDetails({ ...orderDetails, [field]: value });
@@ -101,20 +95,17 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
         <Label htmlFor="phone" className="text-base font-medium text-gray-900">
           Phone (optional)
         </Label>
-		<InputMask
-		mask="(999) 999-9999"
-		value={orderDetails.phone}
-		onChange={(e) => handleChange('phone', e.target.value)}
-		>
-		{(inputProps) => (
-		<Input
-		{...inputProps}
-		id="phone"
-		type="tel"
-		placeholder="(297) 000-0000"
-		className="h-12 text-base rounded-xl border-gray-300"
-		data-testid="phone-input"
-		/>
+		<PhoneInput
+  country={'aw'} // Aruba
+  value={orderDetails.phone}
+  onChange={(value) => handleChange('phone', value)}
+  inputProps={{
+    name: 'phone',
+    required: false,
+    className: 'h-12 text-base rounded-xl border border-gray-300 w-full',
+    'data-testid': 'phone-input'
+  }}
+/>
   )}
 </InputMask>
       </div>
