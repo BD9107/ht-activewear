@@ -92,21 +92,32 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
 
       {/* Phone */}
       <div className="space-y-2">
-        <Label htmlFor="phone" className="text-base font-medium text-gray-900">
-          Phone (optional)
-        </Label>
-		<PhoneInput
-  country={'aw'} // Aruba
-  value={orderDetails.phone}
-  onChange={(value) => handleChange('phone', value)}
-  inputProps={{
-    name: 'phone',
-    required: false,
-    className: 'h-12 text-base rounded-xl border border-gray-300 w-full',
-    'data-testid': 'phone-input'
-  }}
-/>
-      </div>
+  <Label htmlFor="phone" className="text-base font-medium text-gray-900">
+    Phone (optional)
+  </Label>
+  <PhoneInput
+    country={'aw'}                         // Default to Aruba
+    onlyCountries={['aw']}                 // Lock to Aruba
+    value={orderDetails.phone}            // Controlled value
+    onChange={(phone) => handleChange('phone', phone)}
+    inputProps={{
+      name: 'phone',
+      required: false,
+      id: 'phone',
+      'data-testid': 'phone-input',
+    }}
+    inputStyle={{
+      width: '100%',
+      height: '48px',
+      borderRadius: '0.75rem',
+      border: '1px solid #d1d5db',
+      fontSize: '1rem',
+      paddingLeft: '12px',
+    }}
+    disableDropdown={true}                // Hides flag dropdown
+    countryCodeEditable={true}           // Prevents changing +297
+  />
+</div>
 
       {/* Notes */}
       <div className="space-y-2">
