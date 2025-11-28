@@ -212,6 +212,8 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
                 placeholder="Describe your customization needs (e.g., logo placement, text, colors)..."
                 className="min-h-[100px] text-base rounded-xl border-gray-300 resize-none"
                 data-testid="customization-details-textarea"
+                required
+                minLength={10}
               />
             </div>
 
