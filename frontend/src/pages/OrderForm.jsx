@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DetailsStep from "@/components/DetailsStep";
 import ItemsStepNew from "@/components/ItemsStepNew";
@@ -14,6 +14,11 @@ const OrderForm = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "HT Activewear Order Form";
+  }, []);
 
   // Form data
   const [orderDetails, setOrderDetails] = useState({
