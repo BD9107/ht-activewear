@@ -89,7 +89,7 @@ def generate_order_number() -> str:
             records = orders_table.all(
                 formula=f"YEAR({{Timestamp}}) = {current_year}",
                 max_records=1000,
-                sort=[("Timestamp", "desc")]
+                sort=["Timestamp"]
             )
             counter = len(records) + 1
         else:
