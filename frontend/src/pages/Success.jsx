@@ -22,6 +22,9 @@ const Success = () => {
   const [pricingData, setPricingData] = useState(null);
 
   useEffect(() => {
+    // Set page title
+    document.title = orderNumber ? `Order ${orderNumber} - HT Activewear` : "HT Activewear Order Form";
+    
     if (!orderNumber) {
       navigate('/');
       return;
