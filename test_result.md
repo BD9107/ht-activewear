@@ -298,7 +298,7 @@ agent_communication:
       3. Order with volume discount (need sufficient quantity)
       
       Frontend URL: https://f9aa4d84-41de-443f-94da-63ebf0e6ccb4.preview.emergent.systems
-      API Base: https://ht-orderform.preview.emergentagent.com/api
+      API Base: https://git-puller-12.preview.emergentagent.com/api
   - agent: "testing"
     message: |
       COMPREHENSIVE END-TO-END TESTING COMPLETED
