@@ -49,7 +49,7 @@ const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
 const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEmail, discountType, setDiscountType }) => {
   const [currencyToggle, setCurrencyToggle] = useState(currency || "AWG");
   const [pricingData, setPricingData] = useState(null);
-  const [showPricing, setShowPricing] = useState(true);
+  const [showPricing, setShowPricing] = useState(false);
   const [loadingPricing, setLoadingPricing] = useState(true);
 
   useEffect(() => {
