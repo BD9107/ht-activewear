@@ -37,6 +37,9 @@ except Exception as e:
     customer_discounts_table = None
 
 app = FastAPI()
+@app.get("/")
+def read_root():
+    return {"message": "Backend is running!"}
 api_router = APIRouter(prefix="/api")
 
 # Models
