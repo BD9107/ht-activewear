@@ -101,3 +101,47 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: HT Activewear Order Form - Step 5: Enhance Audit Logs with Actor Identity
+
+backend:
+  - task: "Actor identity in admin audit logs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed delete_bulk_discount endpoint to use verify_admin_pin_and_get_actor() and pass actor to log_admin_change(). All admin endpoints now properly log actor_id, actor_name, actor_role. Tested with PIN 9107 (Primary Admin/operator) and PIN 5678 (System Overwatch/overwatch) - both logged correctly."
+
+frontend:
+  - task: "Display actor name and role in AdminActivity.jsx"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/AdminActivity.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added actor_name and actor_role display in the log entry UI. Actor name shows as 'By: [name]' and role shows as a badge (red for overwatch, gray for operator). Verified via screenshot."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Step 5 (Actor Identity in Audit Logs) completed. Backend fix applied to delete_bulk_discount endpoint. Frontend updated to display actor_name and actor_role. Manual testing done with curl and screenshot verification. All admin changes now show who made the change."
