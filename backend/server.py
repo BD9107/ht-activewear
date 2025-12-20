@@ -444,6 +444,229 @@ async def upload_to_google_drive(file_content: bytes, filename: str, mime_type: 
 async def root():
     return {"message": "HT Activewear Order API"}
 
+# ============================================================================
+# CENTRALIZED SETTINGS ENDPOINT (Read-Only)
+# Aggregates all configuration data from Airtable in a single request
+# ============================================================================
+
+@api_router.get("/settings")
+async def get_settings():
+    """
+    Centralized settings endpoint - returns all configuration data.
+    Read-only access to Airtable configuration tables.
+    """
+    try:
+        settings = {
+            # Display settings
+            "currency": {
+                "default": "AWG",
+                "options": ["AWG", "USD"],
+                "exchange_rate": 1.75  # AWG to USD
+            },
+            "show_pricing": os.environ.get('SHOW_PRICING', 'true').lower() == 'true',
+            
+            # Garment configuration
+            "garments": [],
+            
+            # Color options
+            "colors": [
+                {"value": "Grey", "hex": "#9CA3AF"},
+                {"value": "Purple", "hex": "#A855F7"},
+                {"value": "Navy", "hex": "#1E3A8A"},
+                {"value": "Blue", "hex": "#3B82F6"},
+                {"value": "Seafoam", "hex": "#5EEAD4"},
+                {"value": "Green", "hex": "#22C55E"},
+                {"value": "Green-Yellow", "hex": "#84CC16"},
+                {"value": "Yellow", "hex": "#EAB308"},
+                {"value": "Orange", "hex": "#F97316"},
+                {"value": "Red", "hex": "#EF4444"},
+                {"value": "Pink", "hex": "#EC4899"},
+                {"value": "White", "hex": "#FFFFFF"},
+                {"value": "Custom", "hex": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"}
+            ],
+            
+            # Size options
+            "sizes": ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+            
+            # Customization options
+            "customization": {
+                "types": [
+                    {"value": "Printing", "label": "Printing", "additional_cost": 0},
+                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": 10}
+                ],
+                "artwork_statuses": [
+                    "Will Upload Later",
+                    "Will Email Separately",
+                    "Already Emailed",
+                    "Already Uploaded",
+                    "Not Needed",
+                    "Other"
+                ]
+            },
+            
+            # Pricing data
+            "pricing": {
+                "garment_pricing": [],
+                "customization_prices": {
+                    "Printing": 0,
+                    "Embroidery": 10
+                }
+            },
+            
+            # Discount rules
+            "discounts": {
+                "order_discounts": [],
+                "customer_discounts": []
+            }
+        }
+        
+        # Build garment list with pricing tiers
+        garment_types_config = [
+            {"value": "Shirts", "label": "Shirts", "icon": "/icons/garments/shirts.png", "active": True},
+            {"value": "V-Neck", "label": "V-Neck", "icon": "/icons/garments/vneck.png", "active": True},
+            {"value": "Tank Tops", "label": "Tank Tops", "icon": "/icons/garments/tank.png", "active": True},
+            {"value": "Women Shirts", "label": "Women Shirts", "icon": "/icons/garments/women-shirts.png", "active": True},
+            {"value": "Polo Shirts", "label": "Polo Shirts", "icon": "/icons/garments/polo.png", "active": True},
+            {"value": "Long Sleeve", "label": "Long Sleeve", "icon": "/icons/garments/longsleeve.png", "active": True},
+            {"value": "Long Sleeve with Hoodie", "label": "LS Hoodie", "icon": "/icons/garments/hoodie.png", "active": True},
+            {"value": "Zippered Hoodie", "label": "Zip Hoodie", "icon": "/icons/garments/zip-hoodie.png", "active": True},
+            {"value": "Neck Gaiter", "label": "Neck Gaiter", "icon": "/icons/garments/gaiter.png", "active": True},
+            {"value": "Sport Jersey", "label": "Sport Jersey", "icon": "/icons/garments/jersey.png", "active": True},
+            {"value": "Other", "label": "Other", "icon": "/icons/garments/other.png", "active": True}
+        ]
+        
+        # Get garment pricing from Airtable
+        garment_pricing_map = {}
+        if pricing_table:
+            records = pricing_table.all()
+            for record in records:
+                garment_type = record['fields'].get('Garment Type')
+                if garment_type:
+                    if garment_type not in garment_pricing_map:
+                        garment_pricing_map[garment_type] = []
+                    garment_pricing_map[garment_type].append({
+                        "min_qty": record['fields'].get('Min Quantity', 1),
+                        "max_qty": record['fields'].get('Max Quantity', 999),
+                        "price": record['fields'].get('Price', 0)
+                    })
+            
+            # Also populate the flat pricing list for backwards compatibility
+            settings["pricing"]["garment_pricing"] = [
+                {
+                    "garment_type": record['fields'].get('Garment Type'),
+                    "min_qty": record['fields'].get('Min Quantity', 1),
+                    "max_qty": record['fields'].get('Max Quantity', 999),
+                    "price": record['fields'].get('Price', 0)
+                }
+                for record in records
+            ]
+        
+        # Merge pricing into garment config
+        for garment in garment_types_config:
+            garment_value = garment["value"]
+            pricing_tiers = garment_pricing_map.get(garment_value, [])
+            # Sort by min_qty to get base price (lowest tier)
+            pricing_tiers_sorted = sorted(pricing_tiers, key=lambda x: x["min_qty"])
+            base_price = pricing_tiers_sorted[0]["price"] if pricing_tiers_sorted else 0
+            
+            settings["garments"].append({
+                **garment,
+                "base_price": base_price,
+                "pricing_tiers": pricing_tiers_sorted
+            })
+        
+        # Get order discounts from Airtable
+        if order_discounts_table:
+            records = order_discounts_table.all()
+            settings["discounts"]["order_discounts"] = [
+                {
+                    "name": record['fields'].get('Discount Name'),
+                    "min_total_qty": record['fields'].get('Min Order Total Qty', 0),
+                    "discount_type": record['fields'].get('Discount Type', 'Percentage'),
+                    "discount_value": record['fields'].get('Discount Value', 0)
+                }
+                for record in records
+            ]
+        
+        # Get customer discounts from Airtable
+        if customer_discounts_table:
+            records = customer_discounts_table.all(formula="Active = TRUE()")
+            settings["discounts"]["customer_discounts"] = [
+                {
+                    "email": record['fields'].get('Customer Email'),
+                    "discount_percentage": record['fields'].get('Discount Percentage', 0)
+                }
+                for record in records
+            ]
+        
+        return settings
+        
+    except Exception as e:
+        logging.error(f"Error fetching settings: {e}")
+        # Return default settings if Airtable fails
+        return {
+            "currency": {
+                "default": "AWG",
+                "options": ["AWG", "USD"],
+                "exchange_rate": 1.75
+            },
+            "show_pricing": True,
+            "garments": [
+                {"value": "Shirts", "label": "Shirts", "icon": "/icons/garments/shirts.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "V-Neck", "label": "V-Neck", "icon": "/icons/garments/vneck.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Tank Tops", "label": "Tank Tops", "icon": "/icons/garments/tank.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Women Shirts", "label": "Women Shirts", "icon": "/icons/garments/women-shirts.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Polo Shirts", "label": "Polo Shirts", "icon": "/icons/garments/polo.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Long Sleeve", "label": "Long Sleeve", "icon": "/icons/garments/longsleeve.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Long Sleeve with Hoodie", "label": "LS Hoodie", "icon": "/icons/garments/hoodie.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Zippered Hoodie", "label": "Zip Hoodie", "icon": "/icons/garments/zip-hoodie.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Neck Gaiter", "label": "Neck Gaiter", "icon": "/icons/garments/gaiter.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Sport Jersey", "label": "Sport Jersey", "icon": "/icons/garments/jersey.png", "active": True, "base_price": 0, "pricing_tiers": []},
+                {"value": "Other", "label": "Other", "icon": "/icons/garments/other.png", "active": True, "base_price": 0, "pricing_tiers": []}
+            ],
+            "colors": [
+                {"value": "Grey", "hex": "#9CA3AF"},
+                {"value": "Purple", "hex": "#A855F7"},
+                {"value": "Navy", "hex": "#1E3A8A"},
+                {"value": "Blue", "hex": "#3B82F6"},
+                {"value": "Seafoam", "hex": "#5EEAD4"},
+                {"value": "Green", "hex": "#22C55E"},
+                {"value": "Green-Yellow", "hex": "#84CC16"},
+                {"value": "Yellow", "hex": "#EAB308"},
+                {"value": "Orange", "hex": "#F97316"},
+                {"value": "Red", "hex": "#EF4444"},
+                {"value": "Pink", "hex": "#EC4899"},
+                {"value": "White", "hex": "#FFFFFF"},
+                {"value": "Custom", "hex": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"}
+            ],
+            "sizes": ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+            "customization": {
+                "types": [
+                    {"value": "Printing", "label": "Printing", "additional_cost": 0},
+                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": 10}
+                ],
+                "artwork_statuses": [
+                    "Will Upload Later",
+                    "Will Email Separately", 
+                    "Already Emailed",
+                    "Already Uploaded",
+                    "Not Needed",
+                    "Other"
+                ]
+            },
+            "pricing": {
+                "garment_pricing": [],
+                "customization_prices": {
+                    "Printing": 0,
+                    "Embroidery": 10
+                }
+            },
+            "discounts": {
+                "order_discounts": [],
+                "customer_discounts": []
+            }
+        }
+
 @api_router.get("/pricing")
 async def get_pricing():
     """Get all pricing data from Airtable"""
