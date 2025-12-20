@@ -8,7 +8,6 @@ node_modules/
 /coverage
 
 # Production builds
-/build
 dist/
 
 # Environment files
@@ -78,6 +77,14 @@ frontend/node_modules/.cache/default-development/8.pack
 *.env
 *.env.*
 frontend/node_modules/.cache/default-development/3.pack
+-e 
+# Environment files
+*.env
+*.env.*
+-e 
+# Environment files
+*.env
+*.env.*
 -e 
 # Environment files
 *.env
