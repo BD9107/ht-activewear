@@ -1126,6 +1126,25 @@ async def create_bulk_discount(create: BulkDiscountCreate, pin: str):
         if existing:
             raise HTTPException(status_code=400, detail=f"Discount '{create.name}' already exists")
         
+        new_values = {
+            "name": create.name,
+            "min_total_qty": create.min_total_qty,
+            "discount_type": create.discount_type,
+            "discount_value": create.discount_value
+        }
+        
+        # Log the creation
+        if not log_admin_change(
+            admin_id="admin",
+            section="discounts",
+            action="create",
+            field=create.name,
+            old_value=None,
+            new_value=new_values,
+            details=f"Created new discount rule '{create.name}'"
+        ):
+            raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+        
         # Create new record
         order_discounts_table.create({
             'Discount Name': create.name,
@@ -1157,6 +1176,27 @@ async def delete_bulk_discount(delete: BulkDiscountDelete, pin: str):
         
         if not records:
             raise HTTPException(status_code=404, detail=f"Discount '{delete.name}' not found")
+        
+        # Get old values for logging
+        old_record = records[0]['fields']
+        old_values = {
+            "name": delete.name,
+            "min_total_qty": old_record.get('Min Order Total Qty', 0),
+            "discount_type": old_record.get('Discount Type', 'Percentage'),
+            "discount_value": old_record.get('Discount Value', 0)
+        }
+        
+        # Log the deletion
+        if not log_admin_change(
+            admin_id="admin",
+            section="discounts",
+            action="delete",
+            field=delete.name,
+            old_value=old_values,
+            new_value=None,
+            details=f"Deleted discount rule '{delete.name}'"
+        ):
+            raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
         
         # Delete the record
         record_id = records[0]['id']
