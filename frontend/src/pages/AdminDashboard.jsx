@@ -16,6 +16,7 @@ const API = `${BACKEND_URL}/api`;
 const ADMIN_PIN = "9107";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
