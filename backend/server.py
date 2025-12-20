@@ -471,13 +471,13 @@ async def get_settings():
     """
     try:
         settings = {
-            # Display settings
+            # Display settings - use cached values if available
             "currency": {
-                "default": "AWG",
+                "default": _app_settings_cache.get("default_currency", "AWG"),
                 "options": ["AWG", "USD"],
                 "exchange_rate": 1.75  # AWG to USD
             },
-            "show_pricing": os.environ.get('SHOW_PRICING', 'true').lower() == 'true',
+            "show_pricing": _app_settings_cache.get("show_pricing", os.environ.get('SHOW_PRICING', 'true').lower() == 'true'),
             
             # Garment configuration
             "garments": [],
