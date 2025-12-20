@@ -755,6 +755,9 @@ _app_settings_cache = {
 import json
 import uuid
 
+# In-memory log storage (fallback when Airtable table doesn't exist)
+_admin_logs_memory = []
+
 def log_admin_change(
     admin_id: str,
     section: str,
@@ -766,48 +769,60 @@ def log_admin_change(
 ) -> bool:
     """
     Log an admin change to the Admin_Changes table.
+    Falls back to in-memory storage if Airtable table doesn't exist.
     Returns True if logging succeeded, False otherwise.
-    All admin operations should fail if logging fails.
     """
+    global _admin_logs_memory
+    
     try:
-        if not admin_changes_table:
-            # If table doesn't exist, create log entry in memory/file as fallback
-            logging.warning("Admin_Changes table not found, logging to file only")
-            log_entry = {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "admin_id": admin_id,
-                "section": section,
-                "action": action,
-                "field": field,
-                "old_value": str(old_value) if old_value is not None else "",
-                "new_value": str(new_value) if new_value is not None else "",
-                "details": details
-            }
-            logging.info(f"ADMIN_CHANGE: {json.dumps(log_entry)}")
-            return True
-        
         # Convert values to strings for storage
         old_val_str = json.dumps(old_value) if isinstance(old_value, (dict, list)) else str(old_value) if old_value is not None else ""
         new_val_str = json.dumps(new_value) if isinstance(new_value, (dict, list)) else str(new_value) if new_value is not None else ""
         
-        # Create immutable log entry
-        log_record = {
-            "Log ID": str(uuid.uuid4())[:8],
-            "Timestamp": datetime.now(timezone.utc).isoformat(),
-            "Admin ID": admin_id,
-            "Section": section,
-            "Action": action,
-            "Field": field,
-            "Old Value": old_val_str[:1000],  # Airtable field limit
-            "New Value": new_val_str[:1000],
-            "Details": details[:500] if details else ""
+        log_entry = {
+            "id": str(uuid.uuid4())[:8],
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "admin_id": admin_id,
+            "section": section,
+            "action": action,
+            "field": field,
+            "old_value": old_val_str[:1000],
+            "new_value": new_val_str[:1000],
+            "details": details[:500] if details else ""
         }
         
-        admin_changes_table.create(log_record)
-        logging.info(f"Admin change logged: {section}/{action}/{field}")
+        # Try Airtable first
+        if admin_changes_table:
+            try:
+                airtable_record = {
+                    "Log ID": log_entry["id"],
+                    "Timestamp": log_entry["timestamp"],
+                    "Admin ID": log_entry["admin_id"],
+                    "Section": log_entry["section"],
+                    "Action": log_entry["action"],
+                    "Field": log_entry["field"],
+                    "Old Value": log_entry["old_value"],
+                    "New Value": log_entry["new_value"],
+                    "Details": log_entry["details"]
+                }
+                admin_changes_table.create(airtable_record)
+                logging.info(f"Admin change logged to Airtable: {section}/{action}/{field}")
+                return True
+            except Exception as airtable_error:
+                logging.warning(f"Failed to log to Airtable: {airtable_error}, using memory fallback")
+        
+        # Fallback to in-memory storage
+        _admin_logs_memory.insert(0, log_entry)  # Insert at beginning for newest first
+        # Keep only last 1000 logs in memory
+        if len(_admin_logs_memory) > 1000:
+            _admin_logs_memory = _admin_logs_memory[:1000]
+        
+        logging.info(f"Admin change logged to memory: {section}/{action}/{field}")
         return True
         
     except Exception as e:
+        logging.error(f"Failed to log admin change: {e}")
+        return False
         logging.error(f"Failed to log admin change: {e}")
         return False
 
