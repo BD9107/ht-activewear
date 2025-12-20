@@ -535,6 +535,7 @@ async def get_settings():
         }
         
         # Build garment list with pricing tiers
+        # Default configuration (can be overridden by cached settings)
         garment_types_config = [
             {"value": "Shirts", "label": "Shirts", "icon": "/icons/garments/shirts.png", "active": True},
             {"value": "V-Neck", "label": "V-Neck", "icon": "/icons/garments/vneck.png", "active": True},
@@ -548,6 +549,16 @@ async def get_settings():
             {"value": "Sport Jersey", "label": "Sport Jersey", "icon": "/icons/garments/jersey.png", "active": True},
             {"value": "Other", "label": "Other", "icon": "/icons/garments/other.png", "active": True}
         ]
+        
+        # Apply cached status and icon overrides
+        for garment in garment_types_config:
+            garment_value = garment["value"]
+            # Override active status from cache
+            if garment_value in _app_settings_cache.get("garment_status", {}):
+                garment["active"] = _app_settings_cache["garment_status"][garment_value]
+            # Override icon from cache
+            if garment_value in _app_settings_cache.get("garment_icons", {}):
+                garment["icon"] = _app_settings_cache["garment_icons"][garment_value]
         
         # Get garment pricing from Airtable
         garment_pricing_map = {}
