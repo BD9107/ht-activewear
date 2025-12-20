@@ -798,7 +798,7 @@ import uuid
 _admin_logs_memory = []
 
 def log_admin_change(
-    admin_id: str,
+    actor: dict,  # Actor details from authentication
     section: str,
     action: str,
     field: str,
@@ -810,6 +810,8 @@ def log_admin_change(
     Log an admin change to the Admin_Changes table.
     Falls back to in-memory storage if Airtable table doesn't exist.
     Returns True if logging succeeded, False otherwise.
+    
+    Actor dict must contain: actor_id, actor_name, actor_role
     """
     global _admin_logs_memory
     
@@ -818,10 +820,19 @@ def log_admin_change(
         old_val_str = json.dumps(old_value) if isinstance(old_value, (dict, list)) else str(old_value) if old_value is not None else ""
         new_val_str = json.dumps(new_value) if isinstance(new_value, (dict, list)) else str(new_value) if new_value is not None else ""
         
+        # Extract actor details (server-side, not from frontend)
+        actor_id = actor.get("actor_id", "unknown")
+        actor_name = actor.get("actor_name", "Unknown User")
+        actor_role = actor.get("actor_role", "operator")
+        
         log_entry = {
             "id": str(uuid.uuid4())[:8],
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "admin_id": admin_id,
+            # Actor identity fields
+            "actor_id": actor_id,
+            "actor_name": actor_name,
+            "actor_role": actor_role,
+            # Change details
             "section": section,
             "action": action,
             "field": field,
@@ -836,7 +847,11 @@ def log_admin_change(
                 airtable_record = {
                     "Log ID": log_entry["id"],
                     "Timestamp": log_entry["timestamp"],
-                    "Admin ID": log_entry["admin_id"],
+                    # Actor identity fields
+                    "Actor ID": log_entry["actor_id"],
+                    "Actor Name": log_entry["actor_name"],
+                    "Actor Role": log_entry["actor_role"],
+                    # Change details
                     "Section": log_entry["section"],
                     "Action": log_entry["action"],
                     "Field": log_entry["field"],
@@ -845,7 +860,7 @@ def log_admin_change(
                     "Details": log_entry["details"]
                 }
                 admin_changes_table.create(airtable_record)
-                logging.info(f"Admin change logged to Airtable: {section}/{action}/{field}")
+                logging.info(f"Admin change logged to Airtable by {actor_name}: {section}/{action}/{field}")
                 return True
             except Exception as airtable_error:
                 logging.warning(f"Failed to log to Airtable: {airtable_error}, using memory fallback")
@@ -856,7 +871,7 @@ def log_admin_change(
         if len(_admin_logs_memory) > 1000:
             _admin_logs_memory = _admin_logs_memory[:1000]
         
-        logging.info(f"Admin change logged to memory: {section}/{action}/{field}")
+        logging.info(f"Admin change logged to memory by {actor_name}: {section}/{action}/{field}")
         return True
         
     except Exception as e:
