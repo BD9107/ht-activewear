@@ -28,6 +28,15 @@ try:
     pricing_table = airtable_api.table(base_id, 'Garment Pricing')
     order_discounts_table = airtable_api.table(base_id, 'Order Discounts')
     customer_discounts_table = airtable_api.table(base_id, 'Customer Discounts')
+    # Admin settings tables
+    try:
+        app_settings_table = airtable_api.table(base_id, 'App Settings')
+    except:
+        app_settings_table = None
+    try:
+        garments_table = airtable_api.table(base_id, 'Garments')
+    except:
+        garments_table = None
 except Exception as e:
     logging.warning(f"Airtable tables not yet created: {e}")
     orders_table = None
@@ -35,6 +44,11 @@ except Exception as e:
     pricing_table = None
     order_discounts_table = None
     customer_discounts_table = None
+    app_settings_table = None
+    garments_table = None
+
+# Admin PIN for authentication
+ADMIN_PIN = os.environ.get('ADMIN_PIN', '9107')
 
 app = FastAPI()
 @app.get("/")
