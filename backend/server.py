@@ -53,8 +53,47 @@ except Exception as e:
     garments_table = None
     admin_changes_table = None
 
-# Admin PIN for authentication
-ADMIN_PIN = os.environ.get('ADMIN_PIN', '9107')
+# ============================================================================
+# ADMIN ACCOUNTS & AUTHENTICATION
+# Multiple admin accounts with distinct identities for audit trail
+# ============================================================================
+
+# Admin accounts configuration
+# In production, this would be stored in a database or Airtable
+ADMIN_ACCOUNTS = {
+    "9107": {
+        "actor_id": "admin_001",
+        "actor_name": "Primary Admin",
+        "actor_role": "operator"
+    },
+    "1234": {
+        "actor_id": "admin_002", 
+        "actor_name": "Secondary Admin",
+        "actor_role": "operator"
+    },
+    "5678": {
+        "actor_id": "overwatch_001",
+        "actor_name": "System Overwatch",
+        "actor_role": "overwatch"
+    }
+}
+
+# Add any custom admin PIN from environment
+custom_pin = os.environ.get('ADMIN_PIN')
+if custom_pin and custom_pin not in ADMIN_ACCOUNTS:
+    ADMIN_ACCOUNTS[custom_pin] = {
+        "actor_id": "admin_env",
+        "actor_name": "Environment Admin",
+        "actor_role": "operator"
+    }
+
+def get_admin_by_pin(pin: str) -> Optional[dict]:
+    """Get admin account details by PIN"""
+    return ADMIN_ACCOUNTS.get(pin)
+
+def verify_admin_pin_and_get_actor(pin: str) -> Optional[dict]:
+    """Verify PIN and return actor details if valid"""
+    return get_admin_by_pin(pin)
 
 app = FastAPI()
 @app.get("/")
