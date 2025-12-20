@@ -976,10 +976,6 @@ def get_admin_logs(limit: int = 100, section_filter: str = None) -> list:
     # Apply limit
     return memory_logs[:limit]
 
-def verify_admin_pin(pin: str) -> bool:
-    """Verify admin PIN - returns True if PIN is valid"""
-    return pin in ADMIN_ACCOUNTS
-
 @api_router.post("/admin/verify")
 async def verify_admin(auth: AdminAuthRequest):
     """Verify admin PIN and return actor info"""
