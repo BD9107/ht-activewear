@@ -1,0 +1,105 @@
+<analysis>
+🔒 Authoritative Continuation Summary – HT Activewear Order Form
+
+original_problem_statement
+Restore and extend an internal / B2B Activewear Order Form that uses Airtable as its database. After restoring the last working version from GitHub, the project was incrementally extended with a controlled admin/settings system.
+
+Current System State (Stable)
+
+Frontend: React
+
+Backend: FastAPI
+
+Database: Airtable
+
+Hosting: Render (free tier)
+
+Purpose: Internal / B2B order intake with operator-safe administration
+
+Completed Milestones
+
+Step 1 – Centralized Settings (DONE):
+Backend /api/settings aggregates all configuration data. Frontend consumes this endpoint.
+
+Step 2 – Read-only Admin Dashboard (DONE):
+Admin UI at /admin, PIN-protected, view-only.
+
+Step 3 – Operator-safe Editing (DONE):
+Controlled editing of prices, garments, currency, and discounts via admin endpoints.
+All writes go through backend validation and update Airtable.
+
+Step 4 – Admin Audit Trail (DONE):
+Immutable logging of admin changes with timestamp, section, action, field, old value, and new value.
+Logs are viewable at /admin/activity.
+
+IN-PROGRESS TASK (Critical)
+
+Step 5 – Enhance Audit Logs with Actor Identity
+
+Goal:
+Ensure every admin change log records who made the change.
+
+Required additions per log entry:
+
+actor_id (stable identifier)
+
+actor_name (human-readable)
+
+actor_role (operator or overwatch)
+
+Important constraints:
+
+Actor identity must be derived server-side from the authenticated admin session
+
+Frontend must NOT submit actor identity
+
+Logging must remain mandatory — if logging fails, the admin change must be rejected
+
+No new authentication system, role system, or refactor should be introduced
+
+Where to Resume
+
+Backend (/app/backend/server.py)
+
+Finish wiring actor identity into remaining admin endpoints:
+
+/api/admin/discounts/bulk/update
+
+/api/admin/discounts/bulk/delete
+
+Ensure log_admin_change() receives and stores actor metadata
+
+Frontend (/app/frontend/src/pages/AdminActivity.jsx)
+
+Display actor name and role in the activity log UI
+
+Testing
+
+Perform admin changes with different admin identities
+
+Confirm logs show correct actor attribution
+
+Verify no regressions in order flow or admin editing
+
+Known Secondary Issue (Non-blocking)
+
+A one-time ResizeObserver loop completed with undelivered notifications warning occurred when editing bulk discounts.
+
+A global suppressor was added.
+
+User verification is still pending.
+
+This issue is not blocking Step 5.
+
+Explicit Stop Condition
+
+Once actor identity is correctly logged and displayed:
+
+STOP
+
+Do not refactor
+
+Do not add new features
+
+Wait for user instruction
+</analysis>
