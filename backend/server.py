@@ -1147,7 +1147,8 @@ async def update_garment_icon(update: GarmentIconUpdate, pin: str):
 @api_router.post("/admin/discounts/bulk")
 async def update_bulk_discount(update: BulkDiscountUpdate, pin: str):
     """Update an existing bulk discount rule"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1175,7 +1176,7 @@ async def update_bulk_discount(update: BulkDiscountUpdate, pin: str):
         
         # Log the change
         if not log_admin_change(
-            admin_id="admin",
+            actor=actor,
             section="discounts",
             action="update",
             field=update.name,
@@ -1204,7 +1205,8 @@ async def update_bulk_discount(update: BulkDiscountUpdate, pin: str):
 @api_router.post("/admin/discounts/bulk/create")
 async def create_bulk_discount(create: BulkDiscountCreate, pin: str):
     """Create a new bulk discount rule"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1225,7 +1227,7 @@ async def create_bulk_discount(create: BulkDiscountCreate, pin: str):
         
         # Log the creation
         if not log_admin_change(
-            admin_id="admin",
+            actor=actor,
             section="discounts",
             action="create",
             field=create.name,
