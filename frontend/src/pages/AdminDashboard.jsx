@@ -60,6 +60,8 @@ const AdminDashboard = () => {
         setIsAuthenticated(true);
         sessionStorage.setItem("admin_authenticated", "true");
         sessionStorage.setItem("admin_pin", pinInput);
+        sessionStorage.setItem("admin_name", response.data.actor_name || "Admin");
+        sessionStorage.setItem("admin_role", response.data.actor_role || "operator");
         setPinError(false);
       }
     } catch (err) {
@@ -70,6 +72,14 @@ const AdminDashboard = () => {
 
   const getAdminPin = () => {
     return sessionStorage.getItem("admin_pin") || ADMIN_PIN;
+  };
+
+  const getAdminName = () => {
+    return sessionStorage.getItem("admin_name") || "Admin";
+  };
+
+  const getAdminRole = () => {
+    return sessionStorage.getItem("admin_role") || "operator";
   };
 
   const loadSettings = async () => {
