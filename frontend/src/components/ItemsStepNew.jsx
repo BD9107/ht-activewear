@@ -5,61 +5,46 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { calculateItemPrice, formatPrice, calculateOrderTotal, fetchPricing, calculateVolumeSavings } from "@/utils/dynamicPricing";
+import { fetchSettings, getGarmentTypes, getColorOptions, getSizeOptions } from "@/utils/settingsService";
 import { useState, useEffect } from "react";
-
-// GARMENT ICON CONFIGURATION
-// Custom garment icons are now active!
-// Icons are located in /app/frontend/public/icons/garments/
-// Dimensions: 48x48px (PNG with transparent background)
-// Files: shirts.png, vneck.png, tank.png, women-shirts.png, polo.png, 
-//        longsleeve.png, hoodie.png, zip-hoodie.png, gaiter.png, jersey.png, other.png
-
-const GARMENT_TYPES = [
-  { value: "Shirts", label: "Shirts", icon: "/icons/garments/shirts.png" },
-  { value: "V-Neck", label: "V-Neck", icon: "/icons/garments/vneck.png" },
-  { value: "Tank Tops", label: "Tank Tops", icon: "/icons/garments/tank.png" },
-  { value: "Women Shirts", label: "Women Shirts", icon: "/icons/garments/women-shirts.png" },
-  { value: "Polo Shirts", label: "Polo Shirts", icon: "/icons/garments/polo.png" },
-  { value: "Long Sleeve", label: "Long Sleeve", icon: "/icons/garments/longsleeve.png" },
-  { value: "Long Sleeve with Hoodie", label: "LS Hoodie", icon: "/icons/garments/hoodie.png" },
-  { value: "Zippered Hoodie", label: "Zip Hoodie", icon: "/icons/garments/zip-hoodie.png" },
-  { value: "Neck Gaiter", label: "Neck Gaiter", icon: "/icons/garments/gaiter.png" },
-  { value: "Sport Jersey", label: "Sport Jersey", icon: "/icons/garments/jersey.png" },
-  { value: "Other", label: "Other", icon: "/icons/garments/other.png" }
-];
-
-const COLORS = [
-  { value: "Grey", color: "#9CA3AF" },
-  { value: "Purple", color: "#A855F7" },
-  { value: "Navy", color: "#1E3A8A" },
-  { value: "Blue", color: "#3B82F6" },
-  { value: "Seafoam", color: "#5EEAD4" },
-  { value: "Green", color: "#22C55E" },
-  { value: "Green-Yellow", color: "#84CC16" },
-  { value: "Yellow", color: "#EAB308" },
-  { value: "Orange", color: "#F97316" },
-  { value: "Red", color: "#EF4444" },
-  { value: "Pink", color: "#EC4899" },
-  { value: "White", color: "#FFFFFF" },
-  { value: "Custom", color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }
-];
-
-const SIZES = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
 
 const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEmail, discountType, setDiscountType }) => {
   const [currencyToggle, setCurrencyToggle] = useState(currency || "AWG");
   const [pricingData, setPricingData] = useState(null);
   const [showPricing, setShowPricing] = useState(false);
   const [loadingPricing, setLoadingPricing] = useState(true);
+  
+  // Settings-driven configuration
+  const [garmentTypes, setGarmentTypes] = useState([]);
+  const [colorOptions, setColorOptions] = useState([]);
+  const [sizeOptions, setSizeOptions] = useState(["XS", "S", "M", "L", "XL", "2XL", "3XL"]);
 
   useEffect(() => {
-    const loadPricing = async () => {
-      const data = await fetchPricing();
-      setPricingData(data);
-      setShowPricing(data.show_pricing);
+    const loadSettings = async () => {
+      // Fetch centralized settings
+      const settings = await fetchSettings();
+      
+      // Extract garment types from settings
+      const garments = getGarmentTypes(settings);
+      setGarmentTypes(garments);
+      
+      // Extract color options from settings
+      const colors = getColorOptions(settings);
+      setColorOptions(colors);
+      
+      // Extract size options from settings
+      const sizes = getSizeOptions(settings);
+      setSizeOptions(sizes);
+      
+      // Set pricing visibility from settings
+      setShowPricing(settings.show_pricing ?? true);
+      
+      // Load pricing data (backwards compatible)
+      const pricing = await fetchPricing();
+      setPricingData(pricing);
       setLoadingPricing(false);
     };
-    loadPricing();
+    loadSettings();
   }, []);
 
   const updateItem = (index, field, value) => {
