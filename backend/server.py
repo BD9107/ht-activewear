@@ -862,6 +862,15 @@ async def verify_admin(auth: AdminAuthRequest):
         return {"success": True, "message": "Authentication successful"}
     raise HTTPException(status_code=401, detail="Invalid PIN")
 
+@api_router.get("/admin/activity")
+async def get_admin_activity(pin: str, limit: int = 100, section: str = None):
+    """Get admin activity logs (read-only)"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    logs = get_admin_logs(limit=limit, section_filter=section)
+    return {"logs": logs, "total": len(logs)}
+
 @api_router.post("/admin/settings/general")
 async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
     """Update general settings (currency, pricing visibility)"""
@@ -869,15 +878,47 @@ async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
+        # Capture old values for logging
+        old_currency = _app_settings_cache.get("default_currency", "AWG")
+        old_show_pricing = _app_settings_cache.get("show_pricing", True)
+        
+        # Log currency change if different
+        if settings.default_currency != old_currency:
+            if not log_admin_change(
+                admin_id="admin",
+                section="settings",
+                action="update",
+                field="default_currency",
+                old_value=old_currency,
+                new_value=settings.default_currency,
+                details="Changed default currency"
+            ):
+                raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+        
+        # Log pricing visibility change if different
+        if settings.show_pricing != old_show_pricing:
+            if not log_admin_change(
+                admin_id="admin",
+                section="settings",
+                action="update",
+                field="show_pricing",
+                old_value=old_show_pricing,
+                new_value=settings.show_pricing,
+                details="Changed pricing visibility"
+            ):
+                raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+        
         # Update in-memory cache
         _app_settings_cache["default_currency"] = settings.default_currency
         _app_settings_cache["show_pricing"] = settings.show_pricing
         
-        # Also update environment variable for show_pricing (persists in .env would require file write)
+        # Also update environment variable for show_pricing
         os.environ['SHOW_PRICING'] = 'true' if settings.show_pricing else 'false'
         
         logging.info(f"General settings updated: currency={settings.default_currency}, show_pricing={settings.show_pricing}")
         return {"success": True, "message": "General settings updated successfully"}
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error updating general settings: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
@@ -895,13 +936,40 @@ async def update_garment_price(update: GarmentPriceUpdate, pin: str):
         # Find existing base price record (min_qty = 1 or lowest tier)
         records = pricing_table.all(formula=f"{{Garment Type}} = '{update.garment_type}'")
         
+        old_price = 0
         if records:
             # Find the base tier (lowest min_qty)
             base_record = min(records, key=lambda r: r['fields'].get('Min Quantity', 1))
+            old_price = base_record['fields'].get('Price', 0)
+            
+            # Log the change before making it
+            if not log_admin_change(
+                admin_id="admin",
+                section="garments",
+                action="update",
+                field=f"{update.garment_type}_price",
+                old_value=old_price,
+                new_value=update.base_price,
+                details=f"Updated base price for {update.garment_type}"
+            ):
+                raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+            
             # Update the price
             pricing_table.update(base_record['id'], {'Price': update.base_price})
             logging.info(f"Updated base price for {update.garment_type}: {update.base_price}")
         else:
+            # Log the creation
+            if not log_admin_change(
+                admin_id="admin",
+                section="garments",
+                action="create",
+                field=f"{update.garment_type}_price",
+                old_value=None,
+                new_value=update.base_price,
+                details=f"Created base price for {update.garment_type}"
+            ):
+                raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+            
             # Create new pricing record
             pricing_table.create({
                 'Garment Type': update.garment_type,
