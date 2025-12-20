@@ -903,7 +903,11 @@ def get_admin_logs(limit: int = 100, section_filter: str = None) -> list:
                 logs.append({
                     "id": fields.get('Log ID', record['id'][:8]),
                     "timestamp": fields.get('Timestamp', ''),
-                    "admin_id": fields.get('Admin ID', 'unknown'),
+                    # Actor identity fields
+                    "actor_id": fields.get('Actor ID', fields.get('Admin ID', 'unknown')),
+                    "actor_name": fields.get('Actor Name', 'Unknown'),
+                    "actor_role": fields.get('Actor Role', 'operator'),
+                    # Change details
                     "section": fields.get('Section', ''),
                     "action": fields.get('Action', ''),
                     "field": fields.get('Field', ''),
