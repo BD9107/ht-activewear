@@ -4,21 +4,49 @@ import DetailsStep from "@/components/DetailsStep";
 import ItemsStepNew from "@/components/ItemsStepNew";
 import ReviewStepNew from "@/components/ReviewStepNew";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
+import { Lock } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Simple access code for internal use
+const ACCESS_CODE = "HT2024";
+
 const OrderForm = () => {
   const navigate = useNavigate();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [accessError, setAccessError] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check for existing access on mount
+  useEffect(() => {
+    const storedAccess = sessionStorage.getItem("order_access");
+    if (storedAccess === "granted") {
+      setHasAccess(true);
+    }
+  }, []);
 
   // Set page title
   useEffect(() => {
     document.title = "HT Activewear Order Form";
   }, []);
+
+  const handleAccessSubmit = (e) => {
+    e.preventDefault();
+    if (accessCode === ACCESS_CODE) {
+      setHasAccess(true);
+      sessionStorage.setItem("order_access", "granted");
+      setAccessError(false);
+    } else {
+      setAccessError(true);
+      setAccessCode("");
+    }
+  };
 
   // Form data
   const [orderDetails, setOrderDetails] = useState({
