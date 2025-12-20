@@ -107,6 +107,8 @@ const AdminDashboard = () => {
     setIsAuthenticated(false);
     sessionStorage.removeItem("admin_authenticated");
     sessionStorage.removeItem("admin_pin");
+    sessionStorage.removeItem("admin_name");
+    sessionStorage.removeItem("admin_role");
     setPinInput("");
   };
 
