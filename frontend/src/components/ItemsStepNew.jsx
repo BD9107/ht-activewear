@@ -248,7 +248,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
               Color <span className="text-red-500">*</span>
             </Label>
             <div className="grid grid-cols-6 gap-2">
-              {COLORS.map((colorOption) => (
+              {colorOptions.map((colorOption) => (
                 <button
                   key={colorOption.value}
                   type="button"
