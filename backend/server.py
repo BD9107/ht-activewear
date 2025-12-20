@@ -55,45 +55,90 @@ except Exception as e:
 
 # ============================================================================
 # ADMIN ACCOUNTS & AUTHENTICATION
-# Multiple admin accounts with distinct identities for audit trail
+# PIN-per-user authentication with Airtable storage
 # ============================================================================
 
-# Admin accounts configuration
-# In production, this would be stored in a database or Airtable
-ADMIN_ACCOUNTS = {
-    "9107": {
-        "actor_id": "admin_001",
-        "actor_name": "Primary Admin",
-        "actor_role": "operator"
-    },
-    "1234": {
-        "actor_id": "admin_002", 
-        "actor_name": "Secondary Admin",
-        "actor_role": "operator"
-    },
-    "5678": {
-        "actor_id": "overwatch_001",
-        "actor_name": "System Overwatch",
-        "actor_role": "overwatch"
-    }
-}
+import bcrypt
 
-# Add any custom admin PIN from environment
-custom_pin = os.environ.get('ADMIN_PIN')
-if custom_pin and custom_pin not in ADMIN_ACCOUNTS:
-    ADMIN_ACCOUNTS[custom_pin] = {
-        "actor_id": "admin_env",
-        "actor_name": "Environment Admin",
-        "actor_role": "operator"
-    }
+# Admin Users table connection
+try:
+    admin_users_table = airtable_api.table(base_id, 'Admin_Users')
+except Exception as e:
+    logging.warning(f"Admin_Users table not yet created: {e}")
+    admin_users_table = None
 
-def get_admin_by_pin(pin: str) -> Optional[dict]:
-    """Get admin account details by PIN"""
-    return ADMIN_ACCOUNTS.get(pin)
+# In-memory cache for admin users (refreshed on each verification attempt)
+# This avoids excessive Airtable API calls while still being up-to-date
+_admin_users_cache = {}
+_admin_cache_timestamp = None
+
+def _refresh_admin_users_cache():
+    """Refresh admin users cache from Airtable"""
+    global _admin_users_cache, _admin_cache_timestamp
+    
+    if not admin_users_table:
+        logging.warning("Admin_Users table not configured")
+        return False
+    
+    try:
+        records = admin_users_table.all(formula="Active = TRUE()")
+        _admin_users_cache = {}
+        
+        for record in records:
+            fields = record['fields']
+            pin_hash = fields.get('PIN Hash', '')
+            if pin_hash:
+                _admin_users_cache[record['id']] = {
+                    "actor_id": fields.get('User ID', record['id'][:8]),
+                    "actor_name": fields.get('Name', 'Unknown Admin'),
+                    "actor_role": fields.get('Role', 'operator').lower(),
+                    "pin_hash": pin_hash
+                }
+        
+        _admin_cache_timestamp = datetime.now(timezone.utc)
+        logging.info(f"Admin users cache refreshed: {len(_admin_users_cache)} active users")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to refresh admin users cache: {e}")
+        return False
 
 def verify_admin_pin_and_get_actor(pin: str) -> Optional[dict]:
-    """Verify PIN and return actor details if valid"""
-    return get_admin_by_pin(pin)
+    """
+    Verify PIN against Admin_Users table and return actor details if valid.
+    Uses bcrypt for secure PIN verification.
+    """
+    if not pin:
+        return None
+    
+    # Refresh cache from Airtable
+    if not _refresh_admin_users_cache():
+        logging.error("Cannot verify PIN: Admin_Users table unavailable")
+        return None
+    
+    # Check PIN against all active admin users
+    pin_bytes = pin.encode('utf-8')
+    
+    for record_id, user_data in _admin_users_cache.items():
+        try:
+            pin_hash = user_data.get('pin_hash', '')
+            if pin_hash and bcrypt.checkpw(pin_bytes, pin_hash.encode('utf-8')):
+                # PIN matches - return actor details (without pin_hash)
+                return {
+                    "actor_id": user_data["actor_id"],
+                    "actor_name": user_data["actor_name"],
+                    "actor_role": user_data["actor_role"]
+                }
+        except Exception as e:
+            # Invalid hash format or other bcrypt error - skip this user
+            logging.warning(f"PIN verification error for user {user_data.get('actor_id')}: {e}")
+            continue
+    
+    return None
+
+def verify_admin_pin(pin: str) -> bool:
+    """Verify admin PIN - returns True if PIN is valid"""
+    return verify_admin_pin_and_get_actor(pin) is not None
 
 app = FastAPI()
 @app.get("/")
