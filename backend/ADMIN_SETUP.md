@@ -15,7 +15,7 @@ Create a new table called `Admin_Users` with these fields:
 ## Step 2: Run the Seed Script
 
 ```bash
-cd /app/backend
+cd backend
 python seed_admin_users.py
 ```
 
@@ -25,15 +25,15 @@ This will create:
 
 ## Step 3: Verify Authentication Works
 
-Test with curl:
+Test with curl (replace YOUR_BACKEND_URL with your actual backend URL):
 ```bash
 # Test overwatch user (PIN: 9107)
-curl -X POST "https://active-order-form.preview.emergentagent.com/api/admin/verify" \
+curl -X POST "http://localhost:8001/api/admin/verify" \
   -H "Content-Type: application/json" \
   -d '{"pin":"9107"}'
 
 # Test operator user (PIN: 6666)
-curl -X POST "https://active-order-form.preview.emergentagent.com/api/admin/verify" \
+curl -X POST "http://localhost:8001/api/admin/verify" \
   -H "Content-Type: application/json" \
   -d '{"pin":"6666"}'
 ```
