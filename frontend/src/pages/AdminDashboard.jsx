@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchSettings, clearSettingsCache } from "@/utils/settingsService";
-import { Eye, EyeOff, Package, Percent, DollarSign, Palette, Ruler, Settings, Lock, Save, Plus, Trash2, RefreshCw, Check, X } from "lucide-react";
+import { Eye, EyeOff, Package, Percent, DollarSign, Palette, Ruler, Settings, Lock, Save, Plus, Trash2, RefreshCw, Check, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
