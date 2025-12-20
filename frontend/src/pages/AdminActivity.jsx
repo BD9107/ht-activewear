@@ -347,9 +347,23 @@ const AdminActivity = () => {
                       </div>
                     </div>
                     
-                    {/* Timestamp */}
+                    {/* Timestamp & Actor Info */}
                     <div className="text-right flex-shrink-0">
                       <p className="text-xs text-gray-500">{formatTimestamp(log.timestamp)}</p>
+                      {log.actor_name && (
+                        <p className="text-xs text-gray-700 font-medium mt-1">
+                          By: {log.actor_name}
+                        </p>
+                      )}
+                      {log.actor_role && (
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-xs mt-1 ${
+                          log.actor_role === 'overwatch' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {log.actor_role}
+                        </span>
+                      )}
                       <p className="text-xs text-gray-400 mt-1">ID: {log.id}</p>
                     </div>
                   </div>
