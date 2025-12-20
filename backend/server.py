@@ -1077,7 +1077,8 @@ async def update_garment_price(update: GarmentPriceUpdate, pin: str):
 @api_router.post("/admin/garments/status")
 async def update_garment_status(update: GarmentStatusUpdate, pin: str):
     """Update active/inactive status for a garment type"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1086,7 +1087,7 @@ async def update_garment_status(update: GarmentStatusUpdate, pin: str):
         
         # Log the change
         if not log_admin_change(
-            admin_id="admin",
+            actor=actor,
             section="garments",
             action="update",
             field=f"{update.garment_type}_status",
@@ -1109,7 +1110,8 @@ async def update_garment_status(update: GarmentStatusUpdate, pin: str):
 @api_router.post("/admin/garments/icon")
 async def update_garment_icon(update: GarmentIconUpdate, pin: str):
     """Update icon URL for a garment type"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1122,7 +1124,7 @@ async def update_garment_icon(update: GarmentIconUpdate, pin: str):
         
         # Log the change
         if not log_admin_change(
-            admin_id="admin",
+            actor=actor,
             section="garments",
             action="update",
             field=f"{update.garment_type}_icon",
