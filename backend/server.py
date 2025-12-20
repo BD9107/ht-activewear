@@ -681,6 +681,249 @@ async def get_settings():
             }
         }
 
+# ============================================================================
+# ADMIN ENDPOINTS (Write Operations)
+# Protected endpoints for updating settings via Admin Dashboard
+# ============================================================================
+
+# Admin request models
+class AdminAuthRequest(BaseModel):
+    pin: str
+
+class GeneralSettingsUpdate(BaseModel):
+    default_currency: str = Field(..., pattern="^(AWG|USD)$")
+    show_pricing: bool
+
+class GarmentPriceUpdate(BaseModel):
+    garment_type: str
+    base_price: float = Field(..., ge=0, le=10000)
+
+class GarmentStatusUpdate(BaseModel):
+    garment_type: str
+    active: bool
+
+class GarmentIconUpdate(BaseModel):
+    garment_type: str
+    icon_url: str = Field(..., min_length=1, max_length=500)
+
+class BulkDiscountUpdate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    min_total_qty: int = Field(..., ge=1, le=100000)
+    discount_type: str = Field(..., pattern="^(Percentage|Fixed)$")
+    discount_value: float = Field(..., ge=0, le=100)
+
+class BulkDiscountCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    min_total_qty: int = Field(..., ge=1, le=100000)
+    discount_type: str = Field(default="Percentage", pattern="^(Percentage|Fixed)$")
+    discount_value: float = Field(..., ge=0, le=100)
+
+class BulkDiscountDelete(BaseModel):
+    name: str
+
+# In-memory settings store (for settings not in Airtable)
+# These will persist during server lifetime
+_app_settings_cache = {
+    "default_currency": "AWG",
+    "show_pricing": True,
+    "garment_status": {},  # garment_type -> active boolean
+    "garment_icons": {}    # garment_type -> icon_url
+}
+
+def verify_admin_pin(pin: str) -> bool:
+    """Verify admin PIN"""
+    return pin == ADMIN_PIN
+
+@api_router.post("/admin/verify")
+async def verify_admin(auth: AdminAuthRequest):
+    """Verify admin PIN"""
+    if verify_admin_pin(auth.pin):
+        return {"success": True, "message": "Authentication successful"}
+    raise HTTPException(status_code=401, detail="Invalid PIN")
+
+@api_router.post("/admin/settings/general")
+async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
+    """Update general settings (currency, pricing visibility)"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        # Update in-memory cache
+        _app_settings_cache["default_currency"] = settings.default_currency
+        _app_settings_cache["show_pricing"] = settings.show_pricing
+        
+        # Also update environment variable for show_pricing (persists in .env would require file write)
+        os.environ['SHOW_PRICING'] = 'true' if settings.show_pricing else 'false'
+        
+        logging.info(f"General settings updated: currency={settings.default_currency}, show_pricing={settings.show_pricing}")
+        return {"success": True, "message": "General settings updated successfully"}
+    except Exception as e:
+        logging.error(f"Error updating general settings: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
+
+@api_router.post("/admin/garments/price")
+async def update_garment_price(update: GarmentPriceUpdate, pin: str):
+    """Update base price for a garment type"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        if not pricing_table:
+            raise HTTPException(status_code=500, detail="Pricing table not configured")
+        
+        # Find existing base price record (min_qty = 1 or lowest tier)
+        records = pricing_table.all(formula=f"{{Garment Type}} = '{update.garment_type}'")
+        
+        if records:
+            # Find the base tier (lowest min_qty)
+            base_record = min(records, key=lambda r: r['fields'].get('Min Quantity', 1))
+            # Update the price
+            pricing_table.update(base_record['id'], {'Price': update.base_price})
+            logging.info(f"Updated base price for {update.garment_type}: {update.base_price}")
+        else:
+            # Create new pricing record
+            pricing_table.create({
+                'Garment Type': update.garment_type,
+                'Min Quantity': 1,
+                'Max Quantity': 999,
+                'Price': update.base_price
+            })
+            logging.info(f"Created base price for {update.garment_type}: {update.base_price}")
+        
+        return {"success": True, "message": f"Price updated for {update.garment_type}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating garment price: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update price: {str(e)}")
+
+@api_router.post("/admin/garments/status")
+async def update_garment_status(update: GarmentStatusUpdate, pin: str):
+    """Update active/inactive status for a garment type"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        # Store in memory cache
+        _app_settings_cache["garment_status"][update.garment_type] = update.active
+        logging.info(f"Updated status for {update.garment_type}: active={update.active}")
+        return {"success": True, "message": f"Status updated for {update.garment_type}"}
+    except Exception as e:
+        logging.error(f"Error updating garment status: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update status: {str(e)}")
+
+@api_router.post("/admin/garments/icon")
+async def update_garment_icon(update: GarmentIconUpdate, pin: str):
+    """Update icon URL for a garment type"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        # Validate URL format
+        if not update.icon_url.startswith('/') and not update.icon_url.startswith('http'):
+            raise HTTPException(status_code=400, detail="Icon URL must start with / or http")
+        
+        # Store in memory cache
+        _app_settings_cache["garment_icons"][update.garment_type] = update.icon_url
+        logging.info(f"Updated icon for {update.garment_type}: {update.icon_url}")
+        return {"success": True, "message": f"Icon updated for {update.garment_type}"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating garment icon: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update icon: {str(e)}")
+
+@api_router.post("/admin/discounts/bulk")
+async def update_bulk_discount(update: BulkDiscountUpdate, pin: str):
+    """Update an existing bulk discount rule"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        if not order_discounts_table:
+            raise HTTPException(status_code=500, detail="Discounts table not configured")
+        
+        # Find the discount by name
+        records = order_discounts_table.all(formula=f"{{Discount Name}} = '{update.name}'")
+        
+        if not records:
+            raise HTTPException(status_code=404, detail=f"Discount '{update.name}' not found")
+        
+        # Update the record
+        record_id = records[0]['id']
+        order_discounts_table.update(record_id, {
+            'Min Order Total Qty': update.min_total_qty,
+            'Discount Type': update.discount_type,
+            'Discount Value': update.discount_value
+        })
+        
+        logging.info(f"Updated bulk discount: {update.name}")
+        return {"success": True, "message": f"Discount '{update.name}' updated successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating bulk discount: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update discount: {str(e)}")
+
+@api_router.post("/admin/discounts/bulk/create")
+async def create_bulk_discount(create: BulkDiscountCreate, pin: str):
+    """Create a new bulk discount rule"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        if not order_discounts_table:
+            raise HTTPException(status_code=500, detail="Discounts table not configured")
+        
+        # Check if discount with same name exists
+        existing = order_discounts_table.all(formula=f"{{Discount Name}} = '{create.name}'")
+        if existing:
+            raise HTTPException(status_code=400, detail=f"Discount '{create.name}' already exists")
+        
+        # Create new record
+        order_discounts_table.create({
+            'Discount Name': create.name,
+            'Min Order Total Qty': create.min_total_qty,
+            'Discount Type': create.discount_type,
+            'Discount Value': create.discount_value
+        })
+        
+        logging.info(f"Created bulk discount: {create.name}")
+        return {"success": True, "message": f"Discount '{create.name}' created successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating bulk discount: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create discount: {str(e)}")
+
+@api_router.post("/admin/discounts/bulk/delete")
+async def delete_bulk_discount(delete: BulkDiscountDelete, pin: str):
+    """Delete a bulk discount rule"""
+    if not verify_admin_pin(pin):
+        raise HTTPException(status_code=401, detail="Invalid PIN")
+    
+    try:
+        if not order_discounts_table:
+            raise HTTPException(status_code=500, detail="Discounts table not configured")
+        
+        # Find the discount by name
+        records = order_discounts_table.all(formula=f"{{Discount Name}} = '{delete.name}'")
+        
+        if not records:
+            raise HTTPException(status_code=404, detail=f"Discount '{delete.name}' not found")
+        
+        # Delete the record
+        record_id = records[0]['id']
+        order_discounts_table.delete(record_id)
+        
+        logging.info(f"Deleted bulk discount: {delete.name}")
+        return {"success": True, "message": f"Discount '{delete.name}' deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting bulk discount: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete discount: {str(e)}")
+
 @api_router.get("/pricing")
 async def get_pricing():
     """Get all pricing data from Airtable"""
