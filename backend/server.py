@@ -993,10 +993,27 @@ async def update_garment_status(update: GarmentStatusUpdate, pin: str):
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
+        # Get old value for logging
+        old_status = _app_settings_cache.get("garment_status", {}).get(update.garment_type, True)
+        
+        # Log the change
+        if not log_admin_change(
+            admin_id="admin",
+            section="garments",
+            action="update",
+            field=f"{update.garment_type}_status",
+            old_value=old_status,
+            new_value=update.active,
+            details=f"Changed {update.garment_type} active status"
+        ):
+            raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
+        
         # Store in memory cache
         _app_settings_cache["garment_status"][update.garment_type] = update.active
         logging.info(f"Updated status for {update.garment_type}: active={update.active}")
         return {"success": True, "message": f"Status updated for {update.garment_type}"}
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error updating garment status: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to update status: {str(e)}")
@@ -1011,6 +1028,21 @@ async def update_garment_icon(update: GarmentIconUpdate, pin: str):
         # Validate URL format
         if not update.icon_url.startswith('/') and not update.icon_url.startswith('http'):
             raise HTTPException(status_code=400, detail="Icon URL must start with / or http")
+        
+        # Get old value for logging
+        old_icon = _app_settings_cache.get("garment_icons", {}).get(update.garment_type, f"/icons/garments/{update.garment_type.lower().replace(' ', '-')}.png")
+        
+        # Log the change
+        if not log_admin_change(
+            admin_id="admin",
+            section="garments",
+            action="update",
+            field=f"{update.garment_type}_icon",
+            old_value=old_icon,
+            new_value=update.icon_url,
+            details=f"Changed {update.garment_type} icon URL"
+        ):
+            raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
         
         # Store in memory cache
         _app_settings_cache["garment_icons"][update.garment_type] = update.icon_url
@@ -1037,6 +1069,31 @@ async def update_bulk_discount(update: BulkDiscountUpdate, pin: str):
         
         if not records:
             raise HTTPException(status_code=404, detail=f"Discount '{update.name}' not found")
+        
+        # Get old values for logging
+        old_record = records[0]['fields']
+        old_values = {
+            "min_total_qty": old_record.get('Min Order Total Qty', 0),
+            "discount_type": old_record.get('Discount Type', 'Percentage'),
+            "discount_value": old_record.get('Discount Value', 0)
+        }
+        new_values = {
+            "min_total_qty": update.min_total_qty,
+            "discount_type": update.discount_type,
+            "discount_value": update.discount_value
+        }
+        
+        # Log the change
+        if not log_admin_change(
+            admin_id="admin",
+            section="discounts",
+            action="update",
+            field=update.name,
+            old_value=old_values,
+            new_value=new_values,
+            details=f"Updated discount rule '{update.name}'"
+        ):
+            raise HTTPException(status_code=500, detail="Failed to log change - update rejected")
         
         # Update the record
         record_id = records[0]['id']
