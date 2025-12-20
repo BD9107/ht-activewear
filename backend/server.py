@@ -823,48 +823,55 @@ def log_admin_change(
     except Exception as e:
         logging.error(f"Failed to log admin change: {e}")
         return False
-        logging.error(f"Failed to log admin change: {e}")
-        return False
 
 def get_admin_logs(limit: int = 100, section_filter: str = None) -> list:
     """
-    Retrieve admin change logs from Airtable.
+    Retrieve admin change logs from Airtable or in-memory storage.
     """
-    try:
-        if not admin_changes_table:
-            return []
-        
-        # Build formula for filtering
-        formula = None
-        if section_filter and section_filter != "all":
-            formula = f"{{Section}} = '{section_filter}'"
-        
-        # Fetch records sorted by timestamp descending
-        if formula:
-            records = admin_changes_table.all(formula=formula, sort=["-Timestamp"], max_records=limit)
-        else:
-            records = admin_changes_table.all(sort=["-Timestamp"], max_records=limit)
-        
-        logs = []
-        for record in records:
-            fields = record['fields']
-            logs.append({
-                "id": fields.get('Log ID', record['id'][:8]),
-                "timestamp": fields.get('Timestamp', ''),
-                "admin_id": fields.get('Admin ID', 'unknown'),
-                "section": fields.get('Section', ''),
-                "action": fields.get('Action', ''),
-                "field": fields.get('Field', ''),
-                "old_value": fields.get('Old Value', ''),
-                "new_value": fields.get('New Value', ''),
-                "details": fields.get('Details', '')
-            })
-        
-        return logs
-        
-    except Exception as e:
-        logging.error(f"Failed to retrieve admin logs: {e}")
-        return []
+    logs = []
+    
+    # Try Airtable first
+    if admin_changes_table:
+        try:
+            # Build formula for filtering
+            formula = None
+            if section_filter and section_filter != "all":
+                formula = f"{{Section}} = '{section_filter}'"
+            
+            # Fetch records sorted by timestamp descending
+            if formula:
+                records = admin_changes_table.all(formula=formula, sort=["-Timestamp"], max_records=limit)
+            else:
+                records = admin_changes_table.all(sort=["-Timestamp"], max_records=limit)
+            
+            for record in records:
+                fields = record['fields']
+                logs.append({
+                    "id": fields.get('Log ID', record['id'][:8]),
+                    "timestamp": fields.get('Timestamp', ''),
+                    "admin_id": fields.get('Admin ID', 'unknown'),
+                    "section": fields.get('Section', ''),
+                    "action": fields.get('Action', ''),
+                    "field": fields.get('Field', ''),
+                    "old_value": fields.get('Old Value', ''),
+                    "new_value": fields.get('New Value', ''),
+                    "details": fields.get('Details', '')
+                })
+            
+            return logs
+            
+        except Exception as e:
+            logging.warning(f"Failed to retrieve logs from Airtable: {e}, using memory fallback")
+    
+    # Fallback to in-memory logs
+    memory_logs = _admin_logs_memory
+    
+    # Apply section filter
+    if section_filter and section_filter != "all":
+        memory_logs = [log for log in memory_logs if log.get("section") == section_filter]
+    
+    # Apply limit
+    return memory_logs[:limit]
 
 def verify_admin_pin(pin: str) -> bool:
     """Verify admin PIN"""
