@@ -985,7 +985,7 @@ async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
         # Log pricing visibility change if different
         if settings.show_pricing != old_show_pricing:
             if not log_admin_change(
-                admin_id="admin",
+                actor=actor,
                 section="settings",
                 action="update",
                 field="show_pricing",
@@ -1013,7 +1013,8 @@ async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
 @api_router.post("/admin/garments/price")
 async def update_garment_price(update: GarmentPriceUpdate, pin: str):
     """Update base price for a garment type"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1031,7 +1032,7 @@ async def update_garment_price(update: GarmentPriceUpdate, pin: str):
             
             # Log the change before making it
             if not log_admin_change(
-                admin_id="admin",
+                actor=actor,
                 section="garments",
                 action="update",
                 field=f"{update.garment_type}_price",
@@ -1047,7 +1048,7 @@ async def update_garment_price(update: GarmentPriceUpdate, pin: str):
         else:
             # Log the creation
             if not log_admin_change(
-                admin_id="admin",
+                actor=actor,
                 section="garments",
                 action="create",
                 field=f"{update.garment_type}_price",
