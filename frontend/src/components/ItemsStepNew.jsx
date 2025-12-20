@@ -176,7 +176,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
               Garment Type <span className="text-red-500">*</span>
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {GARMENT_TYPES.map((garment) => (
+              {garmentTypes.map((garment) => (
                 <button
                   key={garment.value}
                   type="button"
