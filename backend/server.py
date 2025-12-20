@@ -932,14 +932,20 @@ def get_admin_logs(limit: int = 100, section_filter: str = None) -> list:
     return memory_logs[:limit]
 
 def verify_admin_pin(pin: str) -> bool:
-    """Verify admin PIN"""
-    return pin == ADMIN_PIN
+    """Verify admin PIN - returns True if PIN is valid"""
+    return pin in ADMIN_ACCOUNTS
 
 @api_router.post("/admin/verify")
 async def verify_admin(auth: AdminAuthRequest):
-    """Verify admin PIN"""
-    if verify_admin_pin(auth.pin):
-        return {"success": True, "message": "Authentication successful"}
+    """Verify admin PIN and return actor info"""
+    actor = verify_admin_pin_and_get_actor(auth.pin)
+    if actor:
+        return {
+            "success": True, 
+            "message": "Authentication successful",
+            "actor_name": actor["actor_name"],
+            "actor_role": actor["actor_role"]
+        }
     raise HTTPException(status_code=401, detail="Invalid PIN")
 
 @api_router.get("/admin/activity")
@@ -954,7 +960,8 @@ async def get_admin_activity(pin: str, limit: int = 100, section: str = None):
 @api_router.post("/admin/settings/general")
 async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
     """Update general settings (currency, pricing visibility)"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -965,7 +972,7 @@ async def update_general_settings(settings: GeneralSettingsUpdate, pin: str):
         # Log currency change if different
         if settings.default_currency != old_currency:
             if not log_admin_change(
-                admin_id="admin",
+                actor=actor,
                 section="settings",
                 action="update",
                 field="default_currency",
