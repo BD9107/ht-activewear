@@ -323,6 +323,15 @@ const AdminDashboard = () => {
             <Button 
               variant="outline" 
               size="sm" 
+              onClick={() => navigate('/admin/activity')}
+              className="text-gray-600"
+            >
+              <Clock className="w-4 h-4 mr-1" />
+              Activity Log
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
               onClick={loadSettings}
               className="text-gray-600"
             >
