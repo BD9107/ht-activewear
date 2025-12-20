@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { fetchSettings, settingsToPricingData } from './settingsService';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -7,6 +8,10 @@ let pricingCache = null;
 let cacheTimestamp = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+/**
+ * Fetch pricing data - now uses centralized settings endpoint
+ * Maintains backwards compatibility with existing pricing logic
+ */
 export const fetchPricing = async () => {
   // Return cached data if still valid
   if (pricingCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
@@ -14,8 +19,10 @@ export const fetchPricing = async () => {
   }
 
   try {
-    const response = await axios.get(`${API}/pricing`);
-    pricingCache = response.data;
+    // Fetch from centralized settings endpoint
+    const settings = await fetchSettings();
+    // Transform to pricing data format for backwards compatibility
+    pricingCache = settingsToPricingData(settings);
     cacheTimestamp = Date.now();
     return pricingCache;
   } catch (error) {
