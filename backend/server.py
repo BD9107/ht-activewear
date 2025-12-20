@@ -747,6 +747,110 @@ _app_settings_cache = {
     "garment_icons": {}    # garment_type -> icon_url
 }
 
+# ============================================================================
+# ADMIN CHANGE LOGGING
+# Immutable audit trail for all admin changes
+# ============================================================================
+
+import json
+import uuid
+
+def log_admin_change(
+    admin_id: str,
+    section: str,
+    action: str,
+    field: str,
+    old_value: any,
+    new_value: any,
+    details: str = ""
+) -> bool:
+    """
+    Log an admin change to the Admin_Changes table.
+    Returns True if logging succeeded, False otherwise.
+    All admin operations should fail if logging fails.
+    """
+    try:
+        if not admin_changes_table:
+            # If table doesn't exist, create log entry in memory/file as fallback
+            logging.warning("Admin_Changes table not found, logging to file only")
+            log_entry = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "admin_id": admin_id,
+                "section": section,
+                "action": action,
+                "field": field,
+                "old_value": str(old_value) if old_value is not None else "",
+                "new_value": str(new_value) if new_value is not None else "",
+                "details": details
+            }
+            logging.info(f"ADMIN_CHANGE: {json.dumps(log_entry)}")
+            return True
+        
+        # Convert values to strings for storage
+        old_val_str = json.dumps(old_value) if isinstance(old_value, (dict, list)) else str(old_value) if old_value is not None else ""
+        new_val_str = json.dumps(new_value) if isinstance(new_value, (dict, list)) else str(new_value) if new_value is not None else ""
+        
+        # Create immutable log entry
+        log_record = {
+            "Log ID": str(uuid.uuid4())[:8],
+            "Timestamp": datetime.now(timezone.utc).isoformat(),
+            "Admin ID": admin_id,
+            "Section": section,
+            "Action": action,
+            "Field": field,
+            "Old Value": old_val_str[:1000],  # Airtable field limit
+            "New Value": new_val_str[:1000],
+            "Details": details[:500] if details else ""
+        }
+        
+        admin_changes_table.create(log_record)
+        logging.info(f"Admin change logged: {section}/{action}/{field}")
+        return True
+        
+    except Exception as e:
+        logging.error(f"Failed to log admin change: {e}")
+        return False
+
+def get_admin_logs(limit: int = 100, section_filter: str = None) -> list:
+    """
+    Retrieve admin change logs from Airtable.
+    """
+    try:
+        if not admin_changes_table:
+            return []
+        
+        # Build formula for filtering
+        formula = None
+        if section_filter and section_filter != "all":
+            formula = f"{{Section}} = '{section_filter}'"
+        
+        # Fetch records sorted by timestamp descending
+        if formula:
+            records = admin_changes_table.all(formula=formula, sort=["-Timestamp"], max_records=limit)
+        else:
+            records = admin_changes_table.all(sort=["-Timestamp"], max_records=limit)
+        
+        logs = []
+        for record in records:
+            fields = record['fields']
+            logs.append({
+                "id": fields.get('Log ID', record['id'][:8]),
+                "timestamp": fields.get('Timestamp', ''),
+                "admin_id": fields.get('Admin ID', 'unknown'),
+                "section": fields.get('Section', ''),
+                "action": fields.get('Action', ''),
+                "field": fields.get('Field', ''),
+                "old_value": fields.get('Old Value', ''),
+                "new_value": fields.get('New Value', ''),
+                "details": fields.get('Details', '')
+            })
+        
+        return logs
+        
+    except Exception as e:
+        logging.error(f"Failed to retrieve admin logs: {e}")
+        return []
+
 def verify_admin_pin(pin: str) -> bool:
     """Verify admin PIN"""
     return pin == ADMIN_PIN
