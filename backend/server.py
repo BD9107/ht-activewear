@@ -37,6 +37,11 @@ try:
         garments_table = airtable_api.table(base_id, 'Garments')
     except:
         garments_table = None
+    # Admin change log table
+    try:
+        admin_changes_table = airtable_api.table(base_id, 'Admin_Changes')
+    except:
+        admin_changes_table = None
 except Exception as e:
     logging.warning(f"Airtable tables not yet created: {e}")
     orders_table = None
@@ -46,6 +51,7 @@ except Exception as e:
     customer_discounts_table = None
     app_settings_table = None
     garments_table = None
+    admin_changes_table = None
 
 # Admin PIN for authentication
 ADMIN_PIN = os.environ.get('ADMIN_PIN', '9107')
