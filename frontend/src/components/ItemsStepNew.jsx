@@ -311,7 +311,7 @@ const ItemsStepNew = ({ items, setItems, customizationType, currency, customerEm
               Sizes <span className="text-red-500">*</span>
             </Label>
             <div className="grid grid-cols-1 gap-3">
-              {SIZES.map((size) => (
+              {sizeOptions.map((size) => (
                 <div
                   key={size}
                   className="flex items-center justify-between bg-gray-50 rounded-xl p-3 border border-gray-200"
