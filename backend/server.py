@@ -1256,7 +1256,8 @@ async def create_bulk_discount(create: BulkDiscountCreate, pin: str):
 @api_router.post("/admin/discounts/bulk/delete")
 async def delete_bulk_discount(delete: BulkDiscountDelete, pin: str):
     """Delete a bulk discount rule"""
-    if not verify_admin_pin(pin):
+    actor = verify_admin_pin_and_get_actor(pin)
+    if not actor:
         raise HTTPException(status_code=401, detail="Invalid PIN")
     
     try:
@@ -1278,9 +1279,9 @@ async def delete_bulk_discount(delete: BulkDiscountDelete, pin: str):
             "discount_value": old_record.get('Discount Value', 0)
         }
         
-        # Log the deletion
+        # Log the deletion with actor identity
         if not log_admin_change(
-            admin_id="admin",
+            actor=actor,
             section="discounts",
             action="delete",
             field=delete.name,
