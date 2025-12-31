@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Printer, Share2, Copy, Download } from "lucide-react";
 import axios from "axios";
@@ -306,6 +307,8 @@ const Success = () => {
   const displayVolumeSavings = currency === 'USD' ? convertCurrency(volumeSavings, 'AWG', 'USD') : volumeSavings;
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="success-page">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
@@ -635,6 +638,7 @@ const Success = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

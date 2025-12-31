@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from '@/components/Header';
+import { useAuth } from '@/contexts/AuthContext';
 import { fetchSettings, clearSettingsCache } from "@/utils/settingsService";
 import { Eye, EyeOff, Package, Percent, DollarSign, Palette, Ruler, Settings, Lock, Save, Plus, Trash2, RefreshCw, Check, X, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,14 +14,20 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Simple PIN protection
-const ADMIN_PIN = "9107";
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [pinError, setPinError] = useState(false);
+  const { user } = useAuth();
+  const getAdminPin = () => {
+  return user?.pin || '';
+};
+
+const getAdminName = () => {
+  return user?.name || 'Admin';
+};
+
+const getAdminRole = () => {
+  return user?.role || 'operator';
+};
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,52 +43,10 @@ const AdminDashboard = () => {
   const [savingGarments, setSavingGarments] = useState({});
   const [savingDiscounts, setSavingDiscounts] = useState({});
 
-  // Check if already authenticated in session
-  useEffect(() => {
-    const authStatus = sessionStorage.getItem("admin_authenticated");
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  // Load settings when authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadSettings();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated]);
-
-  const handlePinSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post(`${API}/admin/verify`, { pin: pinInput });
-      if (response.data.success) {
-        setIsAuthenticated(true);
-        sessionStorage.setItem("admin_authenticated", "true");
-        sessionStorage.setItem("admin_pin", pinInput);
-        sessionStorage.setItem("admin_name", response.data.actor_name || "Admin");
-        sessionStorage.setItem("admin_role", response.data.actor_role || "operator");
-        setPinError(false);
-      }
-    } catch (err) {
-      setPinError(true);
-      setPinInput("");
-    }
-  };
-
-  const getAdminPin = () => {
-    return sessionStorage.getItem("admin_pin") || ADMIN_PIN;
-  };
-
-  const getAdminName = () => {
-    return sessionStorage.getItem("admin_name") || "Admin";
-  };
-
-  const getAdminRole = () => {
-    return sessionStorage.getItem("admin_role") || "operator";
-  };
+// Load settings on mount
+useEffect(() => {
+  loadSettings();
+}, []);
 
   const loadSettings = async () => {
     try {
@@ -103,14 +69,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("admin_authenticated");
-    sessionStorage.removeItem("admin_pin");
-    sessionStorage.removeItem("admin_name");
-    sessionStorage.removeItem("admin_role");
-    setPinInput("");
-  };
 
   // === SAVE HANDLERS ===
   
@@ -257,44 +215,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // PIN Entry Screen
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">Admin Access</h1>
-            <p className="text-sm text-gray-500 mt-1">Enter PIN to continue</p>
-          </div>
-          
-          <form onSubmit={handlePinSubmit}>
-            <Input
-              type="password"
-              value={pinInput}
-              onChange={(e) => setPinInput(e.target.value)}
-              placeholder="Enter PIN"
-              className={`h-12 text-center text-lg tracking-widest mb-4 ${pinError ? 'border-red-500' : ''}`}
-              maxLength={10}
-              autoFocus
-            />
-            {pinError && (
-              <p className="text-red-500 text-sm text-center mb-4">Invalid PIN. Please try again.</p>
-            )}
-            <Button 
-              type="submit" 
-              className="w-full h-12 bg-gray-900 hover:bg-gray-800"
-              disabled={!pinInput}
-            >
-              Access Dashboard
-            </Button>
-          </form>
-        </div>
-      </div>
-    );
-  }
+
 
   // Loading State
   if (loading) {
@@ -323,6 +244,8 @@ const AdminDashboard = () => {
   }
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-gray-100 pb-8">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
@@ -361,14 +284,6 @@ const AdminDashboard = () => {
             >
               <RefreshCw className="w-4 h-4 mr-1" />
               Refresh
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleLogout}
-              className="text-gray-600"
-            >
-              Logout
             </Button>
           </div>
         </div>
@@ -622,6 +537,7 @@ const AdminDashboard = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
