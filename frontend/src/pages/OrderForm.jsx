@@ -4,21 +4,49 @@ import DetailsStep from "@/components/DetailsStep";
 import ItemsStepNew from "@/components/ItemsStepNew";
 import ReviewStepNew from "@/components/ReviewStepNew";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import axios from "axios";
+import { Lock } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Simple access code for internal use
+const ACCESS_CODE = "HT2024";
+
 const OrderForm = () => {
   const navigate = useNavigate();
+  const [hasAccess, setHasAccess] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [accessError, setAccessError] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check for existing access on mount
+  useEffect(() => {
+    const storedAccess = sessionStorage.getItem("order_access");
+    if (storedAccess === "granted") {
+      setHasAccess(true);
+    }
+  }, []);
 
   // Set page title
   useEffect(() => {
     document.title = "HT Activewear Order Form";
   }, []);
+
+  const handleAccessSubmit = (e) => {
+    e.preventDefault();
+    if (accessCode === ACCESS_CODE) {
+      setHasAccess(true);
+      sessionStorage.setItem("order_access", "granted");
+      setAccessError(false);
+    } else {
+      setAccessError(true);
+      setAccessCode("");
+    }
+  };
 
   // Form data
   const [orderDetails, setOrderDetails] = useState({
@@ -152,6 +180,47 @@ const OrderForm = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Access code screen
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm">
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <Lock className="w-7 h-7 text-gray-600" />
+            </div>
+            <h1 className="text-xl font-semibold text-gray-900">HT Activewear</h1>
+            <p className="text-sm text-gray-500 mt-1">Internal Order System</p>
+          </div>
+          
+          <form onSubmit={handleAccessSubmit}>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Access Code
+            </label>
+            <Input
+              type="password"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value)}
+              placeholder="Enter access code"
+              className={`mb-4 ${accessError ? 'border-red-500' : ''}`}
+              autoFocus
+            />
+            {accessError && (
+              <p className="text-red-500 text-sm mb-4">Invalid access code</p>
+            )}
+            <Button type="submit" className="w-full bg-gray-900 hover:bg-gray-800">
+              Continue
+            </Button>
+          </form>
+          
+          <p className="text-xs text-gray-400 text-center mt-6">
+            This system is for internal use only
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="order-form">
