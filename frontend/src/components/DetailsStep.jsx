@@ -17,39 +17,40 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
     setOrderDetails({ ...orderDetails, [field]: value });
   };
 
-  // Phone number formatting for Aruba (297 xxx-xxxx)
+  // Phone number formatting - allows full editing but formats nicely
   const formatPhoneNumber = (value) => {
+    if (!value) return '';
+    
     // Remove all non-digits
     const numbers = value.replace(/\D/g, '');
     
-    // Always start with 297
     if (numbers.length === 0) return '';
     
-    let formatted = '297';
-    
-    // Add the rest of the numbers
-    if (numbers.length > 3) {
-      formatted += ' ' + numbers.slice(3, 6);
+    // Format based on length
+    if (numbers.length <= 3) {
+      return numbers;
+    } else if (numbers.length <= 6) {
+      return numbers.slice(0, 3) + ' ' + numbers.slice(3);
+    } else {
+      return numbers.slice(0, 3) + ' ' + numbers.slice(3, 6) + '-' + numbers.slice(6, 10);
     }
-    if (numbers.length > 6) {
-      formatted += '-' + numbers.slice(6, 10);
-    }
-    
-    return formatted;
   };
 
   const handlePhoneChange = (e) => {
     const input = e.target.value;
-    
-    // If user is deleting and we're at "297 ", allow deletion
-    if (input.length < orderDetails.phone.length && input === '297') {
-      handleChange('phone', '');
-      return;
-    }
-    
-    // Format the input
     const formatted = formatPhoneNumber(input);
     handleChange('phone', formatted);
+  };
+
+  // Set default 297 when field is focused and empty
+  const handlePhoneFocus = (e) => {
+    if (!orderDetails.phone || orderDetails.phone.trim() === '') {
+      handleChange('phone', '297 ');
+      // Move cursor to end
+      setTimeout(() => {
+        e.target.setSelectionRange(4, 4);
+      }, 0);
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -123,7 +124,7 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
         />
       </div>
 
-      {/* Phone - Custom Aruba formatting */}
+      {/* Phone - Editable with 297 default */}
       <div className="space-y-2">
         <Label htmlFor="phone" className="text-base font-medium text-gray-900">
           Phone (optional)
@@ -133,12 +134,13 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
           type="tel"
           value={orderDetails.phone}
           onChange={handlePhoneChange}
+          onFocus={handlePhoneFocus}
           placeholder="297 xxx-xxxx"
           maxLength={13}
           className="h-12 text-base rounded-xl border-gray-300"
           data-testid="phone-input"
         />
-        <p className="text-xs text-gray-500">Format: 297 xxx-xxxx</p>
+        <p className="text-xs text-gray-500">Default: 297 (Aruba) - fully editable</p>
       </div>
 
       {/* Notes */}
