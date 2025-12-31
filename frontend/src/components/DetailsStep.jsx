@@ -4,8 +4,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/plain.css';
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -17,6 +15,41 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
 
   const handleChange = (field, value) => {
     setOrderDetails({ ...orderDetails, [field]: value });
+  };
+
+  // Phone number formatting for Aruba (297 xxx-xxxx)
+  const formatPhoneNumber = (value) => {
+    // Remove all non-digits
+    const numbers = value.replace(/\D/g, '');
+    
+    // Always start with 297
+    if (numbers.length === 0) return '';
+    
+    let formatted = '297';
+    
+    // Add the rest of the numbers
+    if (numbers.length > 3) {
+      formatted += ' ' + numbers.slice(3, 6);
+    }
+    if (numbers.length > 6) {
+      formatted += '-' + numbers.slice(6, 10);
+    }
+    
+    return formatted;
+  };
+
+  const handlePhoneChange = (e) => {
+    const input = e.target.value;
+    
+    // If user is deleting and we're at "297 ", allow deletion
+    if (input.length < orderDetails.phone.length && input === '297') {
+      handleChange('phone', '');
+      return;
+    }
+    
+    // Format the input
+    const formatted = formatPhoneNumber(input);
+    handleChange('phone', formatted);
   };
 
   const handleFileUpload = async (e) => {
@@ -90,36 +123,23 @@ const DetailsStep = ({ orderDetails, setOrderDetails }) => {
         />
       </div>
 
-      {/* Phone */}
+      {/* Phone - Custom Aruba formatting */}
       <div className="space-y-2">
-  <Label htmlFor="phone" className="text-base font-medium text-gray-900">
-    Phone (optional)
-  </Label>
-  <PhoneInput
-  country={'aw'}
-  onlyCountries={['aw']}
-  disableDropdown={true}
-  countryCodeEditable={false}
-  inputProps={{
-    name: 'phone',
-    required: false,
-    autoFocus: false
-  }}
-  containerStyle={{ borderRadius: '12px' }}
-  inputStyle={{
-    width: '100%',
-    height: '48px',
-    fontSize: '16px',
-    borderRadius: '12px',
-    paddingLeft: '12px',
-    paddingRight: '12px',
-    border: '1px solid #d1d5db',
-  }}
-  buttonStyle={{ display: 'none' }} // 🔥 Hides the flag button
-  value={orderDetails.phone}
-  onChange={(value) => handleChange('phone', value)}
-/>
-</div>
+        <Label htmlFor="phone" className="text-base font-medium text-gray-900">
+          Phone (optional)
+        </Label>
+        <Input
+          id="phone"
+          type="tel"
+          value={orderDetails.phone}
+          onChange={handlePhoneChange}
+          placeholder="297 xxx-xxxx"
+          maxLength={13}
+          className="h-12 text-base rounded-xl border-gray-300"
+          data-testid="phone-input"
+        />
+        <p className="text-xs text-gray-500">Format: 297 xxx-xxxx</p>
+      </div>
 
       {/* Notes */}
       <div className="space-y-2">
