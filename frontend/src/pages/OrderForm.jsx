@@ -159,7 +159,7 @@ const OrderForm = () => {
       <Header />
       <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="order-form">
         {/* Stepper */}
-        <div className="max-w-[460px] mx-auto px-6 py-6">
+        <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between" data-testid="stepper">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center flex-1">
@@ -195,7 +195,7 @@ const OrderForm = () => {
         </div>
 
         {/* Content */}
-        <div className="max-w-[460px] mx-auto px-6">
+        <div className="max-w-[460] md:max-w-2xl mx-auto px-6">
           {currentStep === 1 && (
             <DetailsStep
               orderDetails={orderDetails}
@@ -230,7 +230,7 @@ const OrderForm = () => {
 
         {/* Sticky Bottom Actions */}
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" data-testid="bottom-actions">
-          <div className="max-w-[460px] mx-auto px-6 py-4 flex gap-3">
+          <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-4 flex gap-3">
             {currentStep > 1 && (
               <Button
                 variant="outline"

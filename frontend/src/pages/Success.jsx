@@ -312,7 +312,7 @@ const Success = () => {
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="success-page">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-[460px] mx-auto px-6 py-6">
+        <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-6">
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="w-12 h-12 text-green-600" data-testid="success-icon" />
@@ -326,7 +326,7 @@ const Success = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-[460px] mx-auto px-6 py-6 space-y-6">
+      <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-6 space-y-6">
         {/* Currency Toggle */}
         <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
           <div className="flex items-center justify-between">
@@ -608,7 +608,7 @@ const Success = () => {
 
       {/* Sticky Bottom Actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" data-testid="success-actions">
-        <div className="max-w-[460px] mx-auto px-6 py-4 grid grid-cols-3 gap-3">
+        <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-4 grid grid-cols-3 gap-3">
           <Button
             variant="outline"
             onClick={handleNewOrder}
