@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, ArrowLeft, Filter, RefreshCw, Lock, Settings, Package, Percent, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,28 @@ const AdminActivity = () => {
     }
   }, []);
 
+  const loadLogs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        pin: sessionStorage.getItem("admin_pin") || "",
+        limit: limitFilter.toString()
+      });
+      if (sectionFilter && sectionFilter !== "all") {
+        params.append("section", sectionFilter);
+      }
+
+      const response = await axios.get(`${API}/admin/activity?${params}`);
+      setLogs(response.data.logs || []);
+      setError(null);
+    } catch (err) {
+      console.error("Error loading logs:", err);
+      setError("Failed to load activity logs. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [sectionFilter, limitFilter]);
+
   // Load logs when authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -37,7 +59,7 @@ const AdminActivity = () => {
     } else {
       setLoading(false);
     }
-  }, [isAuthenticated, sectionFilter, limitFilter]);
+  }, [isAuthenticated, loadLogs]);
 
   const handlePinSubmit = async (e) => {
     e.preventDefault();
@@ -57,38 +79,12 @@ const AdminActivity = () => {
     }
   };
 
-  const getAdminPin = () => {
-    return sessionStorage.getItem("admin_pin") || "";
-  };
-
   const getAdminName = () => {
     return sessionStorage.getItem("admin_name") || "Admin";
   };
 
   const getAdminRole = () => {
     return sessionStorage.getItem("admin_role") || "operator";
-  };
-
-  const loadLogs = async () => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams({
-        pin: getAdminPin(),
-        limit: limitFilter.toString()
-      });
-      if (sectionFilter && sectionFilter !== "all") {
-        params.append("section", sectionFilter);
-      }
-      
-      const response = await axios.get(`${API}/admin/activity?${params}`);
-      setLogs(response.data.logs || []);
-      setError(null);
-    } catch (err) {
-      console.error("Error loading logs:", err);
-      setError("Failed to load activity logs. Please try again.");
-    } finally {
-      setLoading(false);
-    }
   };
 
   const formatTimestamp = (timestamp) => {

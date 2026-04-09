@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
@@ -22,25 +22,12 @@ const Success = () => {
   const [currency, setCurrency] = useState("AWG");
   const [pricingData, setPricingData] = useState(null);
 
-  useEffect(() => {
-    // Set page title
-    document.title = orderNumber ? `Order ${orderNumber} - HT Activewear` : "HT Activewear Order Form";
-    
-    if (!orderNumber) {
-      navigate('/');
-      return;
-    }
-
-    fetchOrderData();
-    loadPricing();
-  }, [orderNumber]);
-
-  const loadPricing = async () => {
+  const loadPricing = useCallback(async () => {
     const data = await fetchPricing();
     setPricingData(data);
-  };
+  }, []);
 
-  const fetchOrderData = async () => {
+  const fetchOrderData = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/order/${orderNumber}`);
       setOrderData(response.data);
@@ -50,7 +37,20 @@ const Success = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderNumber]);
+
+  useEffect(() => {
+    // Set page title
+    document.title = orderNumber ? `Order ${orderNumber} - HT Activewear` : "HT Activewear Order Form";
+
+    if (!orderNumber) {
+      navigate('/');
+      return;
+    }
+
+    fetchOrderData();
+    loadPricing();
+  }, [orderNumber, navigate, fetchOrderData, loadPricing]);
 
   const handlePrint = () => {
     window.print();
