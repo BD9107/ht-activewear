@@ -9,6 +9,8 @@ node_modules/
 
 # Production builds
 dist/
+frontend/build/
+backend/build/
 
 # Environment files
 .env
