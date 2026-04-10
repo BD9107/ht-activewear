@@ -245,7 +245,7 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         try:
             pricing_data = {
                 "garment_pricing": [],
-                "customization_prices": {"Printing": 0, "Embroidery": 10},
+                "customization_prices": {"Printing": 0, "Embroidery": -10},
                 "order_discounts": [],
                 "customer_discounts": []
             }
@@ -283,7 +283,7 @@ async def send_order_confirmation_email(order_data: dict, submission: OrderSubmi
         except:
             pricing_data = {
                 "garment_pricing": [],
-                "customization_prices": {"Printing": 0, "Embroidery": 10},
+                "customization_prices": {"Printing": 0, "Embroidery": -10},
                 "order_discounts": [],
                 "customer_discounts": []
             }
@@ -596,7 +596,7 @@ async def get_settings():
             "customization": {
                 "types": [
                     {"value": "Printing", "label": "Printing", "additional_cost": 0},
-                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": 10}
+                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": -10}
                 ],
                 "artwork_statuses": [
                     "Will Upload Later",
@@ -613,7 +613,7 @@ async def get_settings():
                 "garment_pricing": [],
                 "customization_prices": {
                     "Printing": 0,
-                    "Embroidery": 10
+                    "Embroidery": -10
                 }
             },
             
@@ -758,7 +758,7 @@ async def get_settings():
             "customization": {
                 "types": [
                     {"value": "Printing", "label": "Printing", "additional_cost": 0},
-                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": 10}
+                    {"value": "Embroidery", "label": "Embroidery", "additional_cost": -10}
                 ],
                 "artwork_statuses": [
                     "Will Upload Later",
@@ -773,7 +773,7 @@ async def get_settings():
                 "garment_pricing": [],
                 "customization_prices": {
                     "Printing": 0,
-                    "Embroidery": 10
+                    "Embroidery": -10
                 }
             },
             "discounts": {
@@ -1354,7 +1354,7 @@ async def get_pricing():
             "customer_discounts": [],
             "customization_prices": {
                 "Printing": 0,
-                "Embroidery": 10
+                "Embroidery": -10
             },
             "show_pricing": os.environ.get('SHOW_PRICING', 'true').lower() == 'true'
         }
@@ -1407,7 +1407,7 @@ async def get_pricing():
             "customer_discounts": [],
             "customization_prices": {
                 "Printing": 0,
-                "Embroidery": 10
+                "Embroidery": -10
             },
             "show_pricing": True
         }

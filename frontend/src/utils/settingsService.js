@@ -85,7 +85,7 @@ export const getDefaultSettings = () => ({
   customization: {
     types: [
       { value: "Printing", label: "Printing", additional_cost: 0 },
-      { value: "Embroidery", label: "Embroidery", additional_cost: 10 }
+      { value: "Embroidery", label: "Embroidery", additional_cost: -10 }
     ],
     artwork_statuses: [
       "Will Upload Later",
@@ -100,7 +100,7 @@ export const getDefaultSettings = () => ({
     garment_pricing: [],
     customization_prices: {
       'Printing': 0,
-      'Embroidery': 10
+      'Embroidery': -10
     }
   },
   discounts: {
@@ -122,7 +122,7 @@ export const settingsToPricingData = (settings) => {
     customer_discounts: settings.discounts?.customer_discounts || [],
     customization_prices: settings.pricing?.customization_prices || {
       'Printing': 0,
-      'Embroidery': 10
+      'Embroidery': -10
     },
     show_pricing: settings.show_pricing ?? true
   };

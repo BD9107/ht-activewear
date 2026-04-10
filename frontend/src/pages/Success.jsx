@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from '@/components/Header';
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Printer, Share2, Copy, Download } from "lucide-react";
+import { CheckCircle2, Printer, Copy, Download } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { fetchPricing, calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency, calculateVolumeSavings } from "@/utils/dynamicPricing";
@@ -40,6 +40,9 @@ const Success = () => {
   }, [orderNumber]);
 
   useEffect(() => {
+    // Scroll to top on mount (prevents landing mid-page after redirect)
+    window.scrollTo(0, 0);
+
     // Set page title
     document.title = orderNumber ? `Order ${orderNumber} - HT Activewear` : "HT Activewear Order Form";
 
@@ -54,25 +57,6 @@ const Success = () => {
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleShare = async () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Order ${orderNumber}`,
-          text: `HT Activewear Order: ${orderNumber}`,
-          url: url,
-        });
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          copyToClipboard(url);
-        }
-      }
-    } else {
-      copyToClipboard(url);
-    }
   };
 
   const copyToClipboard = (text) => {
@@ -363,28 +347,16 @@ const Success = () => {
           <p className="text-sm text-gray-500 mb-1">Order Number</p>
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-gray-900" data-testid="order-number">{orderNumber}</p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => copyToClipboard(orderNumber)}
-                className="rounded-full"
-                data-testid="copy-order-number"
-                title="Copy order number"
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={generatePDF}
-                className="rounded-full"
-                data-testid="download-pdf-button"
-                title="Download PDF receipt"
-              >
-                <Download className="w-4 h-4" />
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyToClipboard(orderNumber)}
+              className="rounded-full"
+              data-testid="copy-order-number"
+              title="Copy order number"
+            >
+              <Copy className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
@@ -425,7 +397,7 @@ const Success = () => {
                 <p className="text-base font-medium text-gray-900">
                   {orderData.order['Customization Type']}
                   {orderData.order['Customization Type'] === 'Embroidery' && (
-                    <span className="ml-2 text-sm text-blue-600">(+AWG 10 per item)</span>
+                    <span className="ml-2 text-sm text-blue-600">(AWG 10 less per item)</span>
                   )}
                 </p>
               </div>
@@ -607,7 +579,7 @@ const Success = () => {
       </div>
 
       {/* Sticky Bottom Actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" data-testid="success-actions">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 print:hidden" data-testid="success-actions">
         <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-4 grid grid-cols-3 gap-3">
           <Button
             variant="outline"
@@ -628,12 +600,12 @@ const Success = () => {
           </Button>
           <Button
             variant="outline"
-            onClick={handleShare}
+            onClick={generatePDF}
             className="h-12 text-sm font-medium rounded-full"
-            data-testid="share-button"
+            data-testid="download-pdf-button"
           >
-            <Share2 className="w-4 h-4 mr-1" />
-            Share
+            <Download className="w-4 h-4 mr-1" />
+            Download PDF
           </Button>
         </div>
       </div>
