@@ -21,6 +21,11 @@ const OrderForm = () => {
     document.title = "HT Activewear Order Form";
   }, []);
 
+  // Scroll to top whenever the step changes (Details -> Items -> Review)
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [currentStep]);
+
   // Form data
   const [orderDetails, setOrderDetails] = useState({
     customerName: "",

@@ -42,98 +42,110 @@
 /* ============================================================
    PRINT STYLES — Success page (order receipt)
    Goal: fit a typical order onto a single A4 page, flatten
-   colors, hide navigation and interactive chrome.
+   colors, hide navigation and interactive chrome, and show a
+   branded "HT ACTIVEWEAR" header.
    ============================================================ */
 @media print {
-    /* Page setup */
+    /* Page setup — tight margins for max content area */
     @page {
         size: A4 portrait;
-        margin: 10mm 12mm;
+        margin: 8mm 10mm;
     }
 
-    /* Kill browser default backgrounds, save ink */
+    /* Kill browser default backgrounds, save ink, shrink globally */
     html, body {
         background: #fff !important;
         color: #000 !important;
-        font-size: 10pt;
-        line-height: 1.35;
+        font-size: 8.5pt !important;
+        line-height: 1.25 !important;
     }
 
-    /* Hide the global site header (nav bar) on the success page */
+    /* Hide everything outside the success page entirely */
     body > div > header,
-    header.bg-white,
-    header {
+    nav, header:not(.print-branding) {
         display: none !important;
     }
 
-    /* Scope the remaining rules to the success page only */
+    /* Scope the rest to the success page */
     [data-testid="success-page"] {
         background: #fff !important;
         padding: 0 !important;
         min-height: 0 !important;
     }
 
-    /* Hide everything we don't want on the printout */
+    /* Force the full page width, kill max-widths */
+    [data-testid="success-page"] .max-w-\[460\],
+    [data-testid="success-page"] .md\:max-w-2xl {
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    [data-testid="success-page"] .px-6 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    [data-testid="success-page"] .py-6 {
+        padding-top: 2mm !important;
+        padding-bottom: 2mm !important;
+    }
+
+    /* Print-only branded header */
+    [data-testid="print-branding"] {
+        display: block !important;
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 2mm;
+        margin-bottom: 3mm;
+    }
+    [data-testid="print-branding"] h1 {
+        font-size: 18pt !important;
+        font-weight: 800 !important;
+        letter-spacing: 2px;
+        margin: 0 !important;
+        color: #000 !important;
+    }
+    [data-testid="print-branding"] p {
+        font-size: 9pt !important;
+        margin: 1mm 0 0 0 !important;
+        color: #555 !important;
+    }
+
+    /* Hide anything explicitly marked print-hidden + extras */
     [data-testid="success-page"] .print\:hidden,
     [data-testid="success-actions"],
     [data-testid="success-icon"],
-    [data-testid="copy-order-number"] {
-        display: none !important;
-    }
-
-    /* Hide the currency toggle card (first bg-white rounded-2xl block in content) */
-    [data-testid="success-page"] .bg-white.rounded-2xl:has(button[type="button"]) {
-        display: none !important;
-    }
-
-    /* Hide the blue "confirmation email sent" note */
+    [data-testid="copy-order-number"],
     [data-testid="success-page"] .bg-blue-50 {
         display: none !important;
     }
 
-    /* Hide the big green "Order Received!" header block, keep it compact */
-    [data-testid="success-page"] > div.bg-white.border-b {
-        border: 0 !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin-bottom: 4mm !important;
-    }
-    [data-testid="success-page"] > div.bg-white.border-b > div {
-        padding: 0 !important;
-        max-width: 100% !important;
-    }
-    [data-testid="success-page"] [data-testid="success-title"] {
-        font-size: 16pt !important;
-        margin: 0 !important;
-    }
-    [data-testid="success-page"] [data-testid="success-title"] + p {
-        display: none !important; /* "Thank you for your order" */
-    }
-
-    /* Compact every content card */
-    [data-testid="success-page"] .max-w-\[460\],
-    [data-testid="success-page"] .md\:max-w-2xl {
-        max-width: 100% !important;
-    }
+    /* Compact the content spacing */
     [data-testid="success-page"] .space-y-6 > * {
-        margin-top: 3mm !important;
+        margin-top: 2mm !important;
+        margin-bottom: 0 !important;
+    }
+    [data-testid="success-page"] .space-y-4 > *,
+    [data-testid="success-page"] .space-y-3 > *,
+    [data-testid="success-page"] .space-y-2 > * {
+        margin-top: 0.8mm !important;
         margin-bottom: 0 !important;
     }
     [data-testid="success-page"] .rounded-2xl,
     [data-testid="success-page"] .rounded-xl {
-        border-radius: 2mm !important;
-        padding: 3mm 4mm !important;
+        border-radius: 1.5mm !important;
+        padding: 2mm 3mm !important;
         box-shadow: none !important;
-        border: 1px solid #d1d5db !important;
+        border: 0.5px solid #bbb !important;
         page-break-inside: avoid;
         break-inside: avoid;
+        margin-bottom: 0 !important;
     }
 
-    /* Flatten the dark gradient order-total card to plain B&W */
+    /* Flatten the dark gradient order-total card */
     [data-testid="success-page"] .bg-gradient-to-r {
         background: #fff !important;
         color: #000 !important;
-        border: 2px solid #000 !important;
+        border: 1.5px solid #000 !important;
     }
     [data-testid="success-page"] .bg-gradient-to-r * {
         color: #000 !important;
@@ -144,31 +156,57 @@
         color: #555 !important;
     }
 
-    /* Flatten amber payment-terms card */
+    /* Flatten amber payment-terms card + shrink the emoji circle */
     [data-testid="success-page"] .bg-amber-50 {
         background: #fff !important;
-        border: 1px solid #000 !important;
+        border: 0.5px solid #000 !important;
     }
     [data-testid="success-page"] .bg-amber-50 * {
         color: #000 !important;
     }
+    [data-testid="success-page"] .bg-amber-500 {
+        display: none !important;
+    }
 
-    /* Tighten headings and text */
+    /* Hide the big green circle icon container (wrapper of success-icon) */
+    [data-testid="success-page"] .bg-green-100 {
+        display: none !important;
+    }
+
+    /* Tighten all headings + text */
     [data-testid="success-page"] h1,
     [data-testid="success-page"] h2,
     [data-testid="success-page"] h3 {
-        font-size: 11pt !important;
-        margin: 0 0 1mm 0 !important;
+        font-size: 9pt !important;
+        font-weight: 700 !important;
+        margin: 0 0 0.5mm 0 !important;
     }
     [data-testid="success-page"] [data-testid="order-number"] {
-        font-size: 14pt !important;
+        font-size: 12pt !important;
+    }
+    [data-testid="success-page"] p,
+    [data-testid="success-page"] span,
+    [data-testid="success-page"] div {
+        font-size: 8pt !important;
+    }
+    [data-testid="success-page"] .text-lg,
+    [data-testid="success-page"] .text-xl,
+    [data-testid="success-page"] .text-2xl,
+    [data-testid="success-page"] .text-3xl {
+        font-size: 10pt !important;
     }
     [data-testid="success-page"] p {
-        margin: 0.5mm 0 !important;
+        margin: 0.3mm 0 !important;
     }
 
-    /* Ensure the page root doesn't reserve space for the sticky footer */
+    /* Kill the bottom padding reserved for the sticky footer */
     [data-testid="success-page"].pb-32 {
         padding-bottom: 0 !important;
+    }
+
+    /* Ensure colors print exactly (not all browsers respect this, but WebKit does) */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 }

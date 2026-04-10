@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { fetchPricing, calculateItemPrice, calculateOrderTotal, formatPrice, convertCurrency, calculateVolumeSavings } from "@/utils/dynamicPricing";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -109,8 +109,12 @@ const Success = () => {
   };
 
   const generatePDF = () => {
-    if (!orderData || !pricingData) return;
+    if (!orderData || !pricingData) {
+      toast.error('Order data still loading, try again in a moment');
+      return;
+    }
 
+    try {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
     const orderTotalData = getOrderTotalData();
@@ -192,7 +196,7 @@ const Success = () => {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos,
       head: [['Item', 'Sizes', 'Quantity', 'Price']],
       body: tableData,
@@ -202,7 +206,7 @@ const Success = () => {
     });
 
     // Pricing Summary with Discounts
-    yPos = doc.lastAutoTable.finalY + 10;
+    yPos = (doc.lastAutoTable?.finalY ?? yPos + 40) + 10;
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     
@@ -243,6 +247,10 @@ const Success = () => {
     // Save PDF
     doc.save(`HT-Activewear-Order-${orderNumber}.pdf`);
     toast.success('PDF receipt downloaded!');
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+      toast.error(`Could not generate PDF: ${err.message || 'unknown error'}`);
+    }
   };
 
   if (loading) {
@@ -294,8 +302,14 @@ const Success = () => {
     <>
     <Header />
     <div className="min-h-screen bg-[#FAFAFA] pb-32" data-testid="success-page">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
+      {/* Print-only branded header */}
+      <div className="hidden print:block print-branding" data-testid="print-branding">
+        <h1>HT ACTIVEWEAR</h1>
+        <p>Order Receipt</p>
+      </div>
+
+      {/* Screen-only header */}
+      <div className="bg-white border-b border-gray-200 shadow-sm print:hidden">
         <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-6">
           <div className="flex flex-col items-center text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
@@ -312,7 +326,7 @@ const Success = () => {
       {/* Content */}
       <div className="max-w-[460] md:max-w-2xl mx-auto px-6 py-6 space-y-6">
         {/* Currency Toggle */}
-        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm print:hidden">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">View Prices In</span>
             <div className="flex gap-2">
